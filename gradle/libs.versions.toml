@@ -13,7 +13,7 @@ lifecycle = "2.9.0"
 hilt = "2.59.2"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
-retromock = "1.0.0"
+retromock = "1.1.1"
 room = "2.7.0"
 
 [libraries]
