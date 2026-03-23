@@ -58,6 +58,8 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.runtime)
+    implementation(libs.androidx.foundation)
     ksp(libs.hilt.compiler)
 
     // Retrofit
@@ -85,4 +87,9 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.activity.compose)
     debugImplementation(libs.compose.ui.tooling)
+
+    // Hilt + Compose
+    implementation(libs.hilt.navigation.compose)
+
+    implementation(libs.compose.material.icons.extended)
 }

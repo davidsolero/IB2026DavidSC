@@ -1,6 +1,7 @@
 package com.iberdrola.practicas2026.davidsc.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import com.iberdrola.practicas2026.davidsc.data.local.InvoiceDatabase
 import com.iberdrola.practicas2026.davidsc.data.local.dao.InvoiceDao
@@ -28,5 +29,11 @@ object DatabaseModule {
     @Provides
     fun provideInvoiceDao(database: InvoiceDatabase): InvoiceDao {
         return database.invoiceDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+        return context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     }
 }

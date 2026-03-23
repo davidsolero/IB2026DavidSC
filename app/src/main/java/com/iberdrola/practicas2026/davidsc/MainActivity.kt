@@ -3,11 +3,8 @@ package com.iberdrola.practicas2026.davidsc
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.iberdrola.practicas2026.davidsc.databinding.ActivityMainBinding
+import com.iberdrola.practicas2026.davidsc.ui.invoices.InvoicesScreen
+import com.iberdrola.practicas2026.davidsc.ui.theme.IB2026DavidSCTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

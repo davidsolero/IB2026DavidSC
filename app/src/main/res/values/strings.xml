@@ -12,4 +12,9 @@
     <string name="rate_screen">¿Qué te ha parecido esta pantalla?</string>
     <string name="rate_later">Responder más tarde</string>
     <string name="rate_thanks">¡Gracias por tu valoración!</string>
+    <string name="rating_title">Tu opinión nos importa</string>
+    <string name="rating_question">¿Cómo de probable es que recomiendes esta app a amigos o familiares para que realicen sus gestiones?\n</string>
+    <string name="rating_later">Responder más tarde</string>
+    <string name="invoices_history">Histórico de facturas</string>
+    <string name="invoices_filter">Filtrar</string>
 </resources>
