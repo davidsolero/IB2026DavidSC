@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -33,7 +34,10 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
+        buildFeatures {
+            viewBinding = true
+            compose = true
+        }
     }
 }
 
@@ -73,4 +77,12 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Compose
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.activity.compose)
+    debugImplementation(libs.compose.ui.tooling)
 }

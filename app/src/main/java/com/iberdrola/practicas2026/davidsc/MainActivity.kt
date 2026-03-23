@@ -1,6 +1,8 @@
 package com.iberdrola.practicas2026.davidsc
 
 import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -9,13 +11,13 @@ import com.iberdrola.practicas2026.davidsc.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivityMainBinding
-
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContent {
+            IB2026DavidSCTheme {
+                InvoicesScreen()
+            }
+        }
     }
 }

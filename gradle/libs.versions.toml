@@ -15,6 +15,8 @@ retrofit = "2.11.0"
 okhttp = "4.12.0"
 retromock = "1.1.1"
 room = "2.7.0"
+composeBom = "2024.12.01"
+activityCompose = "1.13.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -37,8 +39,17 @@ retromock = { group = "co.infinum", name = "retromock", version.ref = "retromock
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+compose-ui = { group = "androidx.compose.ui", name = "ui" }
+compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
+activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version = "2.2.10" }
