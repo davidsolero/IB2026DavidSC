@@ -106,6 +106,7 @@ fun InvoicesScreen(
             HorizontalDivider(color = Color.LightGray)
 
             if (isLoading) {
+                SkeletonLastInvoiceCard()
                 SkeletonList()
             } else {
                 // Ordenar por fecha descendente

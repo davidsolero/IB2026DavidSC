@@ -310,3 +310,36 @@ fun YearHeader(year: String) {
         modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 4.dp)
     )
 }
+
+
+@Composable
+fun SkeletonLastInvoiceCard() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(8.dp))
+            .padding(16.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .width(120.dp)
+                .height(20.dp)
+                .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+            modifier = Modifier
+                .width(80.dp)
+                .height(24.dp)
+                .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+            modifier = Modifier
+                .width(60.dp)
+                .height(14.dp)
+                .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
+        )
+    }
+}
