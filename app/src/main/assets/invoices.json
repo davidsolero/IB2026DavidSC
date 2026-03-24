@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "description": "Factura Luz",
+    "amount": 52.30,
+    "date": "2026-03-01",
+    "status": "Pagada",
+    "latest": true
+  },
+  {
+    "id": 2,
+    "description": "Factura Luz",
+    "amount": 32.50,
+    "date": "2026-03-02",
+    "status": "Pendiente de Pago",
+    "latest": false
+  }
+]

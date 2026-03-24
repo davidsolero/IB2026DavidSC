@@ -9,22 +9,36 @@ import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.repository.InvoiceRepository
 import kotlinx.coroutines.delay
 import kotlin.random.Random
+import android.content.Context
+import com.google.gson.Gson
+
 
 class InvoiceRepositoryImpl(
     private val api: InvoiceApi,
-    private val dao: InvoiceDao
+    private val dao: InvoiceDao,
+    private val context: Context
 ) : InvoiceRepository {
 
     override suspend fun getInvoices(): List<Invoice> {
-        if (AppConfig.USE_MOCK_LOCAL) {
+        return if (AppConfig.USE_MOCK_LOCAL) {
+            // Simular tiempo de carga
             delay(Random.nextLong(1000L, 3001L))
-        }
-        return try {
-            val invoices = api.getInvoices().facturas.map { it.toDomain() }
-            dao.insertInvoices(invoices.map { it.toEntity() })
-            invoices
-        } catch (e: Exception) {
-            dao.getInvoices().map { it.toDomain() }
+
+            // Leer JSON de assets
+            val json = context.assets.open("invoices.json")
+                .bufferedReader()
+                .use { it.readText() }
+
+            Gson().fromJson(json, Array<Invoice>::class.java).toList()
+
+        } else {
+            try {
+                val invoices = api.getInvoices().facturas.map { it.toDomain() }
+                dao.insertInvoices(invoices.map { it.toEntity() })
+                invoices
+            } catch (e: Exception) {
+                dao.getInvoices().map { it.toDomain() }
+            }
         }
     }
 }
