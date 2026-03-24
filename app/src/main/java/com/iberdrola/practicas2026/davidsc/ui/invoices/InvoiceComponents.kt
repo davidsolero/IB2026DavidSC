@@ -281,3 +281,32 @@ fun TabItemUnderline(
         )
     }
 }
+
+@Composable
+fun InvoiceListGroupedByYear(invoices: List<Invoice>, onClick: (Invoice) -> Unit) {
+    val invoicesByYear = invoices.groupBy { it.date.take(4) } // Agrupar por año
+
+    LazyColumn {
+        invoicesByYear.toSortedMap(compareByDescending { it }).forEach { (year, invoicesInYear) ->
+            // Encabezado del año
+            item {
+                YearHeader(year = year)
+            }
+            // Facturas del año
+            items(invoicesInYear) { invoice ->
+                InvoiceItem(invoice = invoice, onClick = { onClick(invoice) })
+                HorizontalDivider()
+            }
+        }
+    }
+}
+
+@Composable
+fun YearHeader(year: String) {
+    Text(
+        text = year,
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 4.dp)
+    )
+}

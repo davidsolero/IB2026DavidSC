@@ -137,8 +137,8 @@ fun InvoicesScreen(
                     }
                 }
 
-                // Lista de facturas
-                InvoiceList(invoices = invoices)
+                InvoiceListGroupedByYear(invoices = invoices) { invoice ->
+                }
             }
         }
     }

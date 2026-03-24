@@ -14,5 +14,14 @@
     "date": "2026-03-02",
     "status": "Pendiente de Pago",
     "latest": false
+  },
+
+  {
+    "id": 2,
+    "description": "Factura Luz",
+    "amount": 32.50,
+    "date": "2025-03-02",
+    "status": "Pendiente de Pago",
+    "latest": false
   }
 ]
