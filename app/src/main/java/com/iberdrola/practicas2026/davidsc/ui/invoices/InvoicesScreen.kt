@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -132,10 +134,23 @@ fun InvoicesScreen(
                     }
                 }
 
-                // Lista histórica agrupada por año, excluyendo la última
+                var showDialog by remember { mutableStateOf(false) }
+
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        text = { Text(stringResource(R.string.invoice_not_available)) },
+                        confirmButton = {
+                            TextButton(onClick = { showDialog = false }) {
+                                Text(stringResource(R.string.accept))
+                            }
+                        }
+                    )
+                }
+
                 InvoiceListGroupedByYear(
                     invoices = sortedInvoices.drop(1),
-                    onClick = { invoice -> /* acción al pulsar factura */ }
+                    onClick = { invoice -> showDialog = true } // <-- aquí
                 )
             }
         }
