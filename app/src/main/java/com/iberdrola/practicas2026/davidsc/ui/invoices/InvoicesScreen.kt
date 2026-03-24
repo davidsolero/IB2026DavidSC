@@ -31,7 +31,7 @@ import com.iberdrola.practicas2026.davidsc.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvoicesScreen(
-    navController: NavController,                     // ← Recibimos NavController
+    navController: NavController,
     viewModel: InvoicesViewModel = hiltViewModel()
 ) {
     val invoices by viewModel.invoices.collectAsState()
@@ -39,13 +39,10 @@ fun InvoicesScreen(
 
     var selectedTab by remember { mutableStateOf(0) }
     var showRatingSheet by remember { mutableStateOf(false) }
-    var shouldNavigateBack by remember { mutableStateOf(false) } // controla navegación después del sheet
+    var shouldNavigateBack by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        viewModel.loadInvoices()
-    }
+    LaunchedEffect(Unit) { viewModel.loadInvoices() }
 
-    // BottomSheet controlado por estado
     if (showRatingSheet) {
         RatingBottomSheet(
             onRated = {
@@ -66,11 +63,8 @@ fun InvoicesScreen(
         )
     }
 
-    // Ejecutar la navegación después de cerrar el sheet
     LaunchedEffect(shouldNavigateBack) {
-        if (shouldNavigateBack) {
-            navController.popBackStack()
-        }
+        if (shouldNavigateBack) navController.popBackStack()
     }
 
     Scaffold(
@@ -79,7 +73,7 @@ fun InvoicesScreen(
                 onBackClick = {
                     val shouldShow = viewModel.onBackPressed()
                     if (shouldShow) showRatingSheet = true
-                    else navController.popBackStack()   // Navegación limpia
+                    else navController.popBackStack()
                 }
             )
         }
@@ -90,7 +84,6 @@ fun InvoicesScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-
             // Tabs Luz / Gas
             Row(
                 modifier = Modifier
@@ -110,12 +103,14 @@ fun InvoicesScreen(
             }
             HorizontalDivider(color = Color.LightGray)
 
-            // Contenido: últimas facturas / histórico
             if (isLoading) {
                 SkeletonList()
             } else {
+                // Ordenar por fecha descendente
+                val sortedInvoices = invoices.sortedByDescending { it.date }
+
                 // Última factura
-                invoices.firstOrNull()?.let { latest ->
+                sortedInvoices.firstOrNull()?.let { latest ->
                     LastInvoiceCard(invoice = latest)
                 }
 
@@ -137,8 +132,11 @@ fun InvoicesScreen(
                     }
                 }
 
-                InvoiceListGroupedByYear(invoices = invoices) { invoice ->
-                }
+                // Lista histórica agrupada por año, excluyendo la última
+                InvoiceListGroupedByYear(
+                    invoices = sortedInvoices.drop(1),
+                    onClick = { invoice -> /* acción al pulsar factura */ }
+                )
             }
         }
     }

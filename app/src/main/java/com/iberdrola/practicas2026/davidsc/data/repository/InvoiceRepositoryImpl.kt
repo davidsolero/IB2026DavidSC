@@ -10,6 +10,7 @@ import com.iberdrola.practicas2026.davidsc.domain.repository.InvoiceRepository
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 import android.content.Context
+import android.util.Log
 import com.google.gson.Gson
 
 
@@ -33,10 +34,13 @@ class InvoiceRepositoryImpl(
 
         } else {
             try {
-                val invoices = api.getInvoices().facturas.map { it.toDomain() }
+                val response = api.getInvoices()
+                Log.d("InvoiceRepo", "Response received: ${response.facturas.size} invoices")
+                val invoices = response.facturas.map { it.toDomain() }
                 dao.insertInvoices(invoices.map { it.toEntity() })
                 invoices
             } catch (e: Exception) {
+                Log.e("InvoiceRepo", "Error fetching invoices from Mockoon", e)
                 dao.getInvoices().map { it.toDomain() }
             }
         }

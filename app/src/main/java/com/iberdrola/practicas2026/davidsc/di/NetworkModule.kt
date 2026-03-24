@@ -23,26 +23,23 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:3000/")
+            .baseUrl("http://10.0.2.2:3001/") // Emulador -> localhost del PC
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 
     @Provides
     @Singleton
-    fun provideRetromock(
+    fun provideInvoiceApi(
         @ApplicationContext context: Context,
         retrofit: Retrofit
-    ): Retromock {
-        return Retromock.Builder()
-            .retrofit(retrofit)
-            .defaultBodyFactory(AssetBodyFactory(context.assets))  // ← aquí el cambio
-            .build()
-    }
-    @Provides
-    @Singleton
-    fun provideInvoiceApi(retrofit: Retrofit, retromock: Retromock): InvoiceApi {
+    ): InvoiceApi {
         return if (AppConfig.USE_MOCK_LOCAL) {
+            // Retromock solo se inicializa si usamos mocks locales
+            val retromock = Retromock.Builder()
+                .retrofit(retrofit)
+                .defaultBodyFactory(AssetBodyFactory(context.assets))
+                .build()
             retromock.create(InvoiceApi::class.java)
         } else {
             retrofit.create(InvoiceApi::class.java)
