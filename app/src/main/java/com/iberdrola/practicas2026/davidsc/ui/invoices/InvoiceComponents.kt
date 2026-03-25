@@ -1,5 +1,6 @@
 package com.iberdrola.practicas2026.davidsc.ui.invoices
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -15,15 +16,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.material.icons.outlined.Whatshot
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,45 +36,81 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
+import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import com.iberdrola.practicas2026.davidsc.ui.theme.IberdrolaGreen
+import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPagadofondo
+import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPagadotexto
+import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagofondo
+import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagotexto
 
 @Composable
 fun LastInvoiceCard(invoice: Invoice) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(16.dp),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = Color.Transparent // fondo transparente
+        ),
+        border = BorderStroke(1.3.dp, IberdrolaGreen), // borde verde
+        shape = CardDefaults.outlinedShape
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = stringResource(R.string.last_invoice),
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
-            )
-            Text(
-                text = "%.2f€".format(invoice.amount),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-            Text(
-                text = invoice.date,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
-            )
-            StatusBadge(
-                status = invoice.status,
-                modifier = Modifier.padding(top = 4.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            // Columna con textos
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.last_invoice),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = invoice.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 2.dp, bottom = 15.dp)
+                )
+                Text(
+                    text = "%.2f€".format(invoice.amount),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                Text(
+                    text = invoice.date,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.Gray
+                )
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                StatusBadge(
+                    status = invoice.status,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+            val icon = when (invoice.type) {
+                InvoiceType.LUZ -> Icons.Outlined.Lightbulb
+                InvoiceType.GAS -> Icons.Outlined.Whatshot
+            }
+
+            Icon(
+                imageVector = icon,
+                contentDescription = "icon",
+                tint = IberdrolaGreen,
+                modifier = Modifier.size(40.dp)
             )
         }
     }
 }
-
 @Composable
 fun InvoiceList(invoices: List<Invoice>) {
     var showDialog by remember { mutableStateOf(false) }
@@ -118,7 +156,7 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
             Text(
                 text = invoice.description,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
+
             )
             StatusBadge(
                 status = invoice.status,
@@ -128,7 +166,7 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
         Text(
             text = "%.2f€".format(invoice.amount),
             style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
+            color= Color.Gray,
             modifier = Modifier.padding(end = 8.dp)
         )
         Icon(
@@ -141,20 +179,19 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
 
 @Composable
 fun StatusBadge(status: String, modifier: Modifier = Modifier) {
-    val color = when (status) {
-        "Pagada" -> Color(0xFF4CAF50)
-        "Pendiente de Pago" -> Color(0xFFFF5722)
-        "En trámite de cobro" -> Color(0xFFFF9800)
-        "Anulada" -> Color(0xFF9E9E9E)
-        "Cuota Fija" -> Color(0xFF2196F3)
-        else -> Color(0xFF9E9E9E)
+    // Solo dos estados: Pagada y Pendiente de Pago
+    val (bgColor, textColor) = when (status) {
+        "Pagada" -> StatusPagadofondo to StatusPagadotexto
+        "Pendiente de Pago" -> StatusPendientepagofondo to StatusPendientepagotexto
+        else -> StatusPendientepagofondo to StatusPendientepagotexto // default al rojo
     }
+
     Text(
         text = status,
-        color = Color.White,
+        color = textColor,
         style = MaterialTheme.typography.labelSmall,
         modifier = modifier
-            .background(color = color, shape = RoundedCornerShape(4.dp))
+            .background(color = bgColor, shape = RoundedCornerShape(8.dp))
             .padding(horizontal = 8.dp, vertical = 4.dp)
     )
 }
@@ -201,8 +238,8 @@ fun SkeletonItem() {
         }
         Box(
             modifier = Modifier
-                .width(50.dp)
-                .height(14.dp)
+                .width(30.dp)
+                .height(30.dp)
                 .background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
         )
     }
@@ -224,9 +261,14 @@ fun InvoicesHeader(
         ) {
             IconButton(onClick = onBackClick) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                     contentDescription = "Atrás",
-                    tint = IberdrolaGreen
+                    tint = IberdrolaGreen,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .graphicsLayer {
+                            scaleX = -1f  // invierte horizontalmente
+                        }
                 )
             }
 
@@ -251,8 +293,7 @@ fun InvoicesHeader(
         // 🔹 Subtítulo
         Text(
             text = stringResource(R.string.invoices_subtitle),
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.Gray
+            style = MaterialTheme.typography.titleMedium,
         )
     }
 }
@@ -273,16 +314,16 @@ fun TabItemUnderline(
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = if (selected) MaterialTheme.colorScheme.primary else Color.Gray,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+            color = if (selected) Color.Black else Color.Gray,
+            fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(6.dp))
         Box(
             modifier = Modifier
-                .height(2.dp)
-                .width(if (selected) 40.dp else 0.dp)  // ancho fijo, no fillMaxWidth
+                .height(3.dp)
+                .width(40.dp) // ancho fijo, no fillMaxWidth
                 .background(
-                    if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
+                    if (selected) IberdrolaGreen else Color.Transparent
                 )
         )
     }
@@ -348,4 +389,58 @@ fun SkeletonLastInvoiceCard() {
                 .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
         )
     }
+}
+
+
+// Dummy invoices para preview
+private val previewInvoices = listOf(    Invoice(1, "2026-03-01", "Factura Luz", 52.3, "Pagada", InvoiceType.LUZ),
+    Invoice(2, "2026-02-18", "Factura Gas", 28.4, "Pendiente de Pago", InvoiceType.GAS),
+    Invoice(3, "2026-03-02", "Factura Luz", 32.5, "Pagada", InvoiceType.LUZ))
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewLastInvoiceCard() {
+    LastInvoiceCard(invoice = previewInvoices[0])
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewInvoiceList() {
+    InvoiceList(invoices = previewInvoices)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewSkeletonList() {
+    SkeletonList()
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewInvoicesHeader() {
+    InvoicesHeader(onBackClick = {})
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewStatusBadgePagada() {
+    StatusBadge(status = "Pagada")
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewStatusBadgePendiente() {
+    StatusBadge(status = "Pendiente de Pago")
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewTabItemLuzSelected() {
+    TabItemUnderline(text = "Luz", selected = true, onClick = {})
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewTabItemGasUnselected() {
+    TabItemUnderline(text = "Gas", selected = false, onClick = {})
 }

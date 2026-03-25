@@ -25,10 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
+import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -132,8 +134,8 @@ fun InvoicesScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.invoices_history),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.ExtraBold
                     )
                     OutlinedButton(onClick = {}, enabled = false) {
                         Text(stringResource(R.string.invoices_filter))
@@ -160,5 +162,59 @@ fun InvoicesScreen(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 640)
+@Composable
+fun PreviewInvoicesFullScreen() {
+    // Simular selección de pestaña
+    var selectedTab by remember { mutableStateOf(0) }
+
+    // Datos dummy
+    val fakeInvoices = listOf(
+        Invoice(1, "2026-03-01", "Factura Luz", 52.3, "Pagada", InvoiceType.LUZ),
+        Invoice(2, "2026-02-18", "Factura Gas", 28.4, "Pendiente de Pago", InvoiceType.GAS),
+        Invoice(3, "2026-01-25", "Factura Luz", 32.5, "En trámite de cobro", InvoiceType.LUZ),
+        Invoice(4, "2025-12-30", "Factura Gas", 45.0, "Cuota Fija", InvoiceType.GAS)
+    )
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        // Header
+        InvoicesHeader(onBackClick = {})
+
+        // Tabs Luz / Gas
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            TabItemUnderline(
+                text = "Luz",
+                selected = selectedTab == 0
+            ) { selectedTab = 0 }
+            TabItemUnderline(
+                text = "Gas",
+                selected = selectedTab == 1
+            ) { selectedTab = 1 }
+        }
+        HorizontalDivider(color = Color.LightGray)
+
+        // Última factura
+        LastInvoiceCard(invoice = fakeInvoices.first())
+
+        // Histórico
+        Text(
+            text = "Histórico",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+        )
+
+        // Lista de facturas agrupadas por año
+        InvoiceListGroupedByYear(
+            invoices = fakeInvoices.drop(1),
+            onClick = {}
+        )
     }
 }
