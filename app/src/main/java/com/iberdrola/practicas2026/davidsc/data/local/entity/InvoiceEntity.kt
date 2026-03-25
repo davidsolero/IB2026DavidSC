@@ -9,5 +9,6 @@ data class InvoiceEntity(
     val date: String,
     val description: String,
     val amount: Double,
-    val status: String
+    val status: String,
+    val type: String
 )

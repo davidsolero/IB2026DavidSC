@@ -5,5 +5,11 @@ data class Invoice(
     val date: String,
     val description: String,
     val amount: Double,
-    val status: String
+    val status: String,
+    val type: InvoiceType
 )
+
+enum class InvoiceType {
+    LUZ,
+    GAS
+}

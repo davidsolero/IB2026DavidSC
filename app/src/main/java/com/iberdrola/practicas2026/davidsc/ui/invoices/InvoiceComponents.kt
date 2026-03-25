@@ -35,9 +35,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
+import com.iberdrola.practicas2026.davidsc.ui.theme.IberdrolaGreen
 
 @Composable
 fun LastInvoiceCard(invoice: Invoice) {
@@ -222,14 +224,18 @@ fun InvoicesHeader(
         ) {
             IconButton(onClick = onBackClick) {
                 Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Atrás"
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Atrás",
+                    tint = IberdrolaGreen
                 )
             }
 
             Text(
                 text = "Atrás",
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = IberdrolaGreen,
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier.clickable { onBackClick() }
             )
         }
 

@@ -12,5 +12,6 @@ data class InvoiceDto(
     @SerializedName("date") val date: String,
     @SerializedName("description") val description: String,
     @SerializedName("amount") val amount: Double,
-    @SerializedName("status") val status: String
+    @SerializedName("status") val status: String,
+    @SerializedName("type") val type: String
 )

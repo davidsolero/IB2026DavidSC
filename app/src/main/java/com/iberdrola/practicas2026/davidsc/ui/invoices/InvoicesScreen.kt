@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
+import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,8 +43,6 @@ fun InvoicesScreen(
     var selectedTab by remember { mutableStateOf(0) }
     var showRatingSheet by remember { mutableStateOf(false) }
     var shouldNavigateBack by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) { viewModel.loadInvoices() }
 
     if (showRatingSheet) {
         RatingBottomSheet(
@@ -95,12 +94,18 @@ fun InvoicesScreen(
                 TabItemUnderline(
                     text = stringResource(R.string.tab_luz),
                     selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 }
+                    onClick = {
+                        selectedTab = 0
+                        viewModel.selectType(InvoiceType.LUZ)  // 🔹 Notificar al ViewModel
+                    }
                 )
                 TabItemUnderline(
                     text = stringResource(R.string.tab_gas),
                     selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 }
+                    onClick = {
+                        selectedTab = 1
+                        viewModel.selectType(InvoiceType.GAS)  // 🔹 Notificar al ViewModel
+                    }
                 )
             }
             HorizontalDivider(color = Color.LightGray)
