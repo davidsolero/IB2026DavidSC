@@ -54,15 +54,16 @@ import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagofondo
 import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagotexto
 
 @Composable
-fun LastInvoiceCard(invoice: Invoice) {
+fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit) { // 🔹 agregar onClick
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .clickable { onClick() }, // 🔹
         colors = CardDefaults.outlinedCardColors(
-            containerColor = Color.Transparent // fondo transparente
+            containerColor = Color.Transparent
         ),
-        border = BorderStroke(1.3.dp, IberdrolaGreen), // borde verde
+        border = BorderStroke(1.3.dp, IberdrolaGreen),
         shape = CardDefaults.outlinedShape
     ) {
         Row(
@@ -113,28 +114,12 @@ fun LastInvoiceCard(invoice: Invoice) {
         }
     }
 }
+
 @Composable
-fun InvoiceList(invoices: List<Invoice>) {
-    var showDialog by remember { mutableStateOf(false) }
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            text = { Text(stringResource(R.string.invoice_not_available)) },
-            confirmButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text(stringResource(R.string.accept))
-                }
-            }
-        )
-    }
-
+fun InvoiceList(invoices: List<Invoice>, onClick: (Invoice) -> Unit) {
     LazyColumn {
         items(invoices) { invoice ->
-            InvoiceItem(
-                invoice = invoice,
-                onClick = { showDialog = true }
-            )
+            InvoiceItem(invoice = invoice, onClick = { onClick(invoice) })
             HorizontalDivider()
         }
     }
@@ -159,7 +144,7 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
                 text = invoice.description,
                 style = MaterialTheme.typography.bodySmall,
 
-            )
+                )
             StatusBadge(
                 status = invoice.status,
                 modifier = Modifier.padding(top = 4.dp)
@@ -168,7 +153,7 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
         Text(
             text = "%.2f€".format(invoice.amount),
             style = MaterialTheme.typography.bodyMedium,
-            color= Color.Gray,
+            color = Color.Gray,
             modifier = Modifier.padding(end = 8.dp)
         )
         Icon(
@@ -258,8 +243,6 @@ fun InvoicesHeader(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-
-        // 🔹 Fila superior → flecha + "Atrás"
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -282,7 +265,7 @@ fun InvoicesHeader(
                 modifier = Modifier.clickable { onBackClick() }
             )
 
-            Spacer(modifier = Modifier.weight(1f)) // empuja el botón a la derecha
+            Spacer(modifier = Modifier.weight(1f))
 
             OutlinedButton(onClick = onToggleMock) {
                 Text(if (useMock) "Mock ON" else "Mock OFF")
@@ -291,21 +274,18 @@ fun InvoicesHeader(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 🔹 Título
         Text(
             text = stringResource(R.string.invoices_title),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
 
-        // 🔹 Subtítulo
         Text(
             text = stringResource(R.string.invoices_subtitle),
             style = MaterialTheme.typography.titleMedium,
         )
     }
 }
-
 
 @Composable
 fun TabItemUnderline(
@@ -401,20 +381,22 @@ fun SkeletonLastInvoiceCard() {
 
 
 // Dummy invoices para preview
-private val previewInvoices = listOf(    Invoice(1, "2026-03-01", "Factura Luz", 52.3, "Pagada", InvoiceType.LUZ),
+private val previewInvoices = listOf(
+    Invoice(1, "2026-03-01", "Factura Luz", 52.3, "Pagada", InvoiceType.LUZ),
     Invoice(2, "2026-02-18", "Factura Gas", 28.4, "Pendiente de Pago", InvoiceType.GAS),
-    Invoice(3, "2026-03-02", "Factura Luz", 32.5, "Pagada", InvoiceType.LUZ))
+    Invoice(3, "2026-03-02", "Factura Luz", 32.5, "Pagada", InvoiceType.LUZ)
+)
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewLastInvoiceCard() {
-    LastInvoiceCard(invoice = previewInvoices[0])
+    LastInvoiceCard(invoice = previewInvoices[0], onClick = {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewInvoiceList() {
-    InvoiceList(invoices = previewInvoices)
+    InvoiceList(invoices = previewInvoices, onClick = {})
 }
 
 @Preview(showBackground = true)
@@ -428,8 +410,8 @@ fun PreviewSkeletonList() {
 fun PreviewInvoicesHeader() {
     InvoicesHeader(
         onBackClick = {},
-        useMock = true,
-        onToggleMock = {}
+        useMock = true,       // o false, depende de cómo quieras mostrarlo
+        onToggleMock = {}     // dummy lambda para preview
     )
 }
 
