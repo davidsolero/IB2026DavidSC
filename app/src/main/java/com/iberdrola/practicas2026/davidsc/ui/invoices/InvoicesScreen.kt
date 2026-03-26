@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -33,6 +34,7 @@ import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvoicesScreen(
@@ -41,8 +43,9 @@ fun InvoicesScreen(
 ) {
     val invoices by viewModel.invoices.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val useMock by viewModel.useMock.collectAsState()
+    val selectedType by viewModel.selectedType.collectAsState() // 🔹 Estado del tipo actual
 
-    var selectedTab by remember { mutableStateOf(0) }
     var showRatingSheet by remember { mutableStateOf(false) }
     var shouldNavigateBack by remember { mutableStateOf(false) }
 
@@ -77,7 +80,9 @@ fun InvoicesScreen(
                     val shouldShow = viewModel.onBackPressed()
                     if (shouldShow) showRatingSheet = true
                     else navController.popBackStack()
-                }
+                },
+                useMock = useMock,
+                onToggleMock = { viewModel.toggleMock() }
             )
         }
     ) { innerPadding ->
@@ -95,19 +100,13 @@ fun InvoicesScreen(
             ) {
                 TabItemUnderline(
                     text = stringResource(R.string.tab_luz),
-                    selected = selectedTab == 0,
-                    onClick = {
-                        selectedTab = 0
-                        viewModel.selectType(InvoiceType.LUZ)  // 🔹 Notificar al ViewModel
-                    }
+                    selected = selectedType == InvoiceType.LUZ,
+                    onClick = { viewModel.selectType(InvoiceType.LUZ) }
                 )
                 TabItemUnderline(
                     text = stringResource(R.string.tab_gas),
-                    selected = selectedTab == 1,
-                    onClick = {
-                        selectedTab = 1
-                        viewModel.selectType(InvoiceType.GAS)  // 🔹 Notificar al ViewModel
-                    }
+                    selected = selectedType == InvoiceType.GAS,
+                    onClick = { viewModel.selectType(InvoiceType.GAS) }
                 )
             }
             HorizontalDivider(color = Color.LightGray)
@@ -116,11 +115,13 @@ fun InvoicesScreen(
                 SkeletonLastInvoiceCard()
                 SkeletonList()
             } else {
-                // Ordenar por fecha descendente
-                val sortedInvoices = invoices.sortedByDescending { it.date }
+                // Filtrar por tipo seleccionado y ordenar por fecha descendente
+                val filteredInvoices = invoices
+                    .filter { it.type == selectedType }
+                    .sortedByDescending { it.date }
 
                 // Última factura
-                sortedInvoices.firstOrNull()?.let { latest ->
+                filteredInvoices.firstOrNull()?.let { latest ->
                     LastInvoiceCard(invoice = latest)
                 }
 
@@ -130,7 +131,7 @@ fun InvoicesScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = stringResource(R.string.invoices_history),
@@ -157,8 +158,8 @@ fun InvoicesScreen(
                 }
 
                 InvoiceListGroupedByYear(
-                    invoices = sortedInvoices.drop(1),
-                    onClick = { invoice -> showDialog = true } // <-- aquí
+                    invoices = filteredInvoices.drop(1),
+                    onClick = { showDialog = true }
                 )
             }
         }
@@ -170,7 +171,7 @@ fun InvoicesScreen(
 fun PreviewInvoicesFullScreen() {
     // Simular selección de pestaña
     var selectedTab by remember { mutableStateOf(0) }
-
+    var useMock by remember { mutableStateOf(true) }
     // Datos dummy
     val fakeInvoices = listOf(
         Invoice(1, "2026-03-01", "Factura Luz", 52.3, "Pagada", InvoiceType.LUZ),
@@ -181,7 +182,11 @@ fun PreviewInvoicesFullScreen() {
 
     Column(modifier = Modifier.fillMaxWidth()) {
         // Header
-        InvoicesHeader(onBackClick = {})
+        InvoicesHeader(
+            onBackClick = {},
+            useMock = useMock,
+            onToggleMock = { useMock = !useMock }
+        )
 
         // Tabs Luz / Gas
         Row(

@@ -21,7 +21,7 @@ class InvoiceRepositoryImpl(
 ) : InvoiceRepository {
 
     override suspend fun getInvoices(): List<Invoice> {
-        return if (AppConfig.USE_MOCK_LOCAL) {
+        return if (AppConfig.useMockLocal) {
             // 🔹 Simular tiempo de carga
             delay(Random.nextLong(1000L, 3001L))
 

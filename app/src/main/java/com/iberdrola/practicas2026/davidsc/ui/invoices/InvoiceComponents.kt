@@ -26,6 +26,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -43,6 +44,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.iberdrola.practicas2026.davidsc.R
+import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import com.iberdrola.practicas2026.davidsc.ui.theme.IberdrolaGreen
@@ -247,7 +249,9 @@ fun SkeletonItem() {
 
 @Composable
 fun InvoicesHeader(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    useMock: Boolean,
+    onToggleMock: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -266,9 +270,7 @@ fun InvoicesHeader(
                     tint = IberdrolaGreen,
                     modifier = Modifier
                         .size(24.dp)
-                        .graphicsLayer {
-                            scaleX = -1f  // invierte horizontalmente
-                        }
+                        .graphicsLayer { scaleX = -1f }
                 )
             }
 
@@ -279,6 +281,12 @@ fun InvoicesHeader(
                 textDecoration = TextDecoration.Underline,
                 modifier = Modifier.clickable { onBackClick() }
             )
+
+            Spacer(modifier = Modifier.weight(1f)) // empuja el botón a la derecha
+
+            OutlinedButton(onClick = onToggleMock) {
+                Text(if (useMock) "Mock ON" else "Mock OFF")
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -418,7 +426,11 @@ fun PreviewSkeletonList() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewInvoicesHeader() {
-    InvoicesHeader(onBackClick = {})
+    InvoicesHeader(
+        onBackClick = {},
+        useMock = true,
+        onToggleMock = {}
+    )
 }
 
 @Preview(showBackground = true)

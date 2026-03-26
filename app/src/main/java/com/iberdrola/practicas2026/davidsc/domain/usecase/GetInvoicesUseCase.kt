@@ -7,7 +7,7 @@ import com.iberdrola.practicas2026.davidsc.domain.repository.InvoiceRepository
 class GetInvoicesUseCase(
     private val repository: InvoiceRepository
 ) {
-    suspend operator fun invoke(type: InvoiceType? = null): List<Invoice> {
+    suspend operator fun invoke(type: InvoiceType? = null, useMock: Boolean): List<Invoice> {
         val invoices = repository.getInvoices()
 
         return type?.let { selectedType ->

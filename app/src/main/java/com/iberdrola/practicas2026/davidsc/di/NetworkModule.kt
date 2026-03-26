@@ -34,7 +34,7 @@ object NetworkModule {
         @ApplicationContext context: Context,
         retrofit: Retrofit
     ): InvoiceApi {
-        return if (AppConfig.USE_MOCK_LOCAL) {
+        return if (AppConfig.useMockLocal) {
             // Retromock solo se inicializa si usamos mocks locales
             val retromock = Retromock.Builder()
                 .retrofit(retrofit)
