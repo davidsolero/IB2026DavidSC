@@ -39,6 +39,11 @@ class InvoicesViewModel @Inject constructor(
     val error: StateFlow<String?> = _error.asStateFlow()
 
     init {
+        // Sincronizar AppConfig con prefs al iniciar
+        val mock = prefs.getBoolean("use_mock", false)
+        AppConfig.useMockLocal = mock
+        _useMock.value = mock
+
         viewModelScope.launch {
             _selectedType.combine(_useMock) { type, mock -> type to mock }
                 .collect { (type, mock) ->
@@ -61,11 +66,10 @@ class InvoicesViewModel @Inject constructor(
     fun toggleMock() {
         val newValue = !_useMock.value
         viewModelScope.launch {
-            _isLoading.value = true                  // 🔹 Skeleton activo
+            _isLoading.value = true
             _useMock.value = newValue
             prefs.edit { putBoolean("use_mock", newValue) }
             AppConfig.useMockLocal = newValue
-            // combine recogerá el cambio y llamará a loadInvoices
         }
     }
 
