@@ -20,6 +20,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Whatshot
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -131,7 +132,7 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 15.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -185,8 +186,12 @@ fun StatusBadge(status: String, modifier: Modifier = Modifier) {
 
 @Composable
 fun SkeletonList() {
-    LazyColumn {
-        items(4) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 50.dp) //
+    ) {
+        items(7) {
             SkeletonItem()
             HorizontalDivider()
         }
@@ -267,7 +272,13 @@ fun InvoicesHeader(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            OutlinedButton(onClick = onToggleMock) {
+            OutlinedButton(
+                onClick = onToggleMock,
+                border = BorderStroke(2.dp, IberdrolaGreen),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = IberdrolaGreen
+                )
+            ) {
                 Text(if (useMock) "Mock ON" else "Mock OFF")
             }
         }
@@ -346,39 +357,59 @@ fun YearHeader(year: String) {
     )
 }
 
-
 @Composable
 fun SkeletonLastInvoiceCard() {
-    Column(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(8.dp))
-            .padding(16.dp)
+            .padding(16.dp),
+        border = BorderStroke(1.3.dp, Color.Gray),
+        shape = CardDefaults.outlinedShape,
+        colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent)
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .width(120.dp)
-                .height(20.dp)
-                .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Box(
-            modifier = Modifier
-                .width(80.dp)
-                .height(24.dp)
-                .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Box(
-            modifier = Modifier
-                .width(60.dp)
-                .height(14.dp)
-                .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
-        )
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Simula icono
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color(0xFFBDBDBD), RoundedCornerShape(20.dp))
+                    .align(Alignment.End)
+            )
+            // Simula el título
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.5f)  // mitad de ancho como ejemplo
+                    .height(24.dp)
+                    .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Simula descripción
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(20.dp)
+                    .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Simula cantidad
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.3f)
+                    .height(24.dp)
+                    .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+
+        }
     }
 }
-
 
 // Dummy invoices para preview
 private val previewInvoices = listOf(
@@ -403,6 +434,12 @@ fun PreviewInvoiceList() {
 @Composable
 fun PreviewSkeletonList() {
     SkeletonList()
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewSkeletonLast() {
+    SkeletonLastInvoiceCard()
 }
 
 @Preview(showBackground = true)

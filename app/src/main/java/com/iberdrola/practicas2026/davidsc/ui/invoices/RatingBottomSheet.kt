@@ -43,7 +43,7 @@ fun RatingBottomSheet(
             HorizontalDivider()
             Spacer(modifier = Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                listOf("😢", "🙁", "😐", "🙂", "😄").forEachIndexed { i, emoji ->
+                listOf("😡", "🙁", "😐", "🙂", "😄").forEachIndexed { i, emoji ->
                     Text(
                         text = emoji,
                         style = MaterialTheme.typography.headlineMedium,
