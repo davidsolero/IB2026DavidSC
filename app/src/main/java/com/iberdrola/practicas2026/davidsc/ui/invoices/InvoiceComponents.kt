@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -50,6 +49,10 @@ import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPagadofondo
 import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPagadotexto
 import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagofondo
 import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagotexto
+import java.text.NumberFormat
+import java.util.Locale
+
+val nf = NumberFormat.getCurrencyInstance(Locale("es", "ES"))
 
 @Composable
 fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = Modifier) { // 🔹 agregar onClick
@@ -83,13 +86,13 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
                     modifier = Modifier.padding(top = 2.dp, bottom = 15.dp)
                 )
                 Text(
-                    text = "%.2f€".format(invoice.amount),
+                    text = nf.format(invoice.amount),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 4.dp)
                 )
                 Text(
-                    text = invoice.date,
+                    text = invoice.startDate,
                     style = MaterialTheme.typography.titleSmall,
                     color = Color.Gray
                 )
@@ -135,7 +138,7 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = invoice.date,
+                text = invoice.startDate,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -239,7 +242,8 @@ fun SkeletonItem() {
 fun InvoicesHeader(
     onBackClick: () -> Unit,
     useMock: Boolean,
-    onToggleMock: () -> Unit
+    onToggleMock: () -> Unit,
+    selectedStreet: String?
 ) {
     Column(
         modifier = Modifier
@@ -295,7 +299,7 @@ fun InvoicesHeader(
         )
 
         Text(
-            text = stringResource(R.string.invoices_subtitle),
+            text = selectedStreet ?:  stringResource(R.string.invoices_subtitle),
             style = MaterialTheme.typography.titleMedium,
         )
     }
@@ -333,7 +337,7 @@ fun TabItemUnderline(
 
 @Composable
 fun InvoiceListGroupedByYear(invoices: List<Invoice>, onClick: (Invoice) -> Unit) {
-    val invoicesByYear = invoices.groupBy { it.date.take(4) } // Agrupar por año
+    val invoicesByYear = invoices.groupBy { it.startDate.take(4) } // Agrupar por año
 
     LazyColumn {
         invoicesByYear.toSortedMap(compareByDescending { it }).forEach { (year, invoicesInYear) ->
@@ -416,9 +420,9 @@ fun SkeletonLastInvoiceCard( modifier: Modifier = Modifier) {
 
 // Dummy invoices para preview
 private val previewInvoices = listOf(
-    Invoice(1, "2026-03-01", "Factura Luz", 52.3, "Pagada", InvoiceType.LUZ),
-    Invoice(2, "2026-02-18", "Factura Gas", 28.4, "Pendiente de Pago", InvoiceType.GAS),
-    Invoice(3, "2026-03-02", "Factura Luz", 32.5, "Pagada", InvoiceType.LUZ)
+    Invoice(1, "2026-03-01", "2026-03-01","Factura Luz", 52.3, "Pagada", InvoiceType.LUZ, "C/larios"),
+    Invoice(2, "2026-02-18", "2026-03-01","Factura Gas", 28.4, "Pendiente de Pago", InvoiceType.GAS,"C/larios"),
+    Invoice(3, "2026-03-02", "2026-03-01","Factura Luz", 32.5, "Pagada", InvoiceType.LUZ, "C/larios")
 )
 
 @Preview(showBackground = true)
@@ -451,8 +455,9 @@ fun PreviewInvoicesHeader() {
     InvoicesHeader(
         onBackClick = {},
         useMock = true,       // o false, depende de cómo quieras mostrarlo
-        onToggleMock = {}     // dummy lambda para preview
-    )
+        onToggleMock = {}  ,   // dummy lambda para preview
+        selectedStreet = "CALLE LARIOS"
+        )
 }
 
 @Preview(showBackground = true)

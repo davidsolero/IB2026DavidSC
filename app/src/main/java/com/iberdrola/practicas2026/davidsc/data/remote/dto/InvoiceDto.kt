@@ -9,9 +9,11 @@ data class InvoicesResponse(
 
 data class InvoiceDto(
     @SerializedName("id") val id: Int,
-    @SerializedName("date") val date: String,
+    @SerializedName("startDate") val startDate: String,
+    @SerializedName("endDate") val endDate: String,
     @SerializedName("description") val description: String,
     @SerializedName("amount") val amount: Double,
     @SerializedName("status") val status: String,
-    @SerializedName("type") val type: String
+    @SerializedName("type") val type: String,
+    @SerializedName("street") val street: String
 )

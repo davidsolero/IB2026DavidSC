@@ -10,6 +10,7 @@ import com.iberdrola.practicas2026.davidsc.data.mapper.toEntity
 import com.iberdrola.practicas2026.davidsc.data.remote.api.InvoiceApi
 import com.iberdrola.practicas2026.davidsc.data.remote.dto.InvoicesResponse
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
+import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import com.iberdrola.practicas2026.davidsc.domain.repository.InvoiceRepository
 import kotlinx.coroutines.delay
 import kotlin.random.Random
@@ -20,8 +21,11 @@ class InvoiceRepositoryImpl(
     private val context: Context
 ) : InvoiceRepository {
 
-    override suspend fun getInvoices(): List<Invoice> {
-        return if (AppConfig.useMockLocal) {
+    override suspend fun getInvoices(
+        type: InvoiceType? ,
+        street: String?
+    ): List<Invoice> {
+        val invoices = if (AppConfig.useMockLocal) {
             // 🔹 Simular tiempo de carga
             delay(Random.nextLong(1000L, 3001L))
 
@@ -37,7 +41,6 @@ class InvoiceRepositoryImpl(
                 ).toList()
 
             Log.d("InvoiceRepo", "Local mock invoices loaded: ${invoiceDtos.size}")
-
             invoiceDtos.map { it.toDomain() }
 
         } else {
@@ -54,24 +57,18 @@ class InvoiceRepositoryImpl(
 
                 invoices
             } catch (e: Exception) {
-                // Log general
                 Log.e("InvoiceRepo", "Error fetching invoices from remote", e)
-
-                // Log detallado
-                Log.e("InvoiceRepo", "Error type: ${e::class.java.simpleName}")
-                Log.e("InvoiceRepo", "Message: ${e.message}")
-                e.cause?.let { Log.e("InvoiceRepo", "Cause: ${it::class.java.simpleName} -> ${it.message}") }
-
-                // Si quieres, también imprimir la pila de llamadas completa como string
-                val stackTraceString = Log.getStackTraceString(e)
-                Log.e("InvoiceRepo", "Stack trace: $stackTraceString")
-
-                // 🔹 Fallback a BD local
                 val fallback = dao.getInvoices().map { it.toDomain() }
                 Log.d("InvoiceRepo", "Fallback invoices loaded: ${fallback.size}")
-
                 fallback
             }
         }
+
+        // 🔹 Filtrar en memoria según type y street
+        return invoices.filter { invoice ->
+            (type == null || invoice.type == type) &&
+                    (street == null || invoice.street.equals(street, ignoreCase = true))
+        }
     }
+
 }

@@ -1,7 +1,7 @@
 package com.iberdrola.practicas2026.davidsc.ui.invoices
 
 import android.content.res.Configuration
-import androidx.compose.foundation.background
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +42,7 @@ fun InvoicesScreen(
     navController: NavController,
     viewModel: InvoicesViewModel = hiltViewModel()
 ) {
+    Log.d("InvoicesVM", "🚀 InvoicesScreen Composable launched")
     val invoices by viewModel.invoices.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val useMock by viewModel.useMock.collectAsState()
@@ -53,7 +54,7 @@ fun InvoicesScreen(
     // 🔹 Detectar orientación
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-
+    val selectedStreet by viewModel.selectedStreet.collectAsState()
     Scaffold(
         topBar = {
             InvoicesHeader(
@@ -65,7 +66,8 @@ fun InvoicesScreen(
                     }
                 },
                 useMock = useMock,
-                onToggleMock = { viewModel.toggleMock() }
+                onToggleMock = { viewModel.toggleMock() },
+                selectedStreet= selectedStreet
             )
         }
     ) { innerPadding ->
@@ -103,7 +105,7 @@ fun InvoicesScreen(
 
                 val filteredInvoices = invoices
                     .filter { it.type == selectedType }
-                    .sortedByDescending { it.date }
+                    .sortedByDescending { it.startDate }
 
                 if (isLandscape) {
                     // 🔹 LANDSCAPE → Row (lado a lado)
@@ -232,10 +234,9 @@ fun PreviewInvoicesFullScreen() {
     var useMock by remember { mutableStateOf(true) }
 
     val fakeInvoices = listOf(
-        Invoice(1, "2026-03-01", "Factura Luz", 52.3, "Pagada", InvoiceType.LUZ),
-        Invoice(2, "2026-02-18", "Factura Gas", 28.4, "Pendiente de Pago", InvoiceType.GAS),
-        Invoice(3, "2026-01-25", "Factura Luz", 32.5, "En trámite de cobro", InvoiceType.LUZ),
-        Invoice(4, "2025-12-30", "Factura Gas", 45.0, "Cuota Fija", InvoiceType.GAS)
+        Invoice(1, "2026-03-01", "2026-03-01","Factura Luz", 52.3, "Pagada", InvoiceType.LUZ, "C/larios"),
+        Invoice(2, "2026-02-18", "2026-03-01","Factura Gas", 28.4, "Pendiente de Pago", InvoiceType.GAS,"C/larios"),
+        Invoice(3, "2026-03-02", "2026-03-01","Factura Luz", 32.5, "Pagada", InvoiceType.LUZ, "C/larios")
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -243,7 +244,8 @@ fun PreviewInvoicesFullScreen() {
         InvoicesHeader(
             onBackClick = {},
             useMock = useMock,
-            onToggleMock = { useMock = !useMock }
+            onToggleMock = { useMock = !useMock },
+            selectedStreet = "Calle larios"
         )
 
         // Tabs Luz / Gas

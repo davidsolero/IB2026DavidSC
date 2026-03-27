@@ -3,6 +3,8 @@ package com.iberdrola.practicas2026.davidsc.di
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.iberdrola.practicas2026.davidsc.data.local.InvoiceDatabase
 import com.iberdrola.practicas2026.davidsc.data.local.dao.InvoiceDao
 import dagger.Module
@@ -23,7 +25,9 @@ object DatabaseModule {
             context,
             InvoiceDatabase::class.java,
             "invoice_database"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()  // borra y recrea la DB si hay conflicto de versión
+            .build()
     }
 
     @Provides

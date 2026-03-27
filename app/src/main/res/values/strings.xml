@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">IB2026 DavidSC</string>
     <string name="invoices_title">Mis facturas</string>
-    <string name="invoices_subtitle">C/ PALMA - ARTA KM 49, 5, 4ªA - PINTO - MADRID</string>
+    <string name="invoices_subtitle">TODAS LAS CALLES</string>
     <string name="tab_luz">Luz</string>
     <string name="tab_gas">Gas</string>
     <string name="last_invoice">Última factura</string>

@@ -3,24 +3,40 @@
     "id": 1,
     "description": "Factura Luz",
     "amount": 52.30,
-    "date": "2026-08-01",
     "status": "Pagada",
-    "type" : "Luz"
+    "type": "Luz",
+    "startDate": "2026-03-01",
+    "endDate": "2026-03-05",
+    "street": "Calle prueba"
   },
   {
     "id": 2,
     "description": "Factura Luz",
     "amount": 32.50,
-    "date": "2026-03-02",
     "status": "Pendiente de Pago",
-    "type" : "Luz"
+    "type": "Luz",
+    "startDate": "2026-03-02",
+    "endDate": "2026-03-02",
+    "street": "Calle Secundaria"
   },
   {
     "id": 3,
     "description": "Factura Gas",
-    "amount": 32.50,
-    "date": "2025-03-02",
+    "amount": 28.40,
     "status": "Pendiente de Pago",
-    "type" : "Gas"
+    "type": "Gas",
+    "startDate": "2026-02-18",
+    "endDate": "2026-02-20",
+    "street": "Calle Mayor"
+  },
+  {
+    "id": 4,
+    "description": "Factura Luz",
+    "amount": 50.00,
+    "status": "Pagada",
+    "type": "Luz",
+    "startDate": "2025-12-20",
+    "endDate": "2025-12-22",
+    "street": "Calle Secundaria"
   }
 ]

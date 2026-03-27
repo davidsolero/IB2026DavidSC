@@ -1,6 +1,7 @@
 package com.iberdrola.practicas2026.davidsc.ui.invoices
 
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
@@ -15,6 +16,10 @@ import kotlinx.coroutines.launch
 import androidx.core.content.edit
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
 import kotlinx.coroutines.flow.combine
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+
 @HiltViewModel
 class InvoicesViewModel @Inject constructor(
     private val getInvoicesUseCase: GetInvoicesUseCase,
@@ -38,17 +43,25 @@ class InvoicesViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+
+    private val _selectedStreet = MutableStateFlow<String?>(AppConfig.mockStreet)
+    val selectedStreet: StateFlow<String?> = _selectedStreet.asStateFlow()
+
+
     init {
-        // Sincronizar AppConfig con prefs al iniciar
+        Log.d("InvoicesVM", "🔹 ViewModel init - useMock: ${_useMock.value}, type: ${_selectedType.value}")
+
         val mock = prefs.getBoolean("use_mock", false)
         AppConfig.useMockLocal = mock
         _useMock.value = mock
 
         viewModelScope.launch {
-            _selectedType.combine(_useMock) { type, mock -> type to mock }
-                .collect { (type, mock) ->
-                    loadInvoices(type, mock)
-                }
+            combine(_selectedType, _selectedStreet, _useMock) { type, street, mock ->
+                Triple(type, street, mock)
+            }.collect {
+                Log.d("InvoicesVM", "🔄 combine triggered: $it")
+                loadInvoices(it.first, it.second, it.third)
+            }
         }
     }
 
@@ -57,8 +70,8 @@ class InvoicesViewModel @Inject constructor(
             viewModelScope.launch {
                 _isLoading.value = true
                 _selectedType.value = type
-
-                // delay(300)       // Optional: delay mínimo para ver el skeleton
+                Log.d("InvoicesVM", "Tipo seleccionado -> $type")
+                //delay(300)        optional
             }
         }
     }
@@ -81,6 +94,19 @@ class InvoicesViewModel @Inject constructor(
         return count >= threshold
     }
 
+
+    fun formatInvoiceDate(invoice: Invoice, showEndDate: Boolean = false): String {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val start = LocalDate.parse(invoice.startDate, formatter)
+        return if (showEndDate) {
+            val end = LocalDate.parse(invoice.endDate, formatter)
+            val outputFormatter = DateTimeFormatter.ofPattern("dd MMM. yyyy", Locale("es", "ES"))
+            "${start.format(outputFormatter)} - ${end.format(outputFormatter)}"
+        } else {
+            start.format(DateTimeFormatter.ofPattern("d 'de' MMMM", Locale("es", "ES")))
+        }
+    }
+
     fun onRated() = resetSheet(threshold = 10)
     fun onRespondLater() = resetSheet(threshold = 3)
     fun onSheetDismissed() = resetSheet(threshold = 1)
@@ -97,14 +123,30 @@ class InvoicesViewModel @Inject constructor(
         private const val PREF_THRESHOLD = "invoice_show_sheet_threshold"
     }
 
-    private suspend fun loadInvoices(type: InvoiceType, useMock: Boolean) {
+    private suspend fun loadInvoices(type: InvoiceType, street: String?, useMock: Boolean) {
         _isLoading.value = true
+        Log.d("InvoicesVM", "🔹 Loading invoices -> type: $type, street: $street, useMock: $useMock")
         try {
-            _invoices.value = getInvoicesUseCase(type, useMock)
+            val result = getInvoicesUseCase(type, street, useMock)
+            _invoices.value = result
+            Log.d("InvoicesVM", "Loaded invoices: ${result.size}")
         } catch (e: Exception) {
             _error.value = e.message
+            Log.e("InvoicesVM", " Error loading invoices: ${e.message}", e)
         } finally {
             _isLoading.value = false
+        }
+    }
+
+
+    fun selectStreet(street: String?) {
+        if (_selectedStreet.value != street) {
+            viewModelScope.launch {
+                _isLoading.value = true
+                _selectedStreet.value = street
+                // Opcional: delay(300) para ver skeleton
+                Log.d("InvoicesVM", "Calle seleccionada -> $street")
+            }
         }
     }
 }

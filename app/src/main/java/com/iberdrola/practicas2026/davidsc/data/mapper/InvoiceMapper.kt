@@ -1,6 +1,5 @@
 package com.iberdrola.practicas2026.davidsc.data.mapper
 
-import android.R.attr.type
 import com.iberdrola.practicas2026.davidsc.data.local.entity.InvoiceEntity
 import com.iberdrola.practicas2026.davidsc.data.remote.dto.InvoiceDto
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
@@ -10,22 +9,25 @@ fun InvoiceDto.toDomain(): Invoice {
     val inferredType = type.toInvoiceType()
     return Invoice(
         id = id,
-        date = date,
+        startDate = startDate,
+        endDate = endDate,
         description = description,
         amount = amount,
         status = status,
-        type = inferredType
+        type = inferredType,
+        street = street
     )
 }
-
 fun Invoice.toEntity(): InvoiceEntity {
     return InvoiceEntity(
         id = id,
-        date = date,
+        startDate = startDate,
+        endDate = endDate,
         description = description,
         amount = amount,
         status = status,
-        type = type.name
+        type = type.name,
+        street = street
     )
 }
 
@@ -40,10 +42,12 @@ fun String.toInvoiceType(): InvoiceType {
 fun InvoiceEntity.toDomain(): Invoice {
     return Invoice(
         id = id,
-        date = date,
+        startDate = startDate,
+        endDate = endDate,
         description = description,
         amount = amount,
         status = status,
-        type = type.toInvoiceType() // usa la función que ya tienes
+        type = type.toInvoiceType(),
+        street = street
     )
 }
