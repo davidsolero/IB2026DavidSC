@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -51,14 +52,15 @@ import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagofondo
 import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagotexto
 
 @Composable
-fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit) { // 🔹 agregar onClick
+fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = Modifier) { // 🔹 agregar onClick
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(16.dp)
             .clickable { onClick() }, // 🔹
         colors = CardDefaults.outlinedCardColors(
             containerColor = Color.Transparent
+
         ),
         border = BorderStroke(1.3.dp, IberdrolaGreen),
         shape = CardDefaults.outlinedShape
@@ -359,9 +361,9 @@ fun YearHeader(year: String) {
 }
 
 @Composable
-fun SkeletonLastInvoiceCard() {
+fun SkeletonLastInvoiceCard( modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
         border = BorderStroke(1.3.dp, Color.Gray),

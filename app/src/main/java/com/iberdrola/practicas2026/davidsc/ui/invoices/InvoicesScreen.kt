@@ -1,5 +1,7 @@
 package com.iberdrola.practicas2026.davidsc.ui.invoices
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,6 +50,10 @@ fun InvoicesScreen(
     var showRatingSheet by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
 
+    // 🔹 Detectar orientación
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
     Scaffold(
         topBar = {
             InvoicesHeader(
@@ -62,11 +69,13 @@ fun InvoicesScreen(
             )
         }
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+
             // Tabs Luz / Gas
             Row(
                 modifier = Modifier
@@ -91,41 +100,95 @@ fun InvoicesScreen(
                 SkeletonLastInvoiceCard()
                 SkeletonList()
             } else {
+
                 val filteredInvoices = invoices
                     .filter { it.type == selectedType }
                     .sortedByDescending { it.date }
 
-                // Última factura
-                filteredInvoices.firstOrNull()?.let { latest ->
-                    LastInvoiceCard(invoice = latest) { showDialog = true }
-                }
+                if (isLandscape) {
+                    // 🔹 LANDSCAPE → Row (lado a lado)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
 
-                // Histórico header
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.invoices_history),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                    OutlinedButton(onClick = {}, enabled = false) {
-                        Text(stringResource(R.string.invoices_filter))
+                        // IZQUIERDA → Última factura
+                        filteredInvoices.firstOrNull()?.let { latest ->
+                            LastInvoiceCard(
+                                invoice = latest,
+                                onClick = { showDialog = true },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = 16.dp, end = 16.dp)
+                            )
+                        }
+
+                        // DERECHA → Histórico
+                        Column(
+                            modifier = Modifier
+                                .weight(2f)
+                        ) {
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.invoices_history),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
+                                OutlinedButton(onClick = {}, enabled = false) {
+                                    Text(stringResource(R.string.invoices_filter))
+                                }
+                            }
+
+                            InvoiceListGroupedByYear(
+                                invoices = filteredInvoices.drop(1),
+                                onClick = { showDialog = true }
+                            )
+                        }
                     }
-                }
 
-                // Lista de facturas agrupadas
-                InvoiceListGroupedByYear(
-                    invoices = filteredInvoices.drop(1),
-                    onClick = { showDialog = true }
-                )
+                } else {
+                    // 🔹 PORTRAIT → tu diseño original
+
+                    filteredInvoices.firstOrNull()?.let { latest ->
+                        LastInvoiceCard(
+                            invoice = latest,
+                            onClick = { showDialog = true }
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.invoices_history),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                        OutlinedButton(onClick = {}, enabled = false) {
+                            Text(stringResource(R.string.invoices_filter))
+                        }
+                    }
+
+                    InvoiceListGroupedByYear(
+                        invoices = filteredInvoices.drop(1),
+                        onClick = { showDialog = true }
+                    )
+                }
             }
 
-            // Bottom Sheet y Dialog fuera del flujo principal
+            // Bottom Sheet
             if (showRatingSheet) {
                 RatingBottomSheet(
                     onRated = {
@@ -146,6 +209,7 @@ fun InvoicesScreen(
                 )
             }
 
+            // Dialog
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = { showDialog = false },
