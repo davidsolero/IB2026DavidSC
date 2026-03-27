@@ -3,12 +3,14 @@ package com.iberdrola.practicas2026.davidsc.ui.invoices
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -414,6 +416,37 @@ fun SkeletonLastInvoiceCard( modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(8.dp))
 
 
+        }
+    }
+}
+
+@Composable
+fun SkeletonInvoicesLandscape() {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Izquierda: skeleton de la última factura
+        SkeletonLastInvoiceCard(
+            modifier = Modifier
+                .weight(1f)
+        )
+
+        // Derecha: skeleton del histórico
+        Column(
+            modifier = Modifier
+                .weight(2f)
+        ) {
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Lista de skeletons
+            repeat(5) {  // puedes ajustar el número de skeletons
+                SkeletonItem()
+                HorizontalDivider()
+            }
         }
     }
 }

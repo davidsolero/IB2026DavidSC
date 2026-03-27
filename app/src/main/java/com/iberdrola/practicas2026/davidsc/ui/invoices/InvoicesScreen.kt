@@ -99,8 +99,12 @@ fun InvoicesScreen(
             HorizontalDivider(color = Color.LightGray)
 
             if (isLoading) {
-                SkeletonLastInvoiceCard()
-                SkeletonList()
+                if (isLandscape) {
+                    SkeletonInvoicesLandscape()
+                } else {
+                    SkeletonLastInvoiceCard()
+                    SkeletonList()
+                }
             } else {
 
                 val filteredInvoices = invoices
