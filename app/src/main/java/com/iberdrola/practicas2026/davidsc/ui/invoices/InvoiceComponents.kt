@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -47,11 +48,6 @@ import androidx.compose.ui.unit.dp
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
-import com.iberdrola.practicas2026.davidsc.ui.theme.IberdrolaGreen
-import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPagadofondo
-import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPagadotexto
-import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagofondo
-import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagotexto
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -65,7 +61,7 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
             .padding(dimensionResource(R.dimen.margin_medium))
             .clickable { onClick() },
         colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
-        border = BorderStroke(1.3.dp, IberdrolaGreen),
+        border = BorderStroke(1.3.dp, colorResource(R.color.iberdrola_green)),
         shape = CardDefaults.outlinedShape
     ) {
         Row(
@@ -115,7 +111,7 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
             Icon(
                 imageVector = icon,
                 contentDescription = invoice.type.name,
-                tint = IberdrolaGreen,
+                tint = colorResource(R.color.iberdrola_green),
                 modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
             )
         }
@@ -176,10 +172,10 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
 @Composable
 fun StatusBadge(status: String, modifier: Modifier = Modifier) {
     val (bgColor, textColor) = when (status) {
-        "Pagada" -> StatusPagadofondo to StatusPagadotexto
-        "Pendiente de Pago" -> StatusPendientepagofondo to StatusPendientepagotexto
+        stringResource(R.string.status_paid) -> colorResource(R.color.status_pagado_fondo) to colorResource(R.color.status_pagado_texto)
+        stringResource(R.string.status_pending) -> colorResource(R.color.status_pendiente_pago_fondo) to colorResource(R.color.status_pendiente_pago_texto)
         // Unknown statuses default to the pending style as a safe fallback.
-        else -> StatusPendientepagofondo to StatusPendientepagotexto
+        else -> colorResource(R.color.status_pendiente_pago_fondo) to colorResource(R.color.status_pendiente_pago_texto)
     }
 
     Text(
@@ -220,7 +216,7 @@ fun InvoicesHeader(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                     contentDescription = stringResource(R.string.back),
-                    tint = IberdrolaGreen,
+                    tint = colorResource(R.color.iberdrola_green),
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.icon_size_medium))
                         .graphicsLayer { scaleX = -1f }
@@ -229,17 +225,17 @@ fun InvoicesHeader(
             Text(
                 text = stringResource(R.string.back),
                 style = MaterialTheme.typography.bodyMedium,
-                color = IberdrolaGreen,
+                color = colorResource(R.color.iberdrola_green),
                 textDecoration = TextDecoration.Underline,
                 modifier = Modifier.clickable { onBackClick() }
             )
             Spacer(modifier = Modifier.weight(1f))
             OutlinedButton(
                 onClick = onToggleMock,
-                border = BorderStroke(2.dp, IberdrolaGreen),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = IberdrolaGreen)
+                border = BorderStroke(2.dp, colorResource(R.color.iberdrola_green)),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = colorResource(R.color.iberdrola_green))
             ) {
-                Text(if (useMock) "Mock ON" else "Mock OFF")
+                Text(if (useMock) stringResource(R.string.mock_on) else stringResource(R.string.mock_off))
             }
         }
 
@@ -280,7 +276,7 @@ fun TabItemUnderline(
             modifier = Modifier
                 .height(3.dp)
                 .width(40.dp)
-                .background(if (selected) IberdrolaGreen else Color.Transparent)
+                .background(if (selected) colorResource(R.color.iberdrola_green) else Color.Transparent)
         )
     }
 }
@@ -340,13 +336,44 @@ fun SkeletonItem() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Box(modifier = Modifier.width(120.dp).height(14.dp).background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp)))
+            Box(
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(14.dp)
+                    .background(
+                        color = colorResource(R.color.skeleton_gray),
+                        RoundedCornerShape(4.dp)
+                    )
+            )
             Spacer(modifier = Modifier.height(6.dp))
-            Box(modifier = Modifier.width(80.dp).height(12.dp).background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp)))
+            Box(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(12.dp)
+                    .background(
+                        color = colorResource(R.color.skeleton_gray),
+                        RoundedCornerShape(4.dp)
+                    )
+            )
             Spacer(modifier = Modifier.height(6.dp))
-            Box(modifier = Modifier.width(60.dp).height(12.dp).background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp)))
+            Box(
+                modifier = Modifier
+                    .width(60.dp)
+                    .height(12.dp)
+                    .background(
+                        color = colorResource(R.color.skeleton_gray),
+                        RoundedCornerShape(4.dp)
+                    )
+            )
         }
-        Box(modifier = Modifier.width(30.dp).height(30.dp).background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp)))
+        Box(
+            modifier = Modifier
+                .width(30.dp)
+                .height(30.dp)
+                .background(
+                    color = colorResource(R.color.skeleton_gray), RoundedCornerShape(4.dp)
+                )
+        )
     }
 }
 
@@ -368,14 +395,38 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .size(dimensionResource(R.dimen.icon_size_large))
-                    .background(Color(0xFFBDBDBD), RoundedCornerShape(20.dp))
+                    .background(
+                        color = colorResource(R.color.skeleton_darkgray),
+                        RoundedCornerShape(20.dp)
+                    )
                     .align(Alignment.End)
             )
-            Box(modifier = Modifier.fillMaxWidth(0.5f).height(24.dp).background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp)))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.5f)
+                    .height(24.dp)
+                    .background(
+                        color = colorResource(R.color.skeleton_darkgray),
+                        RoundedCornerShape(4.dp)
+                    )
+            )
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-            Box(modifier = Modifier.fillMaxWidth(0.8f).height(20.dp).background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp)))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(20.dp)
+                    .background(
+                        color = colorResource(R.color.skeleton_darkgray),
+                        RoundedCornerShape(4.dp)
+                    )
+            )
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-            Box(modifier = Modifier.fillMaxWidth(0.3f).height(24.dp).background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp)))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.3f)
+                    .height(24.dp)
+                    .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
+            )
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
         }
     }
@@ -402,9 +453,36 @@ fun SkeletonInvoicesLandscape() {
 
 // Preview data
 private val previewInvoices = listOf(
-    Invoice(1, "2026-03-01", "2026-03-01", "Factura Luz", 52.3, "Pagada", InvoiceType.LUZ, "C/Larios"),
-    Invoice(2, "2026-02-18", "2026-03-01", "Factura Gas", 28.4, "Pendiente de Pago", InvoiceType.GAS, "C/Larios"),
-    Invoice(3, "2026-03-02", "2026-03-01", "Factura Luz", 32.5, "Pagada", InvoiceType.LUZ, "C/Larios")
+    Invoice(
+        1,
+        "2026-03-01",
+        "2026-03-01",
+        "Factura Luz",
+        52.3,
+        "Pagada",
+        InvoiceType.LUZ,
+        "C/Larios"
+    ),
+    Invoice(
+        2,
+        "2026-02-18",
+        "2026-03-01",
+        "Factura Gas",
+        28.4,
+        "Pendiente de Pago",
+        InvoiceType.GAS,
+        "C/Larios"
+    ),
+    Invoice(
+        3,
+        "2026-03-02",
+        "2026-03-01",
+        "Factura Luz",
+        32.5,
+        "Pagada",
+        InvoiceType.LUZ,
+        "C/Larios"
+    )
 )
 
 @Preview(showBackground = true)

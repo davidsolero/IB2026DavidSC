@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -33,7 +34,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.iberdrola.practicas2026.davidsc.R
-import com.iberdrola.practicas2026.davidsc.ui.theme.IberdrolaGreen
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,11 +79,11 @@ fun RatingBottomSheet(
 
                 // Colors map 1-to-1 with the sentiment scale: very negative to very positive.
                 val colors = listOf(
-                    Color.Red,
-                    Color(0xFFAC6A2F),
-                    Color.Gray,
-                    Color(0xFF226999),
-                    IberdrolaGreen
+                    colorResource(R.color.rating_very_negative),
+                    colorResource(R.color.rating_negative),
+                    colorResource(R.color.rating_neutral),
+                    colorResource(R.color.rating_positive),
+                    colorResource(R.color.iberdrola_green)
                 )
 
                 icons.forEachIndexed { index, icon ->
@@ -101,7 +102,7 @@ fun RatingBottomSheet(
             TextButton(onClick = onLater) {
                 Text(
                     text = stringResource(R.string.rating_later),
-                    color = IberdrolaGreen,
+                    color =  colorResource(R.color.iberdrola_green),
                     textDecoration = TextDecoration.Underline
                 )
             }
