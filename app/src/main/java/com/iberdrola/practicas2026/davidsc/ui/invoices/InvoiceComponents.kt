@@ -53,6 +53,7 @@ import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagofondo
 import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagotexto
 import java.text.NumberFormat
 import java.util.Locale
+import androidx.compose.ui.res.dimensionResource
 
 val nf = NumberFormat.getCurrencyInstance(Locale("es", "ES"))
 
@@ -61,7 +62,7 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(dimensionResource(R.dimen.margin_medium))
             .clickable { onClick() }, // 🔹
         colors = CardDefaults.outlinedCardColors(
             containerColor = Color.Transparent
@@ -73,7 +74,7 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(dimensionResource(R.dimen.margin_medium)),
             verticalAlignment = Alignment.Top
         ) {
             // Columna con textos
@@ -85,23 +86,23 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
                 Text(
                     text = invoice.description,
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 2.dp, bottom = 15.dp)
+                    modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall), bottom = 15.dp)
                 )
                 Text(
                     text = nf.format(invoice.amount),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 4.dp)
+                    modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
                 )
                 Text(
                     text = invoice.startDate,
                     style = MaterialTheme.typography.titleSmall,
                     color = Color.Gray
                 )
-                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.margin_xsmall)))
                 StatusBadge(
                     status = invoice.status,
-                    modifier = Modifier.padding(top = 4.dp)
+                    modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
                 )
             }
             val icon = when (invoice.type) {
@@ -113,7 +114,7 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
                 imageVector = icon,
                 contentDescription = "icon",
                 tint = IberdrolaGreen,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
             )
         }
     }
@@ -135,7 +136,7 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 15.dp),
+            .padding(horizontal = dimensionResource(R.dimen.margin_medium), vertical = 15.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -151,19 +152,19 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
                 )
             StatusBadge(
                 status = invoice.status,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
             )
         }
         Text(
             text = "%.2f€".format(invoice.amount),
             style = MaterialTheme.typography.bodyMedium,
             color = Color.Gray,
-            modifier = Modifier.padding(end = 8.dp)
+            modifier = Modifier.padding(end = dimensionResource(R.dimen.margin_small))
         )
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
             contentDescription = null,
-            modifier = Modifier.size(16.dp)
+            modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
         )
     }
 }
@@ -182,8 +183,8 @@ fun StatusBadge(status: String, modifier: Modifier = Modifier) {
         color = textColor,
         style = MaterialTheme.typography.labelSmall,
         modifier = modifier
-            .background(color = bgColor, shape = RoundedCornerShape(8.dp))
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .background(color = bgColor, shape = RoundedCornerShape(dimensionResource(R.dimen.status_badge_radius)))
+            .padding(horizontal = dimensionResource(R.dimen.margin_small), vertical = dimensionResource(R.dimen.margin_xsmall))
     )
 }
 
@@ -252,9 +253,9 @@ fun InvoicesHeader(
             .fillMaxWidth()
             .padding(
                 top =  WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 12.dp
+                start = dimensionResource(R.dimen.margin_medium),
+                end = dimensionResource(R.dimen.margin_medium),
+                bottom = dimensionResource(R.dimen.margin_xlarge)
             )
     ) {
         Row(
@@ -266,7 +267,7 @@ fun InvoicesHeader(
                     contentDescription = "Atrás",
                     tint = IberdrolaGreen,
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(dimensionResource(R.dimen.icon_size_medium))
                         .graphicsLayer { scaleX = -1f }
                 )
             }
@@ -292,7 +293,7 @@ fun InvoicesHeader(
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
         Text(
             text = stringResource(R.string.invoices_title),
@@ -362,7 +363,9 @@ fun YearHeader(year: String) {
         text = year,
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 4.dp)
+        modifier = Modifier.padding(    start = dimensionResource(R.dimen.margin_medium),
+            top = dimensionResource(R.dimen.margin_small),
+            bottom = dimensionResource(R.dimen.margin_xsmall))
     )
 }
 

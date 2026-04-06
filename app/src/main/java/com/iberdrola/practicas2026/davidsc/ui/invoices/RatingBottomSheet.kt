@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -33,23 +34,23 @@ fun RatingBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 16.dp),
+                .padding(horizontal = dimensionResource(R.dimen.margin_large), vertical = dimensionResource(R.dimen.margin_medium)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = stringResource(R.string.rating_title),
                 style = MaterialTheme.typography.titleMedium
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
             Text(
                 text = stringResource(R.string.rating_question),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray,
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
             HorizontalDivider()
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 val icons = listOf(
                     Icons.Outlined.SentimentVeryDissatisfied,
@@ -73,12 +74,12 @@ fun RatingBottomSheet(
                         contentDescription = "rating $i",
                         tint = colors[i],
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(dimensionResource(R.dimen.icon_size_large))
                             .clickable { onRated(i + 1) }
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
             TextButton(onClick = onLater) {
                 Text(
                     text = stringResource(R.string.rating_later),

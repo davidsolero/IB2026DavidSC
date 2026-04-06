@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,7 +43,7 @@ fun InvoicesScreen(
     navController: NavController,
     viewModel: InvoicesViewModel = hiltViewModel()
 ) {
-    Log.d("InvoicesVM", "🚀 InvoicesScreen Composable launched")
+    Log.d("InvoicesVM", "InvoicesScreen Composable launched")
     val invoices by viewModel.invoices.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val useMock by viewModel.useMock.collectAsState()
@@ -82,7 +83,7 @@ fun InvoicesScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = dimensionResource(R.dimen.margin_medium))
             ) {
                 TabItemUnderline(
                     text = stringResource(R.string.tab_luz),
@@ -126,7 +127,7 @@ fun InvoicesScreen(
                                 onClick = { showDialog = true },
                                 modifier = Modifier
                                     .weight(1f)
-                                    .padding(start = 16.dp, end = 16.dp)
+                                    .padding(start = dimensionResource(R.dimen.margin_medium), end = dimensionResource(R.dimen.margin_medium))
                             )
                         }
 
@@ -139,7 +140,7 @@ fun InvoicesScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                    .padding(horizontal = dimensionResource(R.dimen.margin_medium), vertical = dimensionResource(R.dimen.margin_small)),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -173,7 +174,7 @@ fun InvoicesScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(horizontal = dimensionResource(R.dimen.margin_medium), vertical = dimensionResource(R.dimen.margin_small)),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
