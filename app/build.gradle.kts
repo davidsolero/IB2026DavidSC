@@ -92,4 +92,7 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
 
     implementation(libs.compose.material.icons.extended)
+
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("io.mockk:mockk:1.14.6")
 }
