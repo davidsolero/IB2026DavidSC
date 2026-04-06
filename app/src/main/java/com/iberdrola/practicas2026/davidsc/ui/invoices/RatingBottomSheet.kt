@@ -1,15 +1,27 @@
 package com.iberdrola.practicas2026.davidsc.ui.invoices
 
-
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.SentimentDissatisfied
 import androidx.compose.material.icons.outlined.SentimentNeutral
 import androidx.compose.material.icons.outlined.SentimentSatisfied
 import androidx.compose.material.icons.outlined.SentimentVeryDissatisfied
 import androidx.compose.material.icons.outlined.SentimentVerySatisfied
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,7 +46,10 @@ fun RatingBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = dimensionResource(R.dimen.margin_large), vertical = dimensionResource(R.dimen.margin_medium)),
+                .padding(
+                    horizontal = dimensionResource(R.dimen.margin_large),
+                    vertical = dimensionResource(R.dimen.margin_medium)
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -51,6 +66,7 @@ fun RatingBottomSheet(
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
             HorizontalDivider()
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
+
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 val icons = listOf(
                     Icons.Outlined.SentimentVeryDissatisfied,
@@ -60,34 +76,36 @@ fun RatingBottomSheet(
                     Icons.Outlined.SentimentVerySatisfied
                 )
 
+                // Colors map 1-to-1 with the sentiment scale: very negative to very positive.
                 val colors = listOf(
-                    Color.Red,          // Muy enojado
-                    Color(0xFFAC6A2F),       // Triste
-                    Color.Gray,         // Neutral
-                    Color(0xFF226999),         // Satisfecho
-                    IberdrolaGreen         // Muy satisfecho
+                    Color.Red,
+                    Color(0xFFAC6A2F),
+                    Color.Gray,
+                    Color(0xFF226999),
+                    IberdrolaGreen
                 )
 
-                icons.forEachIndexed { i, icon ->
+                icons.forEachIndexed { index, icon ->
                     Icon(
                         imageVector = icon,
-                        contentDescription = "rating $i",
-                        tint = colors[i],
+                        contentDescription = "Rating ${index + 1} of 5",
+                        tint = colors[index],
                         modifier = Modifier
                             .size(dimensionResource(R.dimen.icon_size_large))
-                            .clickable { onRated(i + 1) }
+                            .clickable { onRated(index + 1) }
                     )
                 }
             }
+
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
             TextButton(onClick = onLater) {
                 Text(
                     text = stringResource(R.string.rating_later),
-                    color= IberdrolaGreen,
+                    color = IberdrolaGreen,
                     textDecoration = TextDecoration.Underline
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
         }
     }
 }

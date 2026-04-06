@@ -18,6 +18,7 @@ fun InvoiceDto.toDomain(): Invoice {
         street = street
     )
 }
+
 fun Invoice.toEntity(): InvoiceEntity {
     return InvoiceEntity(
         id = id,
@@ -29,14 +30,6 @@ fun Invoice.toEntity(): InvoiceEntity {
         type = type.name,
         street = street
     )
-}
-
-fun String.toInvoiceType(): InvoiceType {
-    return when (this.lowercase()) {
-        "luz" -> InvoiceType.LUZ
-        "gas" -> InvoiceType.GAS
-        else -> throw IllegalArgumentException("Unknown type: $this")
-    }
 }
 
 fun InvoiceEntity.toDomain(): Invoice {
@@ -51,3 +44,18 @@ fun InvoiceEntity.toDomain(): Invoice {
         street = street
     )
 }
+
+
+/**
+ * Converts a raw string from the API or database to an [InvoiceType].
+ * Throws [IllegalArgumentException] if the value is not a recognized type.
+ * This is intentional — unknown types indicate a data contract violation.
+ */
+fun String.toInvoiceType(): InvoiceType {
+    return when (this.lowercase()) {
+        "luz" -> InvoiceType.LUZ
+        "gas" -> InvoiceType.GAS
+        else -> throw IllegalArgumentException("Unknown type: $this")
+    }
+}
+

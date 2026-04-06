@@ -1,9 +1,9 @@
 package com.iberdrola.practicas2026.davidsc.ui.invoices
 
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import com.iberdrola.practicas2026.davidsc.domain.usecase.GetInvoicesUseCase
@@ -12,10 +12,9 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
-import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
-import kotlinx.coroutines.flow.combine
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -26,13 +25,14 @@ class InvoicesViewModel @Inject constructor(
     private val prefs: SharedPreferences
 ) : ViewModel() {
 
-    private val _useMock = MutableStateFlow(
-        prefs.getBoolean("use_mock", AppConfig.useMockLocal)
-    )
+    private val _useMock = MutableStateFlow(prefs.getBoolean(PREF_USE_MOCK, AppConfig.useMockLocal))
     val useMock: StateFlow<Boolean> = _useMock.asStateFlow()
 
     private val _selectedType = MutableStateFlow(InvoiceType.LUZ)
     val selectedType: StateFlow<InvoiceType> = _selectedType.asStateFlow()
+
+    private val _selectedStreet = MutableStateFlow<String?>(AppConfig.mockStreet)
+    val selectedStreet: StateFlow<String?> = _selectedStreet.asStateFlow()
 
     private val _invoices = MutableStateFlow<List<Invoice>>(emptyList())
     val invoices: StateFlow<List<Invoice>> = _invoices.asStateFlow()
@@ -43,50 +43,43 @@ class InvoicesViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-
-    private val _selectedStreet = MutableStateFlow<String?>(AppConfig.mockStreet)
-    val selectedStreet: StateFlow<String?> = _selectedStreet.asStateFlow()
-
-
     init {
-        Log.d("InvoicesVM", "🔹 ViewModel init - useMock: ${_useMock.value}, type: ${_selectedType.value}")
-
-        val mock = prefs.getBoolean("use_mock", false)
-        AppConfig.useMockLocal = mock
-        _useMock.value = mock
+        val savedMock = prefs.getBoolean(PREF_USE_MOCK, false)
+        AppConfig.useMockLocal = savedMock
+        _useMock.value = savedMock
 
         viewModelScope.launch {
-            combine(_selectedType, _selectedStreet, _useMock) { type, street, mock ->
-                Triple(type, street, mock)
-            }.collect {
-                Log.d("InvoicesVM", "🔄 combine triggered: $it")
-                loadInvoices(it.first, it.second, it.third)
+            combine(_selectedType, _selectedStreet, _useMock) { type, street, _ ->
+                Pair(type, street)
+            }.collect { (type, street) ->
+                loadInvoices(type, street)
             }
         }
     }
 
     fun selectType(type: InvoiceType) {
         if (_selectedType.value != type) {
-            viewModelScope.launch {
-                _isLoading.value = true
-                _selectedType.value = type
-                Log.d("InvoicesVM", "Tipo seleccionado -> $type")
-                //delay(300)        optional
-            }
+            _selectedType.value = type
+        }
+    }
+
+    fun selectStreet(street: String?) {
+        if (_selectedStreet.value != street) {
+            _selectedStreet.value = street
         }
     }
 
     fun toggleMock() {
         val newValue = !_useMock.value
-        viewModelScope.launch {
-            _isLoading.value = true
-            _useMock.value = newValue
-            prefs.edit { putBoolean("use_mock", newValue) }
-            AppConfig.useMockLocal = newValue
-        }
+        AppConfig.useMockLocal = newValue
+        prefs.edit { putBoolean(PREF_USE_MOCK, newValue) }
+        _useMock.value = newValue
     }
 
-    // Bottom sheet
+    /**
+     * Called when the user navigates back from the invoices screen.
+     * Returns true when the rating sheet should be shown based on the configured threshold.
+     */
     fun onBackPressed(): Boolean {
         val count = prefs.getInt(PREF_CLOSE_COUNT, 0) + 1
         val threshold = prefs.getInt(PREF_THRESHOLD, 1)
@@ -94,7 +87,17 @@ class InvoicesViewModel @Inject constructor(
         return count >= threshold
     }
 
+    fun onRated() = resetSheet(threshold = 10)
 
+    fun onRespondLater() = resetSheet(threshold = 3)
+
+    fun onSheetDismissed() = resetSheet(threshold = 1)
+
+    /**
+     * Formats an invoice date range or single date for display.
+     * If [showEndDate] is true, returns a range formatted as "dd MMM. yyyy - dd MMM. yyyy".
+     * Otherwise returns the start date formatted as "d de MMMM".
+     */
     fun formatInvoiceDate(invoice: Invoice, showEndDate: Boolean = false): String {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val start = LocalDate.parse(invoice.startDate, formatter)
@@ -107,10 +110,6 @@ class InvoicesViewModel @Inject constructor(
         }
     }
 
-    fun onRated() = resetSheet(threshold = 10)
-    fun onRespondLater() = resetSheet(threshold = 3)
-    fun onSheetDismissed() = resetSheet(threshold = 1)
-
     private fun resetSheet(threshold: Int) {
         prefs.edit {
             putInt(PREF_CLOSE_COUNT, 0)
@@ -118,35 +117,20 @@ class InvoicesViewModel @Inject constructor(
         }
     }
 
-    companion object {
-        private const val PREF_CLOSE_COUNT = "invoice_close_count"
-        private const val PREF_THRESHOLD = "invoice_show_sheet_threshold"
-    }
-
-    private suspend fun loadInvoices(type: InvoiceType, street: String?, useMock: Boolean) {
+    private suspend fun loadInvoices(type: InvoiceType, street: String?) {
         _isLoading.value = true
-        Log.d("InvoicesVM", "🔹 Loading invoices -> type: $type, street: $street, useMock: $useMock")
         try {
-            val result = getInvoicesUseCase(type, street, useMock)
-            _invoices.value = result
-            Log.d("InvoicesVM", "Loaded invoices: ${result.size}")
+            _invoices.value = getInvoicesUseCase(type, street)
         } catch (e: Exception) {
             _error.value = e.message
-            Log.e("InvoicesVM", " Error loading invoices: ${e.message}", e)
         } finally {
             _isLoading.value = false
         }
     }
 
-
-    fun selectStreet(street: String?) {
-        if (_selectedStreet.value != street) {
-            viewModelScope.launch {
-                _isLoading.value = true
-                _selectedStreet.value = street
-                // Opcional: delay(300) para ver skeleton
-                Log.d("InvoicesVM", "Calle seleccionada -> $street")
-            }
-        }
+    companion object {
+        private const val PREF_USE_MOCK = "use_mock"
+        private const val PREF_CLOSE_COUNT = "invoice_close_count"
+        private const val PREF_THRESHOLD = "invoice_show_sheet_threshold"
     }
 }

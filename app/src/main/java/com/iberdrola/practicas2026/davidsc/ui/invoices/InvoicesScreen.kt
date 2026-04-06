@@ -1,7 +1,6 @@
 package com.iberdrola.practicas2026.davidsc.ui.invoices
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,12 +28,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
-import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,19 +39,22 @@ fun InvoicesScreen(
     navController: NavController,
     viewModel: InvoicesViewModel = hiltViewModel()
 ) {
-    Log.d("InvoicesVM", "InvoicesScreen Composable launched")
     val invoices by viewModel.invoices.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val useMock by viewModel.useMock.collectAsState()
     val selectedType by viewModel.selectedType.collectAsState()
+    val selectedStreet by viewModel.selectedStreet.collectAsState()
+
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     var showRatingSheet by remember { mutableStateOf(false) }
-    var showDialog by remember { mutableStateOf(false) }
+    var showInvoiceDialog by remember { mutableStateOf(false) }
 
-    // 🔹 Detectar orientación
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val selectedStreet by viewModel.selectedStreet.collectAsState()
+    val navigateBack = {
+        navController.popBackStack()
+        Unit
+    }
+
     Scaffold(
         topBar = {
             InvoicesHeader(
@@ -63,23 +62,25 @@ fun InvoicesScreen(
                     if (viewModel.onBackPressed()) {
                         showRatingSheet = true
                     } else {
-                        navController.popBackStack()
+                        navigateBack()
                     }
                 },
                 useMock = useMock,
                 onToggleMock = { viewModel.toggleMock() },
-                selectedStreet= selectedStreet
+                selectedStreet = selectedStreet
             )
         }
     ) { innerPadding ->
+
+        val filteredInvoices = invoices
+            .filter { it.type == selectedType }
+            .sortedByDescending { it.startDate }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-
-            // Tabs Luz / Gas
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -107,176 +108,98 @@ fun InvoicesScreen(
                     SkeletonList()
                 }
             } else {
-
-                val filteredInvoices = invoices
-                    .filter { it.type == selectedType }
-                    .sortedByDescending { it.startDate }
-
                 if (isLandscape) {
-                    // 🔹 LANDSCAPE → Row (lado a lado)
                     Row(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small))
                     ) {
-
-                        // IZQUIERDA → Última factura
                         filteredInvoices.firstOrNull()?.let { latest ->
                             LastInvoiceCard(
                                 invoice = latest,
-                                onClick = { showDialog = true },
+                                onClick = { showInvoiceDialog = true },
                                 modifier = Modifier
                                     .weight(1f)
-                                    .padding(start = dimensionResource(R.dimen.margin_medium), end = dimensionResource(R.dimen.margin_medium))
+                                    .padding(horizontal = dimensionResource(R.dimen.margin_medium))
                             )
                         }
-
-                        // DERECHA → Histórico
-                        Column(
-                            modifier = Modifier
-                                .weight(2f)
-                        ) {
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = dimensionResource(R.dimen.margin_medium), vertical = dimensionResource(R.dimen.margin_small)),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.invoices_history),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.ExtraBold
-                                )
-                                OutlinedButton(onClick = {}, enabled = false) {
-                                    Text(stringResource(R.string.invoices_filter))
-                                }
-                            }
-
+                        Column(modifier = Modifier.weight(2f)) {
+                            InvoiceHistoryHeader()
                             InvoiceListGroupedByYear(
                                 invoices = filteredInvoices.drop(1),
-                                onClick = { showDialog = true }
+                                onClick = { showInvoiceDialog = true }
                             )
                         }
                     }
-
                 } else {
-                    // 🔹 PORTRAIT → tu diseño original
-
                     filteredInvoices.firstOrNull()?.let { latest ->
                         LastInvoiceCard(
                             invoice = latest,
-                            onClick = { showDialog = true }
+                            onClick = { showInvoiceDialog = true }
                         )
                     }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = dimensionResource(R.dimen.margin_medium), vertical = dimensionResource(R.dimen.margin_small)),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.invoices_history),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                        OutlinedButton(onClick = {}, enabled = false) {
-                            Text(stringResource(R.string.invoices_filter))
-                        }
-                    }
-
+                    InvoiceHistoryHeader()
                     InvoiceListGroupedByYear(
                         invoices = filteredInvoices.drop(1),
-                        onClick = { showDialog = true }
+                        onClick = { showInvoiceDialog = true }
                     )
                 }
             }
+        }
 
-            // Bottom Sheet
-            if (showRatingSheet) {
-                RatingBottomSheet(
-                    onRated = {
-                        viewModel.onRated()
-                        showRatingSheet = false
-                        navController.popBackStack()
-                    },
-                    onLater = {
-                        viewModel.onRespondLater()
-                        showRatingSheet = false
-                        navController.popBackStack()
-                    },
-                    onDismiss = {
-                        viewModel.onSheetDismissed()
-                        showRatingSheet = false
-                        navController.popBackStack()
-                    }
-                )
-            }
+        if (showRatingSheet) {
+            RatingBottomSheet(
+                onRated = {
+                    viewModel.onRated()
+                    showRatingSheet = false
+                    navigateBack()
+                },
+                onLater = {
+                    viewModel.onRespondLater()
+                    showRatingSheet = false
+                    navigateBack()
+                },
+                onDismiss = {
+                    viewModel.onSheetDismissed()
+                    showRatingSheet = false
+                    navigateBack()
+                }
+            )
+        }
 
-            // Dialog
-            if (showDialog) {
-                AlertDialog(
-                    onDismissRequest = { showDialog = false },
-                    text = { Text(stringResource(R.string.invoice_not_available)) },
-                    confirmButton = {
-                        TextButton(onClick = { showDialog = false }) {
-                            Text(stringResource(R.string.accept))
-                        }
+        if (showInvoiceDialog) {
+            AlertDialog(
+                onDismissRequest = { showInvoiceDialog = false },
+                text = { Text(stringResource(R.string.invoice_not_available)) },
+                confirmButton = {
+                    TextButton(onClick = { showInvoiceDialog = false }) {
+                        Text(stringResource(R.string.accept))
                     }
-                )
-            }
+                }
+            )
         }
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 640)
+// Extracted to avoid duplicating the history header block in portrait and landscape layouts.
 @Composable
-fun PreviewInvoicesFullScreen() {
-    var selectedTab by remember { mutableStateOf(0) }
-    var useMock by remember { mutableStateOf(true) }
-
-    val fakeInvoices = listOf(
-        Invoice(1, "2026-03-01", "2026-03-01","Factura Luz", 52.3, "Pagada", InvoiceType.LUZ, "C/larios"),
-        Invoice(2, "2026-02-18", "2026-03-01","Factura Gas", 28.4, "Pendiente de Pago", InvoiceType.GAS,"C/larios"),
-        Invoice(3, "2026-03-02", "2026-03-01","Factura Luz", 32.5, "Pagada", InvoiceType.LUZ, "C/larios")
-    )
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        // Header
-        InvoicesHeader(
-            onBackClick = {},
-            useMock = useMock,
-            onToggleMock = { useMock = !useMock },
-            selectedStreet = "Calle larios"
-        )
-
-        // Tabs Luz / Gas
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            TabItemUnderline(text = "Luz", selected = selectedTab == 0) { selectedTab = 0 }
-            TabItemUnderline(text = "Gas", selected = selectedTab == 1) { selectedTab = 1 }
-        }
-
-        HorizontalDivider(color = Color.LightGray)
-
-        // Última factura
-        LastInvoiceCard(invoice = fakeInvoices.first(), onClick = {})
-
-        // Histórico
+private fun InvoiceHistoryHeader() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(R.dimen.margin_medium),
+                vertical = dimensionResource(R.dimen.margin_small)
+            ),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
-            text = "Histórico",
+            text = stringResource(R.string.invoices_history),
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+            fontWeight = FontWeight.ExtraBold
         )
-
-        // Lista de facturas agrupadas por año
-        InvoiceListGroupedByYear(invoices = fakeInvoices.drop(1), onClick = {})
+        OutlinedButton(onClick = {}, enabled = false) {
+            Text(stringResource(R.string.invoices_filter))
+        }
     }
 }

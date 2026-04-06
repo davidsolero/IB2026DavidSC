@@ -14,7 +14,6 @@ import jakarta.inject.Singleton
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -23,7 +22,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:3001/") // Emulador -> localhost del PC
+            .baseUrl("http://10.0.2.2:3001/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -34,13 +33,15 @@ object NetworkModule {
         @ApplicationContext context: Context,
         retrofit: Retrofit
     ): InvoiceApi {
+        // The mock toggle at runtime is handled in InvoiceRepositoryImpl by reading
+        // AppConfig.useMockLocal on each call. Retromock is only wired here for the
+        // initial app launch state — runtime changes do not rebuild this dependency.
         return if (AppConfig.useMockLocal) {
-            // Retromock solo se inicializa si usamos mocks locales
-            val retromock = Retromock.Builder()
+            Retromock.Builder()
                 .retrofit(retrofit)
                 .defaultBodyFactory(AssetBodyFactory(context.assets))
                 .build()
-            retromock.create(InvoiceApi::class.java)
+                .create(InvoiceApi::class.java)
         } else {
             retrofit.create(InvoiceApi::class.java)
         }

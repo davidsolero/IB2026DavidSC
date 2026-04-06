@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -53,21 +54,17 @@ import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagofondo
 import com.iberdrola.practicas2026.davidsc.ui.theme.StatusPendientepagotexto
 import java.text.NumberFormat
 import java.util.Locale
-import androidx.compose.ui.res.dimensionResource
 
-val nf = NumberFormat.getCurrencyInstance(Locale("es", "ES"))
+private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale("es", "ES"))
 
 @Composable
-fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = Modifier) { // 🔹 agregar onClick
+fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(dimensionResource(R.dimen.margin_medium))
-            .clickable { onClick() }, // 🔹
-        colors = CardDefaults.outlinedCardColors(
-            containerColor = Color.Transparent
-
-        ),
+            .clickable { onClick() },
+        colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
         border = BorderStroke(1.3.dp, IberdrolaGreen),
         shape = CardDefaults.outlinedShape
     ) {
@@ -77,7 +74,6 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
                 .padding(dimensionResource(R.dimen.margin_medium)),
             verticalAlignment = Alignment.Top
         ) {
-            // Columna con textos
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = stringResource(R.string.last_invoice),
@@ -86,10 +82,13 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
                 Text(
                     text = invoice.description,
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall), bottom = 15.dp)
+                    modifier = Modifier.padding(
+                        top = dimensionResource(R.dimen.margin_xsmall),
+                        bottom = 15.dp
+                    )
                 )
                 Text(
-                    text = nf.format(invoice.amount),
+                    text = currencyFormatter.format(invoice.amount),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
@@ -99,12 +98,15 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
                     style = MaterialTheme.typography.titleSmall,
                     color = Color.Gray
                 )
-                HorizontalDivider(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.margin_xsmall)))
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.margin_xsmall))
+                )
                 StatusBadge(
                     status = invoice.status,
                     modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
                 )
             }
+
             val icon = when (invoice.type) {
                 InvoiceType.LUZ -> Icons.Outlined.Lightbulb
                 InvoiceType.GAS -> Icons.Outlined.Whatshot
@@ -112,7 +114,7 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
 
             Icon(
                 imageVector = icon,
-                contentDescription = "icon",
+                contentDescription = invoice.type.name,
                 tint = IberdrolaGreen,
                 modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
             )
@@ -136,7 +138,10 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = dimensionResource(R.dimen.margin_medium), vertical = 15.dp),
+            .padding(
+                horizontal = dimensionResource(R.dimen.margin_medium),
+                vertical = 15.dp
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -147,9 +152,8 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
             )
             Text(
                 text = invoice.description,
-                style = MaterialTheme.typography.bodySmall,
-
-                )
+                style = MaterialTheme.typography.bodySmall
+            )
             StatusBadge(
                 status = invoice.status,
                 modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
@@ -171,11 +175,11 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
 
 @Composable
 fun StatusBadge(status: String, modifier: Modifier = Modifier) {
-    // Solo dos estados: Pagada y Pendiente de Pago
     val (bgColor, textColor) = when (status) {
         "Pagada" -> StatusPagadofondo to StatusPagadotexto
         "Pendiente de Pago" -> StatusPendientepagofondo to StatusPendientepagotexto
-        else -> StatusPendientepagofondo to StatusPendientepagotexto // default al rojo
+        // Unknown statuses default to the pending style as a safe fallback.
+        else -> StatusPendientepagofondo to StatusPendientepagotexto
     }
 
     Text(
@@ -183,62 +187,15 @@ fun StatusBadge(status: String, modifier: Modifier = Modifier) {
         color = textColor,
         style = MaterialTheme.typography.labelSmall,
         modifier = modifier
-            .background(color = bgColor, shape = RoundedCornerShape(dimensionResource(R.dimen.status_badge_radius)))
-            .padding(horizontal = dimensionResource(R.dimen.margin_small), vertical = dimensionResource(R.dimen.margin_xsmall))
+            .background(
+                color = bgColor,
+                shape = RoundedCornerShape(dimensionResource(R.dimen.status_badge_radius))
+            )
+            .padding(
+                horizontal = dimensionResource(R.dimen.margin_small),
+                vertical = dimensionResource(R.dimen.margin_xsmall)
+            )
     )
-}
-
-@Composable
-fun SkeletonList() {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 50.dp) //
-    ) {
-        items(7) {
-            SkeletonItem()
-            HorizontalDivider()
-        }
-    }
-}
-
-@Composable
-fun SkeletonItem() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Box(
-                modifier = Modifier
-                    .width(120.dp)
-                    .height(14.dp)
-                    .background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Box(
-                modifier = Modifier
-                    .width(80.dp)
-                    .height(12.dp)
-                    .background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Box(
-                modifier = Modifier
-                    .width(60.dp)
-                    .height(12.dp)
-                    .background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
-            )
-        }
-        Box(
-            modifier = Modifier
-                .width(30.dp)
-                .height(30.dp)
-                .background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
-        )
-    }
 }
 
 @Composable
@@ -252,42 +209,35 @@ fun InvoicesHeader(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                top =  WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
+                top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
                 start = dimensionResource(R.dimen.margin_medium),
                 end = dimensionResource(R.dimen.margin_medium),
                 bottom = dimensionResource(R.dimen.margin_xlarge)
             )
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                    contentDescription = "Atrás",
+                    contentDescription = stringResource(R.string.back),
                     tint = IberdrolaGreen,
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.icon_size_medium))
                         .graphicsLayer { scaleX = -1f }
                 )
             }
-
             Text(
-                text = "Atrás",
+                text = stringResource(R.string.back),
                 style = MaterialTheme.typography.bodyMedium,
                 color = IberdrolaGreen,
                 textDecoration = TextDecoration.Underline,
                 modifier = Modifier.clickable { onBackClick() }
             )
-
             Spacer(modifier = Modifier.weight(1f))
-
             OutlinedButton(
                 onClick = onToggleMock,
                 border = BorderStroke(2.dp, IberdrolaGreen),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = IberdrolaGreen
-                )
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = IberdrolaGreen)
             ) {
                 Text(if (useMock) "Mock ON" else "Mock OFF")
             }
@@ -300,10 +250,9 @@ fun InvoicesHeader(
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
-
         Text(
-            text = selectedStreet ?:  stringResource(R.string.invoices_subtitle),
-            style = MaterialTheme.typography.titleMedium,
+            text = selectedStreet ?: stringResource(R.string.invoices_subtitle),
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }
@@ -316,7 +265,7 @@ fun TabItemUnderline(
 ) {
     Column(
         modifier = Modifier
-            .padding(end = 24.dp)
+            .padding(end = dimensionResource(R.dimen.margin_large))
             .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -330,25 +279,19 @@ fun TabItemUnderline(
         Box(
             modifier = Modifier
                 .height(3.dp)
-                .width(40.dp) // ancho fijo, no fillMaxWidth
-                .background(
-                    if (selected) IberdrolaGreen else Color.Transparent
-                )
+                .width(40.dp)
+                .background(if (selected) IberdrolaGreen else Color.Transparent)
         )
     }
 }
 
 @Composable
 fun InvoiceListGroupedByYear(invoices: List<Invoice>, onClick: (Invoice) -> Unit) {
-    val invoicesByYear = invoices.groupBy { it.startDate.take(4) } // Agrupar por año
+    val invoicesByYear = invoices.groupBy { it.startDate.take(4) }
 
     LazyColumn {
         invoicesByYear.toSortedMap(compareByDescending { it }).forEach { (year, invoicesInYear) ->
-            // Encabezado del año
-            item {
-                YearHeader(year = year)
-            }
-            // Facturas del año
+            item { YearHeader(year = year) }
             items(invoicesInYear) { invoice ->
                 InvoiceItem(invoice = invoice, onClick = { onClick(invoice) })
                 HorizontalDivider()
@@ -363,18 +306,56 @@ fun YearHeader(year: String) {
         text = year,
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(    start = dimensionResource(R.dimen.margin_medium),
+        modifier = Modifier.padding(
+            start = dimensionResource(R.dimen.margin_medium),
             top = dimensionResource(R.dimen.margin_small),
-            bottom = dimensionResource(R.dimen.margin_xsmall))
+            bottom = dimensionResource(R.dimen.margin_xsmall)
+        )
     )
 }
 
 @Composable
-fun SkeletonLastInvoiceCard( modifier: Modifier = Modifier) {
+fun SkeletonList() {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 50.dp)
+    ) {
+        items(7) {
+            SkeletonItem()
+            HorizontalDivider()
+        }
+    }
+}
+
+@Composable
+fun SkeletonItem() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(R.dimen.margin_medium),
+                vertical = dimensionResource(R.dimen.margin_small)
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Box(modifier = Modifier.width(120.dp).height(14.dp).background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp)))
+            Spacer(modifier = Modifier.height(6.dp))
+            Box(modifier = Modifier.width(80.dp).height(12.dp).background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp)))
+            Spacer(modifier = Modifier.height(6.dp))
+            Box(modifier = Modifier.width(60.dp).height(12.dp).background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp)))
+        }
+        Box(modifier = Modifier.width(30.dp).height(30.dp).background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp)))
+    }
+}
+
+@Composable
+fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(dimensionResource(R.dimen.margin_medium)),
         border = BorderStroke(1.3.dp, Color.Gray),
         shape = CardDefaults.outlinedShape,
         colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent)
@@ -382,43 +363,20 @@ fun SkeletonLastInvoiceCard( modifier: Modifier = Modifier) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(dimensionResource(R.dimen.margin_medium))
         ) {
-            // Simula icono
             Box(
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(dimensionResource(R.dimen.icon_size_large))
                     .background(Color(0xFFBDBDBD), RoundedCornerShape(20.dp))
                     .align(Alignment.End)
             )
-            // Simula el título
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.5f)  // mitad de ancho como ejemplo
-                    .height(24.dp)
-                    .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Simula descripción
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .height(20.dp)
-                    .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Simula cantidad
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.3f)
-                    .height(24.dp)
-                    .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-
+            Box(modifier = Modifier.fillMaxWidth(0.5f).height(24.dp).background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp)))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
+            Box(modifier = Modifier.fillMaxWidth(0.8f).height(20.dp).background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp)))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
+            Box(modifier = Modifier.fillMaxWidth(0.3f).height(24.dp).background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp)))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
         }
     }
 }
@@ -428,25 +386,13 @@ fun SkeletonInvoicesLandscape() {
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(horizontal = dimensionResource(R.dimen.margin_medium)),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small))
     ) {
-        // Izquierda: skeleton de la última factura
-        SkeletonLastInvoiceCard(
-            modifier = Modifier
-                .weight(1f)
-        )
-
-        // Derecha: skeleton del histórico
-        Column(
-            modifier = Modifier
-                .weight(2f)
-        ) {
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Lista de skeletons
-            repeat(5) {  // puedes ajustar el número de skeletons
+        SkeletonLastInvoiceCard(modifier = Modifier.weight(1f))
+        Column(modifier = Modifier.weight(2f)) {
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
+            repeat(5) {
                 SkeletonItem()
                 HorizontalDivider()
             }
@@ -454,11 +400,11 @@ fun SkeletonInvoicesLandscape() {
     }
 }
 
-// Dummy invoices para preview
+// Preview data
 private val previewInvoices = listOf(
-    Invoice(1, "2026-03-01", "2026-03-01","Factura Luz", 52.3, "Pagada", InvoiceType.LUZ, "C/larios"),
-    Invoice(2, "2026-02-18", "2026-03-01","Factura Gas", 28.4, "Pendiente de Pago", InvoiceType.GAS,"C/larios"),
-    Invoice(3, "2026-03-02", "2026-03-01","Factura Luz", 32.5, "Pagada", InvoiceType.LUZ, "C/larios")
+    Invoice(1, "2026-03-01", "2026-03-01", "Factura Luz", 52.3, "Pagada", InvoiceType.LUZ, "C/Larios"),
+    Invoice(2, "2026-02-18", "2026-03-01", "Factura Gas", 28.4, "Pendiente de Pago", InvoiceType.GAS, "C/Larios"),
+    Invoice(3, "2026-03-02", "2026-03-01", "Factura Luz", 32.5, "Pagada", InvoiceType.LUZ, "C/Larios")
 )
 
 @Preview(showBackground = true)
@@ -490,10 +436,10 @@ fun PreviewSkeletonLast() {
 fun PreviewInvoicesHeader() {
     InvoicesHeader(
         onBackClick = {},
-        useMock = true,       // o false, depende de cómo quieras mostrarlo
-        onToggleMock = {}  ,   // dummy lambda para preview
+        useMock = true,
+        onToggleMock = {},
         selectedStreet = "CALLE LARIOS"
-        )
+    )
 }
 
 @Preview(showBackground = true)

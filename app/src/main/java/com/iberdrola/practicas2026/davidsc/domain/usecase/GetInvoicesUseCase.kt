@@ -16,15 +16,10 @@ class GetInvoicesUseCase(
 ) {
     suspend operator fun invoke(
         type: InvoiceType? = null,
-        street: String? = null,
-        useMock: Boolean
+        street: String? = null
     ): List<Invoice> {
-        val invoices = repository.getInvoices()
-
-        val selectedStreet = if (useMock) AppConfig.mockStreet else street
-
-        return invoices
+        return repository.getInvoices()
             .let { list -> type?.let { t -> list.filter { it.type == t } } ?: list }
-            .let { list -> selectedStreet?.let { s -> list.filter { it.street.equals(s, ignoreCase = true) } } ?: list }
+            .let { list -> street?.let { s -> list.filter { it.street.equals(s, ignoreCase = true) } } ?: list }
     }
 }
