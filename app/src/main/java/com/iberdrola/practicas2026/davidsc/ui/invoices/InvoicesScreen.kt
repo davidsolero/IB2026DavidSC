@@ -146,11 +146,13 @@ fun InvoicesScreen(
                                 )
                             }
                             Column(modifier = Modifier.weight(2f)) {
-                                InvoiceHistoryHeader()
-                                InvoiceListGroupedByYear(
-                                    invoices = filteredInvoices.drop(1),
-                                    onClick = { showInvoiceDialog = true }
-                                )
+                                if (filteredInvoices.size > 1) {
+                                    InvoiceHistoryHeader()
+                                    InvoiceListGroupedByYear(
+                                        invoices = filteredInvoices.drop(1),
+                                        onClick = { showInvoiceDialog = true }
+                                    )
+                                }
                             }
                         }
                     } else {
@@ -160,11 +162,13 @@ fun InvoicesScreen(
                                 onClick = { showInvoiceDialog = true }
                             )
                         }
-                        InvoiceHistoryHeader()
-                        InvoiceListGroupedByYear(
-                            invoices = filteredInvoices.drop(1),
-                            onClick = { showInvoiceDialog = true }
-                        )
+                        if (filteredInvoices.size > 1) {
+                            InvoiceHistoryHeader()
+                            InvoiceListGroupedByYear(
+                                invoices = filteredInvoices.drop(1),
+                                onClick = { showInvoiceDialog = true }
+                            )
+                        }
                     }
                 }
             }
