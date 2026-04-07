@@ -106,7 +106,13 @@ fun MainScreen(
 
             if (isLoading) {
                 StreetsSkeleton()
-            } else if (streets.isNotEmpty()) {
+            } else if (streets.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.no_streets_found),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(16.dp)
+                )
+            } else {
                 Text(
                     text = stringResource(R.string.main_my_streets),
                     style = MaterialTheme.typography.titleSmall,

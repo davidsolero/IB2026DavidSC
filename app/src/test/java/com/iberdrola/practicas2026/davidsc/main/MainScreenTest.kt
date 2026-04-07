@@ -37,20 +37,19 @@ class MainScreenTest {
         Dispatchers.resetMain()
     }
 
-
     @Test
     fun `loadStreets loads data successfully`() = runTest {
         val fakeUseCase = mockk<GetStreetsUseCase>()
         coEvery { fakeUseCase.invoke() } returns listOf("Calle A", "Calle B")
 
-        val viewModel = MainViewModel(fakeUseCase)
+        val viewModel = MainViewModel(fakeUseCase, ioDispatcher = testDispatcher)
 
         viewModel.loadStreets()
-
         advanceUntilIdle()
 
         assertEquals(2, viewModel.streets.value.size)
         assertFalse(viewModel.isLoading.value)
+        assertTrue(viewModel.error.value == null)
     }
 
     @Test
@@ -58,27 +57,25 @@ class MainScreenTest {
         val fakeUseCase = mockk<GetStreetsUseCase>()
         coEvery { fakeUseCase.invoke() } throws RuntimeException("Error")
 
-        val viewModel = MainViewModel(fakeUseCase)
+        val viewModel = MainViewModel(fakeUseCase, ioDispatcher = testDispatcher)
 
         viewModel.loadStreets()
-
         advanceUntilIdle()
 
         assertNotNull(viewModel.error.value)
         assertFalse(viewModel.isLoading.value)
+        assertEquals(emptyList<String>(), viewModel.streets.value)
     }
-
 
     @Test
     fun `loadStreets sets loading correctly`() = runTest {
         val fakeUseCase = mockk<GetStreetsUseCase>()
         coEvery { fakeUseCase.invoke() } coAnswers {
-            delay(10) // simula una operación asincrónica
+            delay(10) // simula operación async
             emptyList()
         }
 
-        val dispatcher = StandardTestDispatcher(testScheduler)
-        val viewModel = MainViewModel(fakeUseCase, dispatcher = dispatcher)
+        val viewModel = MainViewModel(fakeUseCase, ioDispatcher = testDispatcher)
 
         val loadingStates = mutableListOf<Boolean>()
 
@@ -87,7 +84,6 @@ class MainScreenTest {
         }
 
         viewModel.loadStreets()
-
         advanceUntilIdle()
 
         assertEquals(listOf(true, false), loadingStates)

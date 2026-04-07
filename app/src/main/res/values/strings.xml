@@ -25,5 +25,7 @@
     <string name="main_select_street">Selecciona una dirección para ver sus facturas</string>
     <string name="main_all_streets">Ver todas las facturas</string>
     <string name="main_my_streets">MIS DIRECCIONES</string>
+    <string name="no_streets_found">No se han encontrado calles</string>
+    <string name="no_invoices_found">No se han encontrado facturas</string>
 
 </resources>

@@ -116,40 +116,56 @@ fun InvoicesScreen(
                     SkeletonList()
                 }
             } else {
-                if (isLandscape) {
-                    Row(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small))
+                if (filteredInvoices.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(dimensionResource(R.dimen.margin_medium)),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
+                        Text(
+                            text = stringResource(R.string.no_invoices_found),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray
+                        )
+                    }
+                } else {
+                    if (isLandscape) {
+                        Row(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small))
+                        ) {
+                            filteredInvoices.firstOrNull()?.let { latest ->
+                                LastInvoiceCard(
+                                    invoice = latest,
+                                    onClick = { showInvoiceDialog = true },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(horizontal = dimensionResource(R.dimen.margin_medium))
+                                )
+                            }
+                            Column(modifier = Modifier.weight(2f)) {
+                                InvoiceHistoryHeader()
+                                InvoiceListGroupedByYear(
+                                    invoices = filteredInvoices.drop(1),
+                                    onClick = { showInvoiceDialog = true }
+                                )
+                            }
+                        }
+                    } else {
                         filteredInvoices.firstOrNull()?.let { latest ->
                             LastInvoiceCard(
                                 invoice = latest,
-                                onClick = { showInvoiceDialog = true },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(horizontal = dimensionResource(R.dimen.margin_medium))
-                            )
-                        }
-                        Column(modifier = Modifier.weight(2f)) {
-                            InvoiceHistoryHeader()
-                            InvoiceListGroupedByYear(
-                                invoices = filteredInvoices.drop(1),
                                 onClick = { showInvoiceDialog = true }
                             )
                         }
-                    }
-                } else {
-                    filteredInvoices.firstOrNull()?.let { latest ->
-                        LastInvoiceCard(
-                            invoice = latest,
+                        InvoiceHistoryHeader()
+                        InvoiceListGroupedByYear(
+                            invoices = filteredInvoices.drop(1),
                             onClick = { showInvoiceDialog = true }
                         )
                     }
-                    InvoiceHistoryHeader()
-                    InvoiceListGroupedByYear(
-                        invoices = filteredInvoices.drop(1),
-                        onClick = { showInvoiceDialog = true }
-                    )
                 }
             }
         }
