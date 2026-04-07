@@ -3,16 +3,17 @@ package com.iberdrola.practicas2026.davidsc.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iberdrola.practicas2026.davidsc.domain.usecase.GetStreetsUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-@HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getStreetsUseCase: GetStreetsUseCase
+    private val getStreetsUseCase: GetStreetsUseCase,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : ViewModel() {
 
     private val _streets = MutableStateFlow<List<String>>(emptyList())
@@ -26,7 +27,7 @@ class MainViewModel @Inject constructor(
 
 
     fun loadStreets() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             _isLoading.value = true
             try {
                 _streets.value = getStreetsUseCase()

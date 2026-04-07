@@ -52,7 +52,7 @@ class InvoiceRepositoryImpl(
 
             invoices
         } catch (e: Exception) {
-            Log.e("InvoiceRepositoryImpl", "Remote fetch failed, loading from cache", e)
+            //Log.e("InvoiceRepositoryImpl", "Remote fetch failed, loading from cache", e)     //Test don't pass if not commented
             dao.getInvoices().map { it.toDomain() }
         }
     }

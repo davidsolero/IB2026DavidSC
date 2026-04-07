@@ -96,7 +96,10 @@ fun MainScreen(
                     containerColor = colorResource(R.color.iberdrola_green)
                 )
             ) {
-                Text(stringResource(R.string.main_all_streets))
+                Text(
+                    text = stringResource(R.string.main_all_streets),
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
@@ -220,7 +223,6 @@ fun StreetSkeletonItem() {
         )
     }
 }
-
 
 
 @Composable
