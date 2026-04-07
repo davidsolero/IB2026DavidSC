@@ -1,8 +1,8 @@
-package com.iberdrola.practicas2026.davidsc
+package com.iberdrola.practicas2026.davidsc.invoices
 
-import android.content.SharedPreferences
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
+import com.iberdrola.practicas2026.davidsc.domain.repository.InvoiceRepository
 import com.iberdrola.practicas2026.davidsc.domain.usecase.GetInvoicesUseCase
 import com.iberdrola.practicas2026.davidsc.ui.invoices.InvoicesViewModel
 import com.iberdrola.practicas2026.davidsc.utils.FakeSharedPreferences
@@ -28,7 +28,7 @@ class InvoicesViewModelTest {
     )
 
     private val fakeUseCase = GetInvoicesUseCase(
-        repository = object : com.iberdrola.practicas2026.davidsc.domain.repository.InvoiceRepository {
+        repository = object : InvoiceRepository {
             override suspend fun getInvoices(): List<Invoice> = fakeInvoices
         }
     )
@@ -80,7 +80,7 @@ class InvoicesViewModelTest {
     @Test
     fun `error is set when use case fails`() = runTest {
         val failingUseCase = GetInvoicesUseCase(
-            repository = object : com.iberdrola.practicas2026.davidsc.domain.repository.InvoiceRepository {
+            repository = object : InvoiceRepository {
                 override suspend fun getInvoices(): List<Invoice> {
                     throw RuntimeException("Boom")
                 }

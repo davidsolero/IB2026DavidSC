@@ -22,5 +22,8 @@
     <string name="mock_off">Mock OFF</string>
     <string name="status_paid">Pagada</string>
     <string name="status_pending">Pendiente de Pago</string>
+    <string name="main_select_street">Selecciona una dirección para ver sus facturas</string>
+    <string name="main_all_streets">Ver todas las facturas</string>
+    <string name="main_my_streets">MIS DIRECCIONES</string>
 
 </resources>

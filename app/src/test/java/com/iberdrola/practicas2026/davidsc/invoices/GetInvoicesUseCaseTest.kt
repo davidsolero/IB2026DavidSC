@@ -1,4 +1,4 @@
-package com.iberdrola.practicas2026.davidsc
+package com.iberdrola.practicas2026.davidsc.invoices
 
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType

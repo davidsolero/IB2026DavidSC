@@ -1,4 +1,4 @@
-package com.iberdrola.practicas2026.davidsc
+package com.iberdrola.practicas2026.davidsc.invoices
 
 import android.content.Context
 import android.util.Log
@@ -63,4 +63,5 @@ class InvoiceRepositoryImplTest {
         assertEquals(1, result.size)
         assertEquals(99, result.first().id)
     }
+
 }

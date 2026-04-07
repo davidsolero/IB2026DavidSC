@@ -1,4 +1,4 @@
-package com.iberdrola.practicas2026.davidsc
+package com.iberdrola.practicas2026.davidsc.invoices
 
 import com.iberdrola.practicas2026.davidsc.data.mapper.toDomain
 import com.iberdrola.practicas2026.davidsc.data.remote.dto.InvoiceDto

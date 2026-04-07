@@ -2,7 +2,6 @@ package com.iberdrola.practicas2026.davidsc.ui.invoices
 
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,10 +51,10 @@ fun InvoicesScreen(
     var showRatingSheet by remember { mutableStateOf(false) }
     var showInvoiceDialog by remember { mutableStateOf(false) }
 
-    val activity = LocalActivity.current
+
 
     val navigateBack = {
-        activity?.finish()
+        navController.popBackStack()
     }
 
     val handleBack = {

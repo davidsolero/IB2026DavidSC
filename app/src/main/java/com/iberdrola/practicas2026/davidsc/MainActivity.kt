@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.iberdrola.practicas2026.davidsc.ui.invoices.InvoicesScreen
+import com.iberdrola.practicas2026.davidsc.ui.main.MainScreen
 import com.iberdrola.practicas2026.davidsc.ui.theme.IB2026DavidSCTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -16,17 +17,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             IB2026DavidSCTheme {
-                val navController = rememberNavController()  // ← Aquí creamos el NavController
+                val navController = rememberNavController()
 
                 NavHost(
                     navController = navController,
-                    startDestination = "invoices_screen"
+                    startDestination = "main_screen"
                 ) {
+                    composable("main_screen") {
+                        MainScreen(navController = navController)
+                    }
                     composable("invoices_screen") {
-                        InvoicesScreen(
-                            navController = navController   // ← pasamos al screen
-                            // viewModel lo obtiene por hiltViewModel(), no hace falta pasarlo
-                        )
+                        InvoicesScreen(navController = navController)
                     }
                 }
             }
