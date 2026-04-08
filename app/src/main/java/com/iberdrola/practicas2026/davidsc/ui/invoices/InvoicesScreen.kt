@@ -1,10 +1,13 @@
 package com.iberdrola.practicas2026.davidsc.ui.invoices
 
+import android.app.Activity
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -52,9 +57,13 @@ fun InvoicesScreen(
     var showInvoiceDialog by remember { mutableStateOf(false) }
 
 
+    val activity = LocalActivity.current
 
     val navigateBack = {
-        navController.popBackStack()
+        val popped = navController.popBackStack()
+        if (!popped) {
+            activity?.finish()
+        }
     }
 
     val handleBack = {
@@ -142,6 +151,7 @@ fun InvoicesScreen(
                                     onClick = { showInvoiceDialog = true },
                                     modifier = Modifier
                                         .weight(1f)
+                                        .fillMaxHeight()
                                         .padding(horizontal = dimensionResource(R.dimen.margin_medium))
                                 )
                             }
