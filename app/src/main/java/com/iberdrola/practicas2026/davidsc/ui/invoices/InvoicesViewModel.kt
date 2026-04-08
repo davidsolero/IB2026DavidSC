@@ -95,7 +95,7 @@ class InvoicesViewModel @Inject constructor(
         _isLoading.value = true
         _error.value = null
         try {
-            _invoices.value = getInvoicesUseCase(type, street, forceNetwork = true)
+            _invoices.value = getInvoicesUseCase(type, street, forceNetwork = !AppConfig.useMockLocal)
         } catch (e: Exception) {
             _invoices.value = emptyList()
             _error.value = e.message

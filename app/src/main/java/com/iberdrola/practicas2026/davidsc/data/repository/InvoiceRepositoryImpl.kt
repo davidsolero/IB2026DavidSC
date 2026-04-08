@@ -1,15 +1,14 @@
 package com.iberdrola.practicas2026.davidsc.data.repository
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
 import com.iberdrola.practicas2026.davidsc.data.local.dao.InvoiceDao
 import com.iberdrola.practicas2026.davidsc.data.mapper.toDomain
+import com.iberdrola.practicas2026.davidsc.data.mapper.toDomainList
 import com.iberdrola.practicas2026.davidsc.data.mapper.toEntity
 import com.iberdrola.practicas2026.davidsc.data.remote.api.InvoiceApi
 import com.iberdrola.practicas2026.davidsc.data.remote.dto.InvoiceDto
-import com.iberdrola.practicas2026.davidsc.data.remote.dto.InvoicesResponse
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.repository.InvoiceRepository
 import kotlinx.coroutines.delay
@@ -39,7 +38,8 @@ class InvoiceRepositoryImpl(
 
         return Gson()
             .fromJson(json, Array<InvoiceDto>::class.java)
-            .map { it.toDomain() }
+            .toList()
+            .toDomainList()
     }
 
     private suspend fun loadFromRemoteWithFallback(): List<Invoice> {
@@ -52,7 +52,8 @@ class InvoiceRepositoryImpl(
 
     override suspend fun fetchInvoicesFromNetwork(): List<Invoice> {
         val response = api.getInvoices()
-        val invoices = response.facturas.map { it.toDomain() }
+        val invoices = response.facturas.toDomainList()
+        dao.clearInvoices() // limpia antes de insertar
         dao.insertInvoices(invoices.map { it.toEntity() })
         return invoices
     }

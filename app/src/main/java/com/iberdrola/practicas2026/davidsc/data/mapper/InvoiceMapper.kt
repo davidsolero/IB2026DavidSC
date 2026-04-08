@@ -5,19 +5,25 @@ import com.iberdrola.practicas2026.davidsc.data.remote.dto.InvoiceDto
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 
-fun InvoiceDto.toDomain(): Invoice {
-    val inferredType = type.toInvoiceType()
+fun InvoiceDto.toDomainOrNull(): Invoice? {
+    val id = id ?: return null
+    val startDate = startDate ?: return null
+    val type = type?.toInvoiceTypeOrNull() ?: return null
+
     return Invoice(
         id = id,
         startDate = startDate,
-        endDate = endDate,
-        description = description,
-        amount = amount,
-        status = status,
-        type = inferredType,
-        street = street
+        endDate = endDate ?: startDate,
+        description = description ?: "",
+        amount = amount ?: 0.0,  //Bonification could use 0.0
+        status = status ?: "Desconocido",
+        type = type,
+        street = street ?: ""
     )
 }
+
+fun List<InvoiceDto>.toDomainList(): List<Invoice> =
+    mapNotNull { it.toDomainOrNull() }
 
 fun Invoice.toEntity(): InvoiceEntity {
     return InvoiceEntity(
@@ -45,6 +51,13 @@ fun InvoiceEntity.toDomain(): Invoice {
     )
 }
 
+fun String.toInvoiceTypeOrNull(): InvoiceType? {
+    return when (this.lowercase()) {
+        "luz" -> InvoiceType.LUZ
+        "gas" -> InvoiceType.GAS
+        else -> null
+    }
+}
 
 /**
  * Converts a raw string from the API or database to an [InvoiceType].
@@ -57,5 +70,6 @@ fun String.toInvoiceType(): InvoiceType {
         "gas" -> InvoiceType.GAS
         else -> throw IllegalArgumentException("Unknown type: $this")
     }
+
 }
 
