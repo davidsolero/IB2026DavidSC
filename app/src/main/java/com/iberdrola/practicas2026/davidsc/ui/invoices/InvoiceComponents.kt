@@ -60,6 +60,7 @@ import java.util.Locale
 fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val dateFormatter = remember { DateFormatter() }
     val currencyFormatter = remember { CurrencyFormatter() }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -69,59 +70,70 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
         border = BorderStroke(1.3.dp, colorResource(R.color.iberdrola_green)),
         shape = CardDefaults.outlinedShape
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(R.dimen.margin_medium)),
-            verticalAlignment = Alignment.Top
+                .padding(dimensionResource(R.dimen.margin_medium))
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.last_invoice),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = invoice.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(
-                        top = dimensionResource(R.dimen.margin_xsmall),
-                        bottom = 15.dp
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.TopStart) // ocupa todo el ancho, texto puede ir debajo del icono
+                ) {
+                    Text(
+                        text = stringResource(R.string.last_invoice),
+                        style = MaterialTheme.typography.titleMedium
                     )
-                )
-                Text(
-                    text = currencyFormatter.format(invoice.amount),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
-                )
-                Text(
-                    text = dateFormatter.formatInvoiceDate(
-                        startDate = invoice.startDate,
-                        endDate = invoice.endDate,
-                        showEndDate = true
-                    ),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = Color.Gray
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.margin_xsmall))
-                )
-                StatusBadge(
-                    status = invoice.status,
-                    modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
+                    Text(
+                        text = invoice.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(
+                            top = dimensionResource(R.dimen.margin_xsmall),
+                            bottom = 15.dp
+                        )
+                    )
+                    Text(
+                        text = currencyFormatter.format(invoice.amount),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
+                    )
+                    Text(
+                        text = dateFormatter.formatInvoiceDate(
+                            startDate = invoice.startDate,
+                            endDate = invoice.endDate,
+                            showEndDate = true
+                        ),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Color.Gray
+                    )
+                }
+
+                val icon = when (invoice.type) {
+                    InvoiceType.LUZ -> Icons.Outlined.Lightbulb
+                    InvoiceType.GAS -> Icons.Outlined.Whatshot
+                }
+
+                Icon(
+                    imageVector = icon,
+                    contentDescription = invoice.type.name,
+                    tint = colorResource(R.color.iberdrola_green),
+                    modifier = Modifier
+                        .size(dimensionResource(R.dimen.icon_size_large))
+                        .align(Alignment.TopEnd) // icono fijo arriba a la derecha
                 )
             }
 
-            val icon = when (invoice.type) {
-                InvoiceType.LUZ -> Icons.Outlined.Lightbulb
-                InvoiceType.GAS -> Icons.Outlined.Whatshot
-            }
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = dimensionResource(R.dimen.margin_xsmall))
+            )
 
-            Icon(
-                imageVector = icon,
-                contentDescription = invoice.type.name,
-                tint = colorResource(R.color.iberdrola_green),
-                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
+            StatusBadge(
+                status = invoice.status,
+                modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
             )
         }
     }
