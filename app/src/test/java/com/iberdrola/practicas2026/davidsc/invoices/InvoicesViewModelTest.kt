@@ -30,6 +30,7 @@ class InvoicesViewModelTest {
     private val fakeUseCase = GetInvoicesUseCase(
         repository = object : InvoiceRepository {
             override suspend fun getInvoices(): List<Invoice> = fakeInvoices
+            override suspend fun fetchInvoicesFromNetwork(): List<Invoice> = fakeInvoices
         }
     )
 
@@ -37,7 +38,6 @@ class InvoicesViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         fakePrefs = FakeSharedPreferences()
-
         viewModel = InvoicesViewModel(fakeUseCase, fakePrefs)
     }
 
@@ -46,55 +46,46 @@ class InvoicesViewModelTest {
         Dispatchers.resetMain()
     }
 
-    // 1. Carga inicial
     @Test
     fun `init loads invoices`() = runTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
-        assertEquals(1, viewModel.invoices.value.size) // default LUZ filter
+        assertEquals(1, viewModel.invoices.value.size)
         assertTrue(viewModel.invoices.value.all { it.type == InvoiceType.LUZ })
     }
 
-    // 2. Cambio de tipo
     @Test
     fun `selectType updates invoices`() = runTest {
         viewModel.selectType(InvoiceType.GAS)
-
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(1, viewModel.invoices.value.size)
         assertEquals(InvoiceType.GAS, viewModel.invoices.value.first().type)
     }
 
-    // 3. Loading state
     @Test
     fun `loading is set correctly`() = runTest {
         viewModel.selectType(InvoiceType.GAS)
-
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertFalse(viewModel.isLoading.value)
     }
 
-    // 4. Error handling
     @Test
     fun `error is set when use case fails`() = runTest {
         val failingUseCase = GetInvoicesUseCase(
             repository = object : InvoiceRepository {
-                override suspend fun getInvoices(): List<Invoice> {
-                    throw RuntimeException("Boom")
-                }
+                override suspend fun getInvoices(): List<Invoice> { throw RuntimeException("Boom") }
+                override suspend fun fetchInvoicesFromNetwork(): List<Invoice> { throw RuntimeException("Boom") }
             }
         )
 
         viewModel = InvoicesViewModel(failingUseCase, fakePrefs)
-
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals("Boom", viewModel.error.value)
     }
 
-    //  5. toggleMock guarda en prefs
     @Test
     fun `toggleMock updates prefs and state`() {
         val initial = viewModel.useMock.value
@@ -105,7 +96,6 @@ class InvoicesViewModelTest {
         assertEquals(!initial, fakePrefs.getBoolean("use_mock", false))
     }
 
-    // onBackPressed lógica
     @Test
     fun `onBackPressed returns true when threshold reached`() {
         fakePrefs.putInt("invoice_show_sheet_threshold", 2)

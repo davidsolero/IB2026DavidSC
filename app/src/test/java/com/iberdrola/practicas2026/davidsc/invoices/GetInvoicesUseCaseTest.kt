@@ -18,6 +18,8 @@ class GetInvoicesUseCaseTest {
             Invoice(2, "2026-02-01", "2026-02-28", "Factura Gas", 28.4, "Pendiente de Pago", InvoiceType.GAS, "C/Larios"),
             Invoice(3, "2026-03-01", "2026-03-31", "Factura Luz", 32.5, "Pagada", InvoiceType.LUZ, "C/Larios")
         )
+
+        override suspend fun fetchInvoicesFromNetwork(): List<Invoice> = getInvoices()
     }
 
     private val useCase = GetInvoicesUseCase(fakeRepository)

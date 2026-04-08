@@ -93,9 +93,11 @@ class InvoicesViewModel @Inject constructor(
 
     private suspend fun loadInvoices(type: InvoiceType, street: String?) {
         _isLoading.value = true
+        _error.value = null
         try {
-            _invoices.value = getInvoicesUseCase(type, street)
+            _invoices.value = getInvoicesUseCase(type, street, forceNetwork = true)
         } catch (e: Exception) {
+            _invoices.value = emptyList()
             _error.value = e.message
         } finally {
             _isLoading.value = false

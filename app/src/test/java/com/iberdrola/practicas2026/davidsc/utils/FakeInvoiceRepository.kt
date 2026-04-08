@@ -7,4 +7,5 @@ class FakeInvoiceRepository(
     private val invoices: List<Invoice>
 ) : InvoiceRepository {
     override suspend fun getInvoices(): List<Invoice> = invoices
+    override suspend fun fetchInvoicesFromNetwork(): List<Invoice> = invoices
 }

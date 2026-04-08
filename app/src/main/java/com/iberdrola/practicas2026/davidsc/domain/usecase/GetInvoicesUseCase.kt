@@ -11,14 +11,18 @@ import com.iberdrola.practicas2026.davidsc.domain.repository.InvoiceRepository
  * Filtering is applied in memory after fetching from the repository,
  * keeping the repository responsible only for data access.
  */
-class GetInvoicesUseCase(
-    private val repository: InvoiceRepository
-) {
+class GetInvoicesUseCase(private val repository: InvoiceRepository) {
     suspend operator fun invoke(
         type: InvoiceType? = null,
-        street: String? = null
+        street: String? = null,
+        forceNetwork: Boolean = false
     ): List<Invoice> {
-        return repository.getInvoices()
+        return try {
+            if (forceNetwork) repository.fetchInvoicesFromNetwork()
+            else repository.getInvoices()
+        } catch (e: Exception) {
+            repository.getInvoices() // fallback a caché
+        }
             .let { list -> type?.let { t -> list.filter { it.type == t } } ?: list }
             .let { list -> street?.let { s -> list.filter { it.street.equals(s, ignoreCase = true) } } ?: list }
     }

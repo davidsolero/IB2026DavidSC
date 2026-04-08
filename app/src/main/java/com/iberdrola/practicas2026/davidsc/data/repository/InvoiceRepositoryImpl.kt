@@ -44,16 +44,16 @@ class InvoiceRepositoryImpl(
 
     private suspend fun loadFromRemoteWithFallback(): List<Invoice> {
         return try {
-            val response: InvoicesResponse = api.getInvoices()
-            val invoices = response.facturas.map { it.toDomain() }
-
-            // Cache results for offline access.
-            dao.insertInvoices(invoices.map { it.toEntity() })
-
-            invoices
+            fetchInvoicesFromNetwork()
         } catch (e: Exception) {
-            //Log.e("InvoiceRepositoryImpl", "Remote fetch failed, loading from cache", e)     //Test don't pass if not commented
             dao.getInvoices().map { it.toDomain() }
         }
+    }
+
+    override suspend fun fetchInvoicesFromNetwork(): List<Invoice> {
+        val response = api.getInvoices()
+        val invoices = response.facturas.map { it.toDomain() }
+        dao.insertInvoices(invoices.map { it.toEntity() })
+        return invoices
     }
 }
