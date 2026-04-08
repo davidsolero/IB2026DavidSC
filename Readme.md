@@ -151,8 +151,8 @@ El repositorio es público y se comparte con los tutores desde el primer commit.
 | Volver atrás múltiples veces (bottom sheet rating) | OK, lógica de conteo correcta |
 | Background → foreground | OK, estado conservado |
 | Lista vacía | Mensaje informativo visible |
-| Sin conexión (modo avión) | Los datos de caché se sirven correctamente |
-| Datos corruptos o nulos en mock | Pendiente de verificación |
+| Sin conexión | Los datos de caché se sirven correctamente |
+| Datos corruptos o nulos en mock | OK |
 
 ---
 
