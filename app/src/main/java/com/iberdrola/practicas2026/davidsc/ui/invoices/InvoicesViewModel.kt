@@ -15,9 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @HiltViewModel
 class InvoicesViewModel @Inject constructor(
@@ -63,12 +60,6 @@ class InvoicesViewModel @Inject constructor(
         }
     }
 
-    fun selectStreet(street: String?) {
-        if (_selectedStreet.value != street) {
-            _selectedStreet.value = street
-        }
-    }
-
     fun toggleMock() {
         val newValue = !_useMock.value
         AppConfig.useMockLocal = newValue
@@ -92,23 +83,6 @@ class InvoicesViewModel @Inject constructor(
     fun onRespondLater() = resetSheet(threshold = 3)
 
     fun onSheetDismissed() = resetSheet(threshold = 1)
-
-    /**
-     * Formats an invoice date range or single date for display.
-     * If [showEndDate] is true, returns a range formatted as "dd MMM. yyyy - dd MMM. yyyy".
-     * Otherwise returns the start date formatted as "d de MMMM".
-     */
-    fun formatInvoiceDate(invoice: Invoice, showEndDate: Boolean = false): String {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val start = LocalDate.parse(invoice.startDate, formatter)
-        return if (showEndDate) {
-            val end = LocalDate.parse(invoice.endDate, formatter)
-            val outputFormatter = DateTimeFormatter.ofPattern("dd MMM. yyyy", Locale("es", "ES"))
-            "${start.format(outputFormatter)} - ${end.format(outputFormatter)}"
-        } else {
-            start.format(DateTimeFormatter.ofPattern("d 'de' MMMM", Locale("es", "ES")))
-        }
-    }
 
     private fun resetSheet(threshold: Int) {
         prefs.edit {

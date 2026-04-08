@@ -34,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,13 +49,17 @@ import androidx.compose.ui.unit.dp
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
+import com.iberdrola.practicas2026.davidsc.ui.util.CurrencyFormatter
+import com.iberdrola.practicas2026.davidsc.ui.util.DateFormatter
 import java.text.NumberFormat
 import java.util.Locale
 
-private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale("es", "ES"))
+
 
 @Composable
 fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val dateFormatter = remember { DateFormatter() }
+    val currencyFormatter = remember { CurrencyFormatter() }
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -90,7 +95,11 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
                     modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
                 )
                 Text(
-                    text = invoice.startDate,
+                    text = dateFormatter.formatInvoiceDate(
+                        startDate = invoice.startDate,
+                        endDate = invoice.endDate,
+                        showEndDate = true
+                    ),
                     style = MaterialTheme.typography.titleSmall,
                     color = Color.Gray
                 )
@@ -130,6 +139,8 @@ fun InvoiceList(invoices: List<Invoice>, onClick: (Invoice) -> Unit) {
 
 @Composable
 fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
+    val dateFormatter = remember { DateFormatter() }
+    val currencyFormatter = remember { CurrencyFormatter() }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -142,7 +153,11 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = invoice.startDate,
+                text = dateFormatter.formatInvoiceDate(
+                    startDate = invoice.startDate,
+                    endDate = invoice.endDate,
+                    showEndDate = false
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -156,7 +171,7 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
             )
         }
         Text(
-            text = "%.2f€".format(invoice.amount),
+            text = currencyFormatter.format(invoice.amount),
             style = MaterialTheme.typography.bodyMedium,
             color = Color.Gray,
             modifier = Modifier.padding(end = dimensionResource(R.dimen.margin_small))
@@ -456,7 +471,7 @@ private val previewInvoices = listOf(
     Invoice(
         1,
         "2026-03-01",
-        "2026-03-01",
+        "2026-07-01",
         "Factura Luz",
         52.3,
         "Pagada",
