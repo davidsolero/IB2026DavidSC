@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="divider_color">#E0E0E0</color>
+    <color name="rating_very_negative">#FF0000</color>
+    <color name="rating_negative">#AC6A2F</color>
+    <color name="rating_neutral">#808080</color>
+    <color name="rating_positive">#226999</color>
+    <color name="iberdrola_green">#FF366459</color>
+    <color name="skeleton_gray">#E0E0E0</color>
+    <color name="skeleton_darkgray">#BDBDBD</color>
+    <color name="status_pendiente_pago_fondo">#EFBEBE</color>
+    <color name="status_pendiente_pago_texto">#883933</color>
+    <color name="status_pagado_fondo">#B0DCC6</color>
+    <color name="status_pagado_texto">#065B30</color>
 </resources>

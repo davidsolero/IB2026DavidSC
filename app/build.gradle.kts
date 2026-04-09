@@ -1,7 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -33,7 +34,10 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
+        buildFeatures {
+            viewBinding = true
+            compose = true
+        }
     }
 }
 
@@ -54,6 +58,8 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.runtime)
+    implementation(libs.androidx.foundation)
     ksp(libs.hilt.compiler)
 
     // Retrofit
@@ -73,4 +79,20 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Compose
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.activity.compose)
+    debugImplementation(libs.compose.ui.tooling)
+
+    // Hilt + Compose
+    implementation(libs.hilt.navigation.compose)
+
+    implementation(libs.compose.material.icons.extended)
+
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("io.mockk:mockk:1.14.6")
 }

@@ -1,3 +1,31 @@
 <resources>
     <string name="app_name">IB2026 DavidSC</string>
+    <string name="invoices_title">Mis facturas</string>
+    <string name="invoices_subtitle">TODAS LAS CALLES</string>
+    <string name="tab_luz">Luz</string>
+    <string name="tab_gas">Gas</string>
+    <string name="last_invoice">Última factura</string>
+    <string name="invoice_history">Histórico de facturas</string>
+    <string name="filter">Filtrar</string>
+    <string name="invoice_not_available">La factura aún no está disponible</string>
+    <string name="accept">Aceptar</string>
+    <string name="rate_screen">¿Qué te ha parecido esta pantalla?</string>
+    <string name="rate_later">Responder más tarde</string>
+    <string name="rate_thanks">¡Gracias por tu valoración!</string>
+    <string name="rating_title">Tu opinión nos importa</string>
+    <string name="rating_question">¿Cómo de probable es que recomiendes esta app a amigos o familiares para que realicen sus gestiones?\n</string>
+    <string name="rating_later">Responder más tarde</string>
+    <string name="invoices_history">Histórico de facturas</string>
+    <string name="invoices_filter">Filtrar</string>
+    <string name="back">Atrás</string>
+    <string name="mock_on">Mock ON</string>
+    <string name="mock_off">Mock OFF</string>
+    <string name="status_paid">Pagada</string>
+    <string name="status_pending">Pendiente de Pago</string>
+    <string name="main_select_street">Selecciona una dirección para ver sus facturas</string>
+    <string name="main_all_streets">Ver todas las facturas</string>
+    <string name="main_my_streets">MIS DIRECCIONES</string>
+    <string name="no_streets_found">No se han encontrado calles</string>
+    <string name="no_invoices_found">No se han encontrado facturas</string>
+
 </resources>
