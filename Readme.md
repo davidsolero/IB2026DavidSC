@@ -15,7 +15,7 @@ Aplicación Android nativa en Kotlin que simula una app de gestión de facturas 
 
 La primera entrega cubre íntegramente la pantalla de listado de facturas, tal como especifica el documento de prácticas:
 
-- **Pantalla principal** (`MainScreen`): selección de contrato por calle o acceso global a todas las facturas.
+- **Pantalla principal** (`MainScreen`): selección de contrato por calle (es posible que en la primera aparezcan calles con facturas vacías) o acceso global a todas las facturas.
 - **Pantalla de facturas** (`InvoicesScreen`): cabecera con navegación, pestañas Luz/Gas, tarjeta de última factura y listado histórico agrupado por año.
 - **Skeleton de carga**: se muestra mientras se obtienen los datos, tanto en portrait como en landscape.
 - **Diálogo de factura no disponible**: al pulsar sobre cualquier factura aparece un diálogo informativo.
@@ -48,6 +48,7 @@ com.iberdrola.practicas2026.davidsc
 │   └── usecase        → GetInvoicesUseCase, GetStreetsUseCase
 ├── ui
 │   ├── main           → MainScreen, MainViewModel
+|   ├── util           → CurrencyFormatter, DateFormatter
 │   └── invoices       → InvoicesScreen, InvoicesViewModel,
 │                         InvoiceComponents, RatingBottomSheet
 └── di                 → Módulos Hilt: Network, Database, Repository, UseCase, Coroutine
@@ -94,6 +95,9 @@ com.iberdrola.practicas2026.davidsc
 AGP 9.1.0 → requiere KSP (no kapt)
 Hilt 2.59.2+ → compatibilidad con AGP 9.1
 Retromock 1.1.1
+Compose BOM → versionado automático de librerías UI
+Room 2.6.1+
+Retrofit 2.10.0+
 ```
 
 ---
