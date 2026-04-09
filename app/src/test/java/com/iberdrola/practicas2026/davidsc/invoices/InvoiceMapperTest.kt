@@ -1,10 +1,11 @@
 package com.iberdrola.practicas2026.davidsc.invoices
 
-import com.iberdrola.practicas2026.davidsc.data.mapper.toDomain
+import com.iberdrola.practicas2026.davidsc.data.mapper.toDomainOrNull
 import com.iberdrola.practicas2026.davidsc.data.remote.dto.InvoiceDto
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertThrows
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class InvoiceMapperTest {
@@ -22,15 +23,17 @@ class InvoiceMapperTest {
             street = "C/Larios"
         )
 
-        val result = dto.toDomain()
-
-        assertEquals(InvoiceType.LUZ, result.type)
-        assertEquals(1, result.id)
-        assertEquals(52.3, result.amount, 0.0)
+        val result = dto.toDomainOrNull()
+        assertNotNull(result)
+        result?.let {
+            assertEquals(InvoiceType.LUZ, it.type)
+            assertEquals(1, it.id)
+            assertEquals(52.3, it.amount, 0.0)
+        }
     }
 
     @Test
-    fun `InvoiceDto with unknown type throws IllegalArgumentException`() {
+    fun `InvoiceDto with unknown type returns null`() {
         val dto = InvoiceDto(
             id = 2,
             startDate = "2026-01-01",
@@ -42,8 +45,8 @@ class InvoiceMapperTest {
             street = "C/Larios"
         )
 
-        assertThrows(IllegalArgumentException::class.java) {
-            dto.toDomain()
-        }
+        val result = dto.toDomainOrNull()
+        assertNull(result)
     }
+
 }

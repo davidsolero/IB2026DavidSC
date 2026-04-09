@@ -14,4 +14,8 @@ class FakeDao : InvoiceDao {
     override suspend fun insertInvoices(invoices: List<InvoiceEntity>) {
         savedInvoices = invoices
     }
+
+    override suspend fun clearInvoices() {
+        savedInvoices = emptyList()
+    }
 }

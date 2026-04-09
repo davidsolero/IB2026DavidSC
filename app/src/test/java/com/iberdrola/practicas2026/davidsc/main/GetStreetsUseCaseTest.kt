@@ -2,6 +2,7 @@ package com.iberdrola.practicas2026.davidsc.main
 
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
+import com.iberdrola.practicas2026.davidsc.domain.usecase.GetInvoicesUseCase
 import com.iberdrola.practicas2026.davidsc.domain.usecase.GetStreetsUseCase
 import com.iberdrola.practicas2026.davidsc.utils.FakeInvoiceRepository
 import junit.framework.TestCase.assertEquals
@@ -29,12 +30,13 @@ class GetStreetsUseCaseTest {
         )
 
         val fakeRepository = FakeInvoiceRepository(invoices)
-        val useCase = GetStreetsUseCase(fakeRepository)
 
-        // Ejecutar use case
+        val getInvoicesUseCase = GetInvoicesUseCase(fakeRepository)
+
+        val useCase = GetStreetsUseCase(getInvoicesUseCase)
+
         val streets = useCase()
 
-        // Verificar resultados
         assertEquals(listOf("Calle A", "Calle B"), streets)
     }
 }

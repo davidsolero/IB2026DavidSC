@@ -130,7 +130,6 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
                     .fillMaxWidth()
                     .padding(vertical = dimensionResource(R.dimen.margin_xsmall))
             )
-
             StatusBadge(
                 status = invoice.status,
                 modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))

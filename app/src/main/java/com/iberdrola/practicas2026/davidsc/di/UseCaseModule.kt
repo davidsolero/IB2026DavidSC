@@ -21,8 +21,8 @@ object UseCaseModule {
 
     @Provides
     fun provideGetStreetsUseCase(
-        repository: InvoiceRepository
+        getInvoicesUseCase: GetInvoicesUseCase
     ): GetStreetsUseCase {
-        return GetStreetsUseCase(repository)
+        return GetStreetsUseCase(getInvoicesUseCase)
     }
 }

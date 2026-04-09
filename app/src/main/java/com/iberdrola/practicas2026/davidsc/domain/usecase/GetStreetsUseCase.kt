@@ -9,10 +9,10 @@ import com.iberdrola.practicas2026.davidsc.domain.repository.InvoiceRepository
  * keeping the repository interface minimal while the data contract evolves.
  */
 class GetStreetsUseCase(
-    private val repository: InvoiceRepository
+    private val getInvoices: GetInvoicesUseCase
 ) {
     suspend operator fun invoke(): List<String> {
-        return repository.getInvoices()
+        return getInvoices()
             .map { it.street }
             .distinct()
             .sorted()
