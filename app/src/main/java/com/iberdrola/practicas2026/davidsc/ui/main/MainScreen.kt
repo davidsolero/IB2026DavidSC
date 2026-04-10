@@ -45,6 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
+import com.iberdrola.practicas2026.davidsc.core.utils.Screen
 
 @Composable
 fun MainScreen(
@@ -56,7 +57,7 @@ fun MainScreen(
 
     val navigateToInvoices = { street: String? ->
         AppConfig.mockStreet = street
-        navController.navigate("invoices_screen")
+        navController.navigate(Screen.INVOICES)
     }
 
     LaunchedEffect(Unit) {

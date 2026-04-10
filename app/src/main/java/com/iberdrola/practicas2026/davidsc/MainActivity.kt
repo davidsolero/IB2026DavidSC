@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.iberdrola.practicas2026.davidsc.core.utils.Screen
+import com.iberdrola.practicas2026.davidsc.ui.invoices.FilterScreen
 import com.iberdrola.practicas2026.davidsc.ui.invoices.InvoicesScreen
 import com.iberdrola.practicas2026.davidsc.ui.main.MainScreen
 import com.iberdrola.practicas2026.davidsc.ui.theme.IB2026DavidSCTheme
@@ -21,13 +23,16 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(
                     navController = navController,
-                    startDestination = "main_screen"
+                    startDestination = Screen.MAIN
                 ) {
-                    composable("main_screen") {
+                    composable(Screen.MAIN) {
                         MainScreen(navController = navController)
                     }
-                    composable("invoices_screen") {
+                    composable(Screen.INVOICES) {
                         InvoicesScreen(navController = navController)
+                    }
+                    composable(Screen.FILTER) {
+                        FilterScreen(navController = navController)
                     }
                 }
             }

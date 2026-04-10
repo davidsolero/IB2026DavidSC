@@ -1,6 +1,5 @@
 package com.iberdrola.practicas2026.davidsc.ui.invoices
 
-import android.app.Activity
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
@@ -20,7 +19,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
+import com.iberdrola.practicas2026.davidsc.core.utils.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,9 +87,7 @@ fun InvoicesScreen(
         }
     ) { innerPadding ->
 
-        val filteredInvoices = invoices
-            .filter { it.type == selectedType }
-            .sortedByDescending { it.startDate }
+        val filteredInvoices = invoices.sortedByDescending { it.startDate }
 
         Column(
             modifier = Modifier
@@ -157,7 +153,7 @@ fun InvoicesScreen(
                             }
                             Column(modifier = Modifier.weight(2f)) {
                                 if (filteredInvoices.size > 1) {
-                                    InvoiceHistoryHeader()
+                                    InvoiceHistoryHeader(onFilterClick = { navController.navigate(Screen.FILTER) })
                                     InvoiceListGroupedByYear(
                                         invoices = filteredInvoices.drop(1),
                                         onClick = { showInvoiceDialog = true }
@@ -173,7 +169,7 @@ fun InvoicesScreen(
                             )
                         }
                         if (filteredInvoices.size > 1) {
-                            InvoiceHistoryHeader()
+                            InvoiceHistoryHeader(onFilterClick = { navController.navigate(Screen.FILTER) })
                             InvoiceListGroupedByYear(
                                 invoices = filteredInvoices.drop(1),
                                 onClick = { showInvoiceDialog = true }
@@ -220,7 +216,7 @@ fun InvoicesScreen(
 
 // Extracted to avoid duplicating the history header block in portrait and landscape layouts.
 @Composable
-private fun InvoiceHistoryHeader() {
+private fun InvoiceHistoryHeader(onFilterClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -236,7 +232,7 @@ private fun InvoiceHistoryHeader() {
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.ExtraBold
         )
-        OutlinedButton(onClick = {}, enabled = false) {
+        OutlinedButton(onClick = onFilterClick) {
             Text(stringResource(R.string.invoices_filter))
         }
     }
