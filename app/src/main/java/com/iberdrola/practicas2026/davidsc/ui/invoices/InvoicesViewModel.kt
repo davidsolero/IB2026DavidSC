@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
+import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceFilter
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import com.iberdrola.practicas2026.davidsc.domain.usecase.GetInvoicesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,16 +41,37 @@ class InvoicesViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _activeFilter = MutableStateFlow(InvoiceFilter())
+    val activeFilter: StateFlow<InvoiceFilter> = _activeFilter.asStateFlow()
+
+    // Derived from all loaded invoices regardless of active filter,
+    // so the slider always shows the full range of available amounts.
+    private val _allInvoices = MutableStateFlow<List<Invoice>>(emptyList())
+
+    private val _minAmount = MutableStateFlow(0.0)
+    val minAmount: StateFlow<Double> = _minAmount.asStateFlow()
+
+    private val _maxAmount = MutableStateFlow(0.0)
+    val maxAmount: StateFlow<Double> = _maxAmount.asStateFlow()
     init {
         val savedMock = prefs.getBoolean(PREF_USE_MOCK, false)
         AppConfig.useMockLocal = savedMock
         _useMock.value = savedMock
 
         viewModelScope.launch {
-            combine(_selectedType, _selectedStreet, _useMock) { type, street, _ ->
-                Pair(type, street)
-            }.collect { (type, street) ->
-                loadInvoices(type, street)
+            combine(
+                _selectedType,
+                _selectedStreet,
+                _useMock,
+                _activeFilter
+            ) { values ->
+                val type = values[0] as InvoiceType
+                val street = values[1] as String?
+                val filter = values[3] as InvoiceFilter
+                Triple(type, street, filter)
+            }.collect { (type, street, filter) ->
+                android.util.Log.d("InvoicesViewModel", "collect triggered, filter: $filter")
+                loadInvoices(type, street, filter)
             }
         }
     }
@@ -65,6 +87,15 @@ class InvoicesViewModel @Inject constructor(
         AppConfig.useMockLocal = newValue
         prefs.edit { putBoolean(PREF_USE_MOCK, newValue) }
         _useMock.value = newValue
+    }
+
+    fun applyFilter(filter: InvoiceFilter) {
+        _activeFilter.value = filter
+        android.util.Log.d("InvoicesViewModel", "Filter applied: $filter")
+    }
+
+    fun clearFilter() {
+        _activeFilter.value = InvoiceFilter()
     }
 
     /**
@@ -91,11 +122,16 @@ class InvoicesViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadInvoices(type: InvoiceType, street: String?) {
+    private suspend fun loadInvoices(type: InvoiceType, street: String?, filter: InvoiceFilter) {
+        android.util.Log.d("InvoicesViewModel", "loadInvoices called with filter: $filter")
         _isLoading.value = true
         _error.value = null
         try {
-            _invoices.value = getInvoicesUseCase(type, street, forceNetwork = !AppConfig.useMockLocal)
+            // Fetch unfiltered to keep the slider range stable across filter changes.
+            _allInvoices.value = getInvoicesUseCase(type, street, forceNetwork = !AppConfig.useMockLocal)
+            _minAmount.value = _allInvoices.value.minOfOrNull { it.amount } ?: 0.0
+            _maxAmount.value = _allInvoices.value.maxOfOrNull { it.amount } ?: 0.0
+            _invoices.value = getInvoicesUseCase(type, street, forceNetwork = false, filter = filter)
         } catch (e: Exception) {
             _invoices.value = emptyList()
             _error.value = e.message
@@ -109,4 +145,7 @@ class InvoicesViewModel @Inject constructor(
         private const val PREF_CLOSE_COUNT = "invoice_close_count"
         private const val PREF_THRESHOLD = "invoice_show_sheet_threshold"
     }
+
+
+
 }

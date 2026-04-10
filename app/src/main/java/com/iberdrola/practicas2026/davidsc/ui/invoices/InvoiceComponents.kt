@@ -51,9 +51,6 @@ import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import com.iberdrola.practicas2026.davidsc.ui.util.CurrencyFormatter
 import com.iberdrola.practicas2026.davidsc.ui.util.DateFormatter
-import java.text.NumberFormat
-import java.util.Locale
-
 
 
 @Composable
@@ -79,7 +76,7 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.TopStart) // ocupa todo el ancho, texto puede ir debajo del icono
+                        .align(Alignment.TopStart) // ocupa el ancho, texto puede ir debajo del icono
                 ) {
                     Text(
                         text = stringResource(R.string.last_invoice),
