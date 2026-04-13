@@ -16,6 +16,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
 class InvoicesViewModel @Inject constructor(
@@ -48,11 +51,11 @@ class InvoicesViewModel @Inject constructor(
     // so the slider always shows the full range of available amounts.
     private val _allInvoices = MutableStateFlow<List<Invoice>>(emptyList())
 
-    private val _minAmount = MutableStateFlow(0.0)
-    val minAmount: StateFlow<Double> = _minAmount.asStateFlow()
+    private val _minAmount = MutableStateFlow(0)
+    val minAmount: StateFlow<Int> = _minAmount.asStateFlow()
 
-    private val _maxAmount = MutableStateFlow(0.0)
-    val maxAmount: StateFlow<Double> = _maxAmount.asStateFlow()
+    private val _maxAmount = MutableStateFlow(0)
+    val maxAmount: StateFlow<Int> = _maxAmount.asStateFlow()
     init {
         val savedMock = prefs.getBoolean(PREF_USE_MOCK, false)
         AppConfig.useMockLocal = savedMock
@@ -129,8 +132,8 @@ class InvoicesViewModel @Inject constructor(
         try {
             // Fetch unfiltered to keep the slider range stable across filter changes.
             _allInvoices.value = getInvoicesUseCase(type, street, forceNetwork = !AppConfig.useMockLocal)
-            _minAmount.value = _allInvoices.value.minOfOrNull { it.amount } ?: 0.0
-            _maxAmount.value = _allInvoices.value.maxOfOrNull { it.amount } ?: 0.0
+            _minAmount.value = _allInvoices.value.minOfOrNull { it.amount.toInt() } ?: 0
+            _maxAmount.value = _allInvoices.value.maxOfOrNull { it.amount.toInt() } ?: 0
             _invoices.value = getInvoicesUseCase(type, street, forceNetwork = false, filter = filter)
         } catch (e: Exception) {
             _invoices.value = emptyList()
@@ -139,6 +142,14 @@ class InvoicesViewModel @Inject constructor(
             _isLoading.value = false
         }
     }
+
+    val isFilterActive: StateFlow<Boolean> = _activeFilter
+        .map { it != InvoiceFilter() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
 
     companion object {
         private const val PREF_USE_MOCK = "use_mock"

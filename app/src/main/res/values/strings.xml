@@ -39,5 +39,6 @@
     <string name="status_cancelled">Anuladas</string>
     <string name="status_fixed_fee">Cuota Fija</string>
     <string name="cancel">Cancelar</string>
+    <string name="no_older_invoices">No hay facturas anteriores</string>
 
 </resources>

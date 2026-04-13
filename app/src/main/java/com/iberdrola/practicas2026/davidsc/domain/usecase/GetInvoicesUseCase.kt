@@ -28,6 +28,8 @@ class GetInvoicesUseCase(private val repository: InvoiceRepository) {
 
         android.util.Log.d("GetInvoicesUseCase", "total before filter: ${invoices.size}, filter: $filter")
 
+        android.util.Log.d("GetInvoicesUseCase", "Estados en lista: ${invoices.map { it.status }}")
+        android.util.Log.d("GetInvoicesUseCase", "Estados en filtro: ${filter.estados}")
         val result = invoices
             .let { list -> type?.let { t -> list.filter { it.type == t } } ?: list }
             .let { list -> street?.let { s -> list.filter { it.street.equals(s, ignoreCase = true) } } ?: list }
@@ -43,12 +45,12 @@ class GetInvoicesUseCase(private val repository: InvoiceRepository) {
             }
             .let { list ->
                 filter.importeMin?.let { min ->
-                    list.filter { it.amount >= min }
+                    list.filter { it.amount.toInt() >= min }
                 } ?: list
             }
             .let { list ->
                 filter.importeMax?.let { max ->
-                    list.filter { it.amount <= max }
+                    list.filter { it.amount.toInt() <= max }
                 } ?: list
             }
             .let { list ->

@@ -3,16 +3,24 @@ package com.iberdrola.practicas2026.davidsc.ui.invoices
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -28,14 +36,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
-import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import com.iberdrola.practicas2026.davidsc.core.utils.Screen
+import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,12 +58,12 @@ fun InvoicesScreen(
     val useMock by viewModel.useMock.collectAsState()
     val selectedType by viewModel.selectedType.collectAsState()
     val selectedStreet by viewModel.selectedStreet.collectAsState()
+    val isFilterActive by viewModel.isFilterActive.collectAsState()
 
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     var showRatingSheet by remember { mutableStateOf(false) }
     var showInvoiceDialog by remember { mutableStateOf(false) }
-
 
     val activity = LocalActivity.current
 
@@ -72,14 +82,17 @@ fun InvoicesScreen(
         }
     }
 
+
+
+    val filteredInvoices = invoices.sortedByDescending { it.startDate }
+    android.util.Log.d("InvoicesScreen", "Facturas ordenadas: ${filteredInvoices.map { "${it.startDate} - ${it.status}" }}")
+
     BackHandler { handleBack() }
 
     Scaffold(
         topBar = {
             InvoicesHeader(
-                onBackClick = {
-                    handleBack()
-                },
+                onBackClick = { handleBack() },
                 useMock = useMock,
                 onToggleMock = { viewModel.toggleMock() },
                 selectedStreet = selectedStreet
@@ -113,6 +126,7 @@ fun InvoicesScreen(
 
             HorizontalDivider(color = Color.LightGray)
 
+
             if (isLoading) {
                 if (isLandscape) {
                     SkeletonInvoicesLandscape()
@@ -121,60 +135,78 @@ fun InvoicesScreen(
                     SkeletonList()
                 }
             } else {
-                if (filteredInvoices.isEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(dimensionResource(R.dimen.margin_medium)),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                if (isLandscape) {
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small))
                     ) {
-                        Text(
-                            text = stringResource(R.string.no_invoices_found),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Gray
-                        )
-                    }
-                } else {
-                    if (isLandscape) {
-                        Row(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small))
-                        ) {
-                            filteredInvoices.firstOrNull()?.let { latest ->
-                                LastInvoiceCard(
-                                    invoice = latest,
-                                    onClick = { showInvoiceDialog = true },
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight()
-                                        .padding(horizontal = dimensionResource(R.dimen.margin_medium))
-                                )
-                            }
-                            Column(modifier = Modifier.weight(2f)) {
-                                if (filteredInvoices.size > 1) {
-                                    InvoiceHistoryHeader(onFilterClick = { navController.navigate(Screen.FILTER) })
-                                    InvoiceListGroupedByYear(
-                                        invoices = filteredInvoices.drop(1),
-                                        onClick = { showInvoiceDialog = true }
-                                    )
-                                }
-                            }
-                        }
-                    } else {
                         filteredInvoices.firstOrNull()?.let { latest ->
                             LastInvoiceCard(
                                 invoice = latest,
-                                onClick = { showInvoiceDialog = true }
+                                onClick = { showInvoiceDialog = true },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .padding(horizontal = dimensionResource(R.dimen.margin_medium))
                             )
                         }
-                        if (filteredInvoices.size > 1) {
-                            InvoiceHistoryHeader(onFilterClick = { navController.navigate(Screen.FILTER) })
-                            InvoiceListGroupedByYear(
-                                invoices = filteredInvoices.drop(1),
-                                onClick = { showInvoiceDialog = true }
+                        Column(modifier = Modifier.weight(2f)) {
+                            InvoiceHistoryHeader(
+                                onFilterClick = { navController.navigate(Screen.FILTER) },
+                                isFilterActive = isFilterActive
                             )
+                            if (filteredInvoices.isEmpty()) {
+                                Text(
+                                    text = stringResource(R.string.no_invoices_found),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(dimensionResource(R.dimen.margin_medium))
+                                )
+                            } else if (filteredInvoices.size > 1) {
+                                InvoiceListGroupedByYear(
+                                    invoices = filteredInvoices.drop(1),
+                                    onClick = { showInvoiceDialog = true }
+                                )
+                            } else {
+                                Text(
+                                    text = stringResource(R.string.no_older_invoices),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(dimensionResource(R.dimen.margin_medium))
+                                )
+                            }
                         }
+                    }
+                } else {
+                    filteredInvoices.firstOrNull()?.let { latest ->
+                        LastInvoiceCard(
+                            invoice = latest,
+                            onClick = { showInvoiceDialog = true }
+                        )
+                    }
+                    InvoiceHistoryHeader(
+                        onFilterClick = { navController.navigate(Screen.FILTER) },
+                        isFilterActive = isFilterActive
+                    )
+                    if (filteredInvoices.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.no_invoices_found),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(dimensionResource(R.dimen.margin_medium))
+                        )
+                    } else if (filteredInvoices.size > 1) {
+                        InvoiceListGroupedByYear(
+                            invoices = filteredInvoices.drop(1),
+                            onClick = { showInvoiceDialog = true }
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(R.string.no_older_invoices),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(dimensionResource(R.dimen.margin_medium))
+                        )
                     }
                 }
             }
@@ -214,9 +246,11 @@ fun InvoicesScreen(
     }
 }
 
-// Extracted to avoid duplicating the history header block in portrait and landscape layouts.
 @Composable
-private fun InvoiceHistoryHeader(onFilterClick: () -> Unit) {
+private fun InvoiceHistoryHeader(
+    onFilterClick: () -> Unit,
+    isFilterActive: Boolean
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -232,7 +266,20 @@ private fun InvoiceHistoryHeader(onFilterClick: () -> Unit) {
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.ExtraBold
         )
-        OutlinedButton(onClick = onFilterClick) {
+        OutlinedButton(
+            onClick = onFilterClick,
+            border = BorderStroke(2.dp, colorResource(R.color.iberdrola_green)),
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = if (isFilterActive) colorResource(R.color.iberdrola_green) else Color.Transparent,
+                contentColor = if (isFilterActive) Color.White else colorResource(R.color.iberdrola_green)
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Tune,
+                contentDescription = stringResource(R.string.invoices_filter),
+                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
+            )
+            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.margin_xsmall)))
             Text(stringResource(R.string.invoices_filter))
         }
     }

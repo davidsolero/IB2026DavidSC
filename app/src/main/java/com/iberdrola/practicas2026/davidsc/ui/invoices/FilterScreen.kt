@@ -107,7 +107,7 @@ fun FilterScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                         contentDescription = stringResource(R.string.back),
-                        tint = iberdrolaGreen,
+                        tint = colorResource(R.color.iberdrola_green),
                         modifier = Modifier
                             .size(dimensionResource(R.dimen.icon_size_medium))
                             .graphicsLayer { scaleX = -1f }
@@ -116,7 +116,7 @@ fun FilterScreen(
                 Text(
                     text = stringResource(R.string.back),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = iberdrolaGreen,
+                    color = colorResource(R.color.iberdrola_green),
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable { navController.popBackStack() }
                 )
@@ -177,8 +177,8 @@ fun FilterScreen(
 
             var sliderRange by remember(minAmount, maxAmount) {
                 mutableStateOf(
-                    (activeFilter.importeMin?.toFloat() ?: minAmount.toFloat())
-                            ..(activeFilter.importeMax?.toFloat() ?: maxAmount.toFloat())
+                    (activeFilter.importeMin ?: minAmount).toFloat()
+                            ..(activeFilter.importeMax ?: maxAmount).toFloat()
                 )
             }
 
@@ -193,8 +193,8 @@ fun FilterScreen(
                 onValueChange = { sliderRange = it },
                 valueRange = minAmount.toFloat()..maxAmount.toFloat(),
                 colors = SliderDefaults.colors(
-                    thumbColor = iberdrolaGreen,
-                    activeTrackColor = iberdrolaGreen
+                    thumbColor = colorResource(R.color.iberdrola_green),
+                    activeTrackColor = colorResource(R.color.iberdrola_green),
                 )
             )
 
@@ -252,7 +252,7 @@ fun FilterScreen(
                             }
                         },
                         colors = CheckboxDefaults.colors(
-                            checkedColor = iberdrolaGreen
+                            checkedColor = colorResource(R.color.iberdrola_green)
                         )
                     )
                     Spacer(modifier = Modifier.width(dimensionResource(R.dimen.margin_small)))
@@ -272,8 +272,8 @@ fun FilterScreen(
                         InvoiceFilter(
                             desde = desde,
                             hasta = hasta,
-                            importeMin = sliderRange.start.toDouble(),
-                            importeMax = sliderRange.endInclusive.toDouble(),
+                            importeMin = sliderRange.start.toInt(),
+                            importeMax = sliderRange.endInclusive.toInt(),
                             estados = selectedEstados
                         )
                     )
@@ -281,7 +281,7 @@ fun FilterScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = iberdrolaGreen
+                    containerColor = colorResource(R.color.iberdrola_green),
                 )
             ) {
                 Text(stringResource(R.string.filter_apply))
@@ -298,7 +298,7 @@ fun FilterScreen(
             ) {
                 Text(
                     text = stringResource(R.string.filter_clear),
-                    color = iberdrolaGreen,
+                    color = colorResource(R.color.iberdrola_green),
                     textDecoration = TextDecoration.Underline
                 )
             }
