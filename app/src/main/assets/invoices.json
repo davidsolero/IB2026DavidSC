@@ -38,5 +38,55 @@
     "startDate": "2025-12-20",
     "endDate": "2025-12-22",
     "street": "Calle Secundaria"
+  },
+  {
+    "id": 5,
+    "description": "Factura Gas",
+    "amount": 41.80,
+    "status": "En trámite de cobro",
+    "type": "Gas",
+    "startDate": "2026-01-10",
+    "endDate": "2026-01-15",
+    "street": "Calle prueba"
+  },
+  {
+    "id": 6,
+    "description": "Factura Luz",
+    "amount": 19.90,
+    "status": "Anulada",
+    "type": "Luz",
+    "startDate": "2025-11-05",
+    "endDate": "2025-11-10",
+    "street": "Calle Mayor"
+  },
+  {
+    "id": 7,
+    "description": "Factura Gas",
+    "amount": 65.00,
+    "status": "Cuota Fija",
+    "type": "Gas",
+    "startDate": "2025-10-01",
+    "endDate": "2025-10-31",
+    "street": "Calle Secundaria"
+  },
+  {
+    "id": 8,
+    "description": "Factura Luz",
+    "amount": 38.20,
+    "status": "Cuota Fija",
+    "type": "Luz",
+    "startDate": "2025-09-01",
+    "endDate": "2025-09-30",
+    "street": "Calle prueba"
+  },
+  {
+    "id": null,
+    "description": null,
+    "amount": null,
+    "status": "Anulada",
+    "type": "Luz",
+    "startDate": "2025-08-15",
+    "endDate": null,
+    "street": "Calle Mayor"
   }
 ]

@@ -197,7 +197,9 @@ fun StatusBadge(status: String, modifier: Modifier = Modifier) {
     val (bgColor, textColor) = when (status) {
         stringResource(R.string.status_paid) -> colorResource(R.color.status_pagado_fondo) to colorResource(R.color.status_pagado_texto)
         stringResource(R.string.status_pending) -> colorResource(R.color.status_pendiente_pago_fondo) to colorResource(R.color.status_pendiente_pago_texto)
-        // Unknown statuses default to the pending style as a safe fallback.
+        stringResource(R.string.status_in_progress) -> colorResource(R.color.status_tramite_fondo) to colorResource(R.color.status_tramite_texto)
+        stringResource(R.string.status_cancelled) -> colorResource(R.color.status_anulada_fondo) to colorResource(R.color.status_anulada_texto)
+        stringResource(R.string.status_fixed_fee) -> colorResource(R.color.status_cuota_fija_fondo) to colorResource(R.color.status_cuota_fija_texto)
         else -> colorResource(R.color.status_pendiente_pago_fondo) to colorResource(R.color.status_pendiente_pago_texto)
     }
 
