@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.detekt)
 }
 
 android {
@@ -95,4 +96,21 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation("io.mockk:mockk:1.14.6")
+
+    //Detekt
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.6")
 }
+
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+
+    reports {
+        html.required.set(true)
+        sarif.required.set(true)
+        txt.required.set(false)
+    }
+    ignoreFailures = true
+}
+
