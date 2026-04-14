@@ -46,6 +46,7 @@ import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.Screen
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
+import com.iberdrola.practicas2026.davidsc.ui.util.DateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,9 +85,23 @@ fun InvoicesScreen(
 
 
 
-    val filteredInvoices = invoices.sortedByDescending { it.startDate }
-    android.util.Log.d("InvoicesScreen", "Facturas ordenadas: ${filteredInvoices.map { "${it.startDate} - ${it.status}" }}")
+    val filteredInvoices = invoices.sortedByDescending { it.date }
 
+    val dateFormatter = remember { DateFormatter() }
+    val rangeText = remember(filteredInvoices) {
+        if (filteredInvoices.isEmpty()) {
+            ""
+        } else {
+            val first = filteredInvoices.minOf { it.date }
+            val last = filteredInvoices.maxOf { it.date }
+
+            if (first == last) {
+                dateFormatter.formatCompact(first)
+            } else {
+                dateFormatter.formatRange(first, last)
+            }
+        }
+    }
     BackHandler { handleBack() }
 
     Scaffold(
@@ -100,7 +115,7 @@ fun InvoicesScreen(
         }
     ) { innerPadding ->
 
-        val filteredInvoices = invoices.sortedByDescending { it.startDate }
+
 
         Column(
             modifier = Modifier
@@ -143,6 +158,7 @@ fun InvoicesScreen(
                         filteredInvoices.firstOrNull()?.let { latest ->
                             LastInvoiceCard(
                                 invoice = latest,
+                                rangeText = rangeText,
                                 onClick = { showInvoiceDialog = true },
                                 modifier = Modifier
                                     .weight(1f)
@@ -181,6 +197,7 @@ fun InvoicesScreen(
                     filteredInvoices.firstOrNull()?.let { latest ->
                         LastInvoiceCard(
                             invoice = latest,
+                            rangeText = rangeText,
                             onClick = { showInvoiceDialog = true }
                         )
                     }

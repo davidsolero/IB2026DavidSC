@@ -85,7 +85,7 @@
     "amount": null,
     "status": "Anulada",
     "type": "Luz",
-    "startDate": "2025-08-15",
+    "startDate": null,
     "endDate": null,
     "street": "Calle Mayor"
   }

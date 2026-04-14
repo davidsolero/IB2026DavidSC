@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.iberdrola.practicas2026.davidsc.data.local.dao.InvoiceDao
 import com.iberdrola.practicas2026.davidsc.data.local.entity.InvoiceEntity
 
-@Database(entities = [InvoiceEntity::class], version = 2, exportSchema = false)
+@Database(entities = [InvoiceEntity::class], version = 3, exportSchema = false)
 abstract class InvoiceDatabase : RoomDatabase() {
     abstract fun invoiceDao(): InvoiceDao
 }

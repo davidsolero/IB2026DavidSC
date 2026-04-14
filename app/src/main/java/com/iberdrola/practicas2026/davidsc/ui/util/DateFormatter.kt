@@ -6,34 +6,36 @@ import java.util.Locale
 
 class DateFormatter {
 
+    private val inputFormatter =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-    private val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
-    private val rangeFormatter =
+    private val compactFormatter =
         DateTimeFormatter.ofPattern("dd MMM. yyyy", Locale("es", "ES"))
 
-    private val singleFormatter =
+    private val longFormatter =
         DateTimeFormatter.ofPattern("d 'de' MMMM", Locale("es", "ES"))
 
-    /**
-     * Formats an invoice date range or single date for display.
-     *
-     * @param startDate String with format "yyyy-MM-dd"
-     * @param endDate String with format "yyyy-MM-dd"
-     * @param showEndDate Whether to show range or single date
-     */
     fun formatInvoiceDate(
-        startDate: String,
-        endDate: String?,
-        showEndDate: Boolean = false
+        date: String,
+        useCompactFormat: Boolean = false
     ): String {
-        val start = LocalDate.parse(startDate, inputFormatter)
 
-        return if (showEndDate && endDate != null) {
-            val end = LocalDate.parse(endDate, inputFormatter)
-            "${start.format(rangeFormatter)} - ${end.format(rangeFormatter)}"
+        val parsed = LocalDate.parse(date, inputFormatter)
+
+        return if (useCompactFormat) {
+            parsed.format(compactFormatter)   // 14 abr. 2026
         } else {
-            start.format(singleFormatter)
+            parsed.format(longFormatter)      // 14 de abril
         }
+    }
+
+
+    fun formatCompact(date: String): String {
+        val parsed = LocalDate.parse(date, inputFormatter)
+        return parsed.format(compactFormatter)
+    }
+
+    fun formatRange(first: String, last: String): String {
+        return "${formatCompact(first)} - ${formatCompact(last)}"
     }
 }

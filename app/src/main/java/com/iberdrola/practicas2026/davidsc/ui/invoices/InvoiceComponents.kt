@@ -54,8 +54,13 @@ import com.iberdrola.practicas2026.davidsc.ui.util.DateFormatter
 
 
 @Composable
-fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val dateFormatter = remember { DateFormatter() }
+fun LastInvoiceCard(
+    invoice: Invoice,
+    rangeText: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+
     val currencyFormatter = remember { CurrencyFormatter() }
 
     Card(
@@ -97,11 +102,7 @@ fun LastInvoiceCard(invoice: Invoice, onClick: () -> Unit, modifier: Modifier = 
                         modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
                     )
                     Text(
-                        text = dateFormatter.formatInvoiceDate(
-                            startDate = invoice.startDate,
-                            endDate = invoice.endDate,
-                            showEndDate = true
-                        ),
+                        text = rangeText,
                         style = MaterialTheme.typography.titleSmall,
                         color = Color.Gray
                     )
@@ -162,9 +163,8 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = dateFormatter.formatInvoiceDate(
-                    startDate = invoice.startDate,
-                    endDate = invoice.endDate,
-                    showEndDate = false
+                    date = invoice.date,
+                    useCompactFormat = false
                 ),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
@@ -195,11 +195,26 @@ fun InvoiceItem(invoice: Invoice, onClick: () -> Unit) {
 @Composable
 fun StatusBadge(status: String, modifier: Modifier = Modifier) {
     val (bgColor, textColor) = when (status) {
-        stringResource(R.string.status_paid) -> colorResource(R.color.status_pagado_fondo) to colorResource(R.color.status_pagado_texto)
-        stringResource(R.string.status_pending) -> colorResource(R.color.status_pendiente_pago_fondo) to colorResource(R.color.status_pendiente_pago_texto)
-        stringResource(R.string.status_in_progress) -> colorResource(R.color.status_tramite_fondo) to colorResource(R.color.status_tramite_texto)
-        stringResource(R.string.status_cancelled) -> colorResource(R.color.status_anulada_fondo) to colorResource(R.color.status_anulada_texto)
-        stringResource(R.string.status_fixed_fee) -> colorResource(R.color.status_cuota_fija_fondo) to colorResource(R.color.status_cuota_fija_texto)
+        stringResource(R.string.status_paid) -> colorResource(R.color.status_pagado_fondo) to colorResource(
+            R.color.status_pagado_texto
+        )
+
+        stringResource(R.string.status_pending) -> colorResource(R.color.status_pendiente_pago_fondo) to colorResource(
+            R.color.status_pendiente_pago_texto
+        )
+
+        stringResource(R.string.status_in_progress) -> colorResource(R.color.status_tramite_fondo) to colorResource(
+            R.color.status_tramite_texto
+        )
+
+        stringResource(R.string.status_cancelled) -> colorResource(R.color.status_anulada_fondo) to colorResource(
+            R.color.status_anulada_texto
+        )
+
+        stringResource(R.string.status_fixed_fee) -> colorResource(R.color.status_cuota_fija_fondo) to colorResource(
+            R.color.status_cuota_fija_texto
+        )
+
         else -> colorResource(R.color.status_pendiente_pago_fondo) to colorResource(R.color.status_pendiente_pago_texto)
     }
 
@@ -308,7 +323,7 @@ fun TabItemUnderline(
 
 @Composable
 fun InvoiceListGroupedByYear(invoices: List<Invoice>, onClick: (Invoice) -> Unit) {
-    val invoicesByYear = invoices.groupBy { it.startDate.take(4) }
+    val invoicesByYear = invoices.groupBy { it.date.take(4) }
 
     LazyColumn {
         invoicesByYear.toSortedMap(compareByDescending { it }).forEach { (year, invoicesInYear) ->
@@ -481,7 +496,6 @@ private val previewInvoices = listOf(
     Invoice(
         1,
         "2026-03-01",
-        "2026-07-01",
         "Factura Luz",
         52.3,
         "Pagada",
@@ -491,7 +505,6 @@ private val previewInvoices = listOf(
     Invoice(
         2,
         "2026-02-18",
-        "2026-03-01",
         "Factura Gas",
         28.4,
         "Pendiente de Pago",
@@ -501,7 +514,6 @@ private val previewInvoices = listOf(
     Invoice(
         3,
         "2026-03-02",
-        "2026-03-01",
         "Factura Luz",
         32.5,
         "Pagada",
@@ -513,7 +525,11 @@ private val previewInvoices = listOf(
 @Preview(showBackground = true)
 @Composable
 fun PreviewLastInvoiceCard() {
-    LastInvoiceCard(invoice = previewInvoices[0], onClick = {})
+    LastInvoiceCard(
+        invoice = previewInvoices[0],
+        rangeText = "10 abr. 2026 - 20 mar. 2026",
+        onClick = {}
+    )
 }
 
 @Preview(showBackground = true)

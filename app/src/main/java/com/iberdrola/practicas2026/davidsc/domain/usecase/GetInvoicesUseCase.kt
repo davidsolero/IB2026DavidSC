@@ -26,22 +26,35 @@ class GetInvoicesUseCase(private val repository: InvoiceRepository) {
             repository.getInvoices()
         }
 
-        android.util.Log.d("GetInvoicesUseCase", "total before filter: ${invoices.size}, filter: $filter")
+        android.util.Log.d(
+            "GetInvoicesUseCase",
+            "total before filter: ${invoices.size}, filter: $filter"
+        )
 
         android.util.Log.d("GetInvoicesUseCase", "Estados en lista: ${invoices.map { it.status }}")
         android.util.Log.d("GetInvoicesUseCase", "Estados en filtro: ${filter.estados}")
         val result = invoices
             .let { list -> type?.let { t -> list.filter { it.type == t } } ?: list }
-            .let { list -> street?.let { s -> list.filter { it.street.equals(s, ignoreCase = true) } } ?: list }
             .let { list ->
-                filter.desde?.let { desde ->
-                    list.filter { LocalDate.parse(it.startDate) >= desde }
+                street?.let { s ->
+                    list.filter {
+                        it.street.equals(
+                            s,
+                            ignoreCase = true
+                        )
+                    }
                 } ?: list
             }
             .let { list ->
-                filter.hasta?.let { hasta ->
-                    list.filter { LocalDate.parse(it.startDate) <= hasta }
-                } ?: list
+                val desde = filter.desde
+                val hasta = filter.hasta
+                if (desde == null && hasta == null) list
+                else list.filter { invoice ->
+                    val invoiceDate = LocalDate.parse(invoice.date)
+
+                    (desde == null || !invoiceDate.isBefore(desde)) &&
+                            (hasta == null || !invoiceDate.isAfter(hasta))
+                }
             }
             .let { list ->
                 filter.importeMin?.let { min ->
