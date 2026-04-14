@@ -28,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -90,6 +91,8 @@ fun FilterScreen(
         stringResource(R.string.status_cancelled),
         stringResource(R.string.status_fixed_fee)
     )
+
+
 
     Scaffold { innerPadding ->
         Column(
@@ -176,10 +179,11 @@ fun FilterScreen(
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
             var sliderRange by remember(minAmount, maxAmount) {
-                mutableStateOf(
-                    (activeFilter.importeMin ?: minAmount).toFloat()
-                            ..(activeFilter.importeMax ?: maxAmount).toFloat()
-                )
+                val safeMin = minAmount.toFloat()
+                val safeMax = maxOf(minAmount.toFloat(), maxAmount.toFloat())
+                val currentMin = (activeFilter.importeMin ?: minAmount).toFloat().coerceIn(safeMin, safeMax)
+                val currentMax = (activeFilter.importeMax ?: maxAmount).toFloat().coerceIn(safeMin, safeMax)
+                mutableStateOf(currentMin..maxOf(currentMin, currentMax))
             }
 
             Text(
@@ -189,12 +193,17 @@ fun FilterScreen(
             )
 
             RangeSlider(
-                value = sliderRange,
-                onValueChange = { sliderRange = it },
-                valueRange = minAmount.toFloat()..maxAmount.toFloat(),
+                value = sliderRange.start.coerceIn(minAmount.toFloat(), maxAmount.toFloat())
+                        ..sliderRange.endInclusive.coerceIn(minAmount.toFloat(), maxAmount.toFloat()),
+                onValueChange = { newRange ->
+                    if (newRange.start <= newRange.endInclusive) {
+                        sliderRange = newRange
+                    }
+                },
+                valueRange = minAmount.toFloat()..maxOf(minAmount.toFloat(), maxAmount.toFloat()),
                 colors = SliderDefaults.colors(
-                    thumbColor = colorResource(R.color.iberdrola_green),
-                    activeTrackColor = colorResource(R.color.iberdrola_green),
+                    thumbColor = iberdrolaGreen,
+                    activeTrackColor = iberdrolaGreen
                 )
             )
 
@@ -203,13 +212,13 @@ fun FilterScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${minAmount.toInt()} €",
+                    text = "$minAmount €",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    text = "${maxAmount.toInt()} €",
+                    text = "$maxAmount €",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
@@ -315,7 +324,11 @@ fun FilterScreen(
                 desde = date
                 showDesdePicker = false
             },
-            onDismiss = { showDesdePicker = false }
+            onDismiss = { showDesdePicker = false },
+            maxDateMillis = hasta
+                ?.atStartOfDay(ZoneId.of("UTC"))
+                ?.toInstant()
+                ?.toEpochMilli()
         )
     }
 
@@ -326,7 +339,11 @@ fun FilterScreen(
                 hasta = date
                 showHastaPicker = false
             },
-            onDismiss = { showHastaPicker = false }
+            onDismiss = { showHastaPicker = false },
+            minDateMillis = desde
+                ?.atStartOfDay(ZoneId.of("UTC"))
+                ?.toInstant()
+                ?.toEpochMilli()
         )
     }
 }
@@ -370,14 +387,25 @@ private fun DateField(
 private fun IberdrolaDatePickerDialog(
     initialDate: LocalDate?,
     onConfirm: (LocalDate) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    minDateMillis: Long? = null,
+    maxDateMillis: Long? = null
 ) {
     val initialMillis = initialDate
         ?.atStartOfDay(ZoneId.of("UTC"))
         ?.toInstant()
         ?.toEpochMilli()
 
-    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = initialMillis,
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                val afterMin = minDateMillis == null || utcTimeMillis >= minDateMillis
+                val beforeMax = maxDateMillis == null || utcTimeMillis <= maxDateMillis
+                return afterMin && beforeMax
+            }
+        }
+    )
 
     DatePickerDialog(
         onDismissRequest = onDismiss,
