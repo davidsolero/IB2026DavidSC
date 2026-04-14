@@ -29,8 +29,8 @@
     <string name="no_invoices_found">No se han encontrado facturas</string>
     <string name="filter_title">Filtrar</string>
     <string name="filter_by_date">Por fecha</string>
-    <string name="filter_date_from">* Desde</string>
-    <string name="filter_date_to">* Hasta</string>
+    <string name="filter_date_from">Desde</string>
+    <string name="filter_date_to">Hasta</string>
     <string name="filter_by_amount">Por un importe</string>
     <string name="filter_by_status">Por estado</string>
     <string name="filter_apply">Aplicar filtros</string>

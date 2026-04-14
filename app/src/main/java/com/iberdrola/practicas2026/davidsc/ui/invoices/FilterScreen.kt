@@ -1,6 +1,8 @@
 package com.iberdrola.practicas2026.davidsc.ui.invoices
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
@@ -50,6 +53,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -182,20 +186,41 @@ fun FilterScreen(
             var sliderRange by remember(minAmount, maxAmount) {
                 val safeMin = minAmount.toFloat()
                 val safeMax = maxOf(minAmount.toFloat(), maxAmount.toFloat())
-                val currentMin = (activeFilter.importeMin ?: minAmount).toFloat().coerceIn(safeMin, safeMax)
-                val currentMax = (activeFilter.importeMax ?: maxAmount).toFloat().coerceIn(safeMin, safeMax)
+                val currentMin =
+                    (activeFilter.importeMin ?: minAmount).toFloat().coerceIn(safeMin, safeMax)
+                val currentMax =
+                    (activeFilter.importeMax ?: maxAmount).toFloat().coerceIn(safeMin, safeMax)
                 mutableStateOf(currentMin..maxOf(currentMin, currentMax))
             }
 
-            Text(
-                text = "${sliderRange.start.toInt()} € - ${sliderRange.endInclusive.toInt()} €",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = colorResource(R.color.status_pagado_fondo).copy(alpha = 0.5f),
+                        shape = RoundedCornerShape(
+                            dimensionResource(R.dimen.margin_xsmall)
+                        )
+                    )
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.margin_small),
+                        vertical = dimensionResource(R.dimen.margin_xsmall)
+                    )
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                Text(
+                    text = "${sliderRange.start.toInt()} € - ${sliderRange.endInclusive.toInt()} €",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
 
             RangeSlider(
                 value = sliderRange.start.coerceIn(minAmount.toFloat(), maxAmount.toFloat())
-                        ..sliderRange.endInclusive.coerceIn(minAmount.toFloat(), maxAmount.toFloat()),
+                        ..sliderRange.endInclusive.coerceIn(
+                    minAmount.toFloat(),
+                    maxAmount.toFloat()
+                ),
                 onValueChange = { newRange ->
                     if (newRange.start <= newRange.endInclusive) {
                         sliderRange = newRange
@@ -357,28 +382,36 @@ private fun DateField(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.clickable { onClick() },
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = modifier.clickable { onClick() }
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+                Text(
+                    text = date?.format(formatter) ?: "",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            Icon(
+                imageVector = Icons.Outlined.CalendarMonth,
+                contentDescription = null,
+                tint = Color.Gray,
+                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
             )
-            Text(
-                text = date?.format(formatter) ?: "",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            HorizontalDivider()
         }
-        Spacer(modifier = Modifier.width(4.dp))
-        Icon(
-            imageVector = Icons.Outlined.CalendarMonth,
-            contentDescription = null,
-            tint = Color.Gray,
-            modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
+        HorizontalDivider(
+            color = Color.LightGray
         )
     }
 }
