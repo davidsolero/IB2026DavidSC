@@ -20,6 +20,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -391,6 +392,8 @@ private fun IberdrolaDatePickerDialog(
     minDateMillis: Long? = null,
     maxDateMillis: Long? = null
 ) {
+    val iberdrolaGreen = colorResource(R.color.iberdrola_green)
+
     val initialMillis = initialDate
         ?.atStartOfDay(ZoneId.of("UTC"))
         ?.toInstant()
@@ -410,23 +413,50 @@ private fun IberdrolaDatePickerDialog(
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = {
-                datePickerState.selectedDateMillis?.let { millis ->
-                    val date = Instant.ofEpochMilli(millis)
-                        .atZone(ZoneId.of("UTC"))
-                        .toLocalDate()
-                    onConfirm(date)
+            TextButton(
+                onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val date = Instant.ofEpochMilli(millis)
+                            .atZone(ZoneId.of("UTC"))
+                            .toLocalDate()
+                        onConfirm(date)
+                    }
                 }
-            }) {
-                Text(stringResource(R.string.accept))
+            ) {
+                Text(
+                    text = stringResource(R.string.accept),
+                    color = iberdrolaGreen
+                )
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
+                Text(
+                    text = stringResource(R.string.cancel),
+                    color = Color.Gray
+                )
             }
         }
     ) {
-        DatePicker(state = datePickerState)
+        DatePicker(
+            state = datePickerState,
+            colors = DatePickerDefaults.colors(
+                // día seleccionado
+                selectedDayContainerColor = iberdrolaGreen,
+                selectedDayContentColor = Color.White,
+
+                // día de hoy
+                todayDateBorderColor = iberdrolaGreen,
+                todayContentColor = iberdrolaGreen,
+
+                // mes / cabecera
+                headlineContentColor = iberdrolaGreen,
+                subheadContentColor = iberdrolaGreen,
+                titleContentColor = iberdrolaGreen,
+
+                // flechas navegación
+                navigationContentColor = iberdrolaGreen
+            )
+        )
     }
 }
