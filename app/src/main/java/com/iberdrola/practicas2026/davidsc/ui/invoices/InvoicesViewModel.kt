@@ -11,7 +11,13 @@ import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import com.iberdrola.practicas2026.davidsc.domain.usecase.GetInvoicesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -67,9 +73,17 @@ class InvoicesViewModel @Inject constructor(
     private val _maxAmount = MutableStateFlow(0)
     val maxAmount = _maxAmount.asStateFlow()
 
-    val isFilterActive: StateFlow<Boolean> = _activeFilter
-        .map { it != InvoiceFilter() }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val isFilterActive: StateFlow<Boolean> = combine(
+        _activeFilter,
+        _minAmount,
+        _maxAmount
+    ) { filter, min, max ->
+        filter.desde != null ||
+                filter.hasta != null ||
+                filter.estados.isNotEmpty() ||
+                (filter.importeMin != null && filter.importeMin != min) ||
+                (filter.importeMax != null && filter.importeMax != max)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     // -----------------------------
     // INIT
@@ -122,6 +136,14 @@ class InvoicesViewModel @Inject constructor(
     }
 
     fun applyFilter(filter: InvoiceFilter) {
+        val current = _activeFilter.value
+
+        // 1. Si es igual al actual → no hacer nada
+        if (current == filter) return
+
+        // 2. Si ambos son default → no hacer nada
+        if (filter == InvoiceFilter() && current == InvoiceFilter()) return
+
         _activeFilter.value = filter
     }
 
@@ -173,6 +195,12 @@ class InvoicesViewModel @Inject constructor(
             val min = invoices.minOfOrNull { it.amount.toInt() } ?: 0
             val max = invoices.maxOfOrNull { it.amount.toInt() } ?: 0
 
+            val currentFilter = _activeFilter.value
+            val oldMin = _minAmount.value
+            val oldMax = _maxAmount.value
+            _activeFilter.value = transferFilterIntent(currentFilter, oldMin, oldMax, min, max)
+
+
             _minAmount.value = min
             _maxAmount.value = max
 
@@ -217,9 +245,72 @@ class InvoicesViewModel @Inject constructor(
         }
     }
 
+    private fun transferFilterIntent(
+        oldFilter: InvoiceFilter,
+        oldMin: Int,
+        oldMax: Int,
+        newMin: Int,
+        newMax: Int
+    ): InvoiceFilter {
+
+        fun mapValue(value: Int?): Int? {
+            if (value == null) return null
+
+            val oldRange = oldMax - oldMin
+            val newRange = newMax - newMin
+
+            if (oldRange <= 0 || newRange <= 0) return newMin
+
+            val threshold = oldRange * 0.25f
+
+            return when {
+                // Pegado a extremos (intención fuerte)
+                value == oldMin -> newMin
+                value == oldMax -> newMax
+
+                // Zona baja
+                value <= oldMin + threshold -> {
+                    (newMin + newRange * 0.25f).toInt()
+                }
+
+                // Zona alta
+                value >= oldMax - threshold -> {
+                    (newMax - newRange * 0.25f).toInt()
+                }
+
+                // Zona media (custom)
+                else -> {
+                    // Si el valor no tiene sentido en el nuevo rango → reset parcial
+                    if (value < newMin || value > newMax) {
+                        null // fuerza a UI a usar defaults (min/max)
+                    } else {
+                        value
+                    }
+                }
+            }
+        }
+
+        val newMinValue = mapValue(oldFilter.importeMin)
+        val newMaxValue = mapValue(oldFilter.importeMax)
+
+
+        val finalMin = newMinValue ?: newMin
+        val finalMax = newMaxValue ?: newMax
+
+        return oldFilter.copy(
+            importeMin = minOf(finalMin, finalMax),
+            importeMax = maxOf(finalMin, finalMax)
+        )
+    }
+
+
     companion object {
         private const val PREF_USE_MOCK = "use_mock"
         private const val PREF_CLOSE_COUNT = "invoice_close_count"
         private const val PREF_THRESHOLD = "invoice_show_sheet_threshold"
+
     }
+
+
+
 }
