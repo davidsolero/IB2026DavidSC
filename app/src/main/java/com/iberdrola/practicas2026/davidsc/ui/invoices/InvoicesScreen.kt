@@ -259,10 +259,15 @@ fun InvoicesScreen(
         if (showInvoiceDialog) {
             AlertDialog(
                 onDismissRequest = { showInvoiceDialog = false },
-                text = { Text(stringResource(R.string.invoice_not_available)) },
+                text = {
+                    Text(stringResource(R.string.invoice_not_available))
+                },
                 confirmButton = {
                     TextButton(onClick = { showInvoiceDialog = false }) {
-                        Text(stringResource(R.string.accept))
+                        Text(
+                            stringResource(R.string.accept),
+                            color = colorResource(R.color.iberdrola_green)
+                        )
                     }
                 }
             )

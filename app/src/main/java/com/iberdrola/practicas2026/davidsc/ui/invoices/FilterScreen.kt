@@ -171,7 +171,7 @@ fun FilterScreen(
             }
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
-            HorizontalDivider()
+
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
             // --- Por importe ---
@@ -420,7 +420,7 @@ private fun DateField(
 @Composable
 private fun IberdrolaDatePickerDialog(
     initialDate: LocalDate?,
-    onConfirm: (LocalDate) -> Unit,
+    onConfirm: (LocalDate?) -> Unit,
     onDismiss: () -> Unit,
     minDateMillis: Long? = null,
     maxDateMillis: Long? = null
@@ -448,7 +448,8 @@ private fun IberdrolaDatePickerDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    datePickerState.selectedDateMillis?.let { millis ->
+                    val millis = datePickerState.selectedDateMillis
+                    if (millis != null) {
                         val date = Instant.ofEpochMilli(millis)
                             .atZone(ZoneId.of("UTC"))
                             .toLocalDate()
@@ -463,31 +464,33 @@ private fun IberdrolaDatePickerDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(
-                    text = stringResource(R.string.cancel),
-                    color = Color.Gray
-                )
+            Row {
+                TextButton(
+                    onClick = {
+                        onConfirm(null)
+                        onDismiss()
+                    }
+                ) {
+                    Text(
+                        text = "Borrar",
+                        color = Color.Red
+                    )
+                }
+
+
             }
         }
     ) {
         DatePicker(
             state = datePickerState,
             colors = DatePickerDefaults.colors(
-                // día seleccionado
                 selectedDayContainerColor = iberdrolaGreen,
                 selectedDayContentColor = Color.White,
-
-                // día de hoy
                 todayDateBorderColor = iberdrolaGreen,
                 todayContentColor = iberdrolaGreen,
-
-                // mes / cabecera
                 headlineContentColor = iberdrolaGreen,
                 subheadContentColor = iberdrolaGreen,
                 titleContentColor = iberdrolaGreen,
-
-                // flechas navegación
                 navigationContentColor = iberdrolaGreen
             )
         )
