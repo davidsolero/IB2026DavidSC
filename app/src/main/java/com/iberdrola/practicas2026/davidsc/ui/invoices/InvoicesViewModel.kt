@@ -73,18 +73,15 @@ class InvoicesViewModel @Inject constructor(
     private val _maxAmount = MutableStateFlow(0)
     val maxAmount = _maxAmount.asStateFlow()
 
-    val isFilterActive: StateFlow<Boolean> = combine(
-        _activeFilter,
-        _minAmount,
-        _maxAmount
-    ) { filter, min, max ->
-        filter.desde != null ||
-                filter.hasta != null ||
-                filter.estados.isNotEmpty() ||
-                (filter.importeMin != null && filter.importeMin != min) ||
-                (filter.importeMax != null && filter.importeMax != max)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
-
+    val isFilterActive: StateFlow<Boolean> =
+        combine(_activeFilter) { filter ->
+            val f = filter[0]
+            f.desde != null ||
+                    f.hasta != null ||
+                    f.estados.isNotEmpty() ||
+                    f.importeMin != null ||
+                    f.importeMax != null
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
     // -----------------------------
     // INIT
     // -----------------------------

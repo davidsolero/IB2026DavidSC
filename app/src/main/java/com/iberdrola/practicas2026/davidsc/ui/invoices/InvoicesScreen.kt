@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -107,8 +108,6 @@ fun InvoicesScreen(
         topBar = {
             InvoicesHeader(
                 onBackClick = { handleBack() },
-                useMock = useMock,
-                onToggleMock = { viewModel.toggleMock() },
                 selectedStreet = selectedStreet
             )
         }
@@ -120,6 +119,7 @@ fun InvoicesScreen(
                 .padding(innerPadding)
         ) {
 
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

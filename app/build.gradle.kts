@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.runtime)
     implementation(libs.androidx.foundation)
+    implementation(libs.androidx.ui.text)
     ksp(libs.hilt.compiler)
 
     // Retrofit

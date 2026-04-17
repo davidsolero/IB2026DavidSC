@@ -24,15 +24,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Whatshot
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -70,7 +68,7 @@ fun LastInvoiceCard(
             .clickable { onClick() },
         colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
         border = BorderStroke(1.3.dp, colorResource(R.color.iberdrola_green)),
-        shape = CardDefaults.outlinedShape
+        shape = RoundedCornerShape(20.dp)
     ) {
         Column(
             modifier = Modifier
@@ -98,7 +96,7 @@ fun LastInvoiceCard(
                     Text(
                         text = currencyFormatter.format(invoice.amount),
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Black,
                         modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
                     )
                     Text(
@@ -106,6 +104,8 @@ fun LastInvoiceCard(
                         style = MaterialTheme.typography.titleSmall,
                         color = Color.Gray
                     )
+
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
                 }
 
                 val icon = when (invoice.type) {
@@ -130,7 +130,7 @@ fun LastInvoiceCard(
             )
             StatusBadge(
                 status = invoice.status,
-                modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
+                modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_small))
             )
         }
     }
@@ -138,10 +138,14 @@ fun LastInvoiceCard(
 
 @Composable
 fun InvoiceList(invoices: List<Invoice>, onClick: (Invoice) -> Unit) {
-    LazyColumn {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(0.dp)
+    ) {
         items(invoices) { invoice ->
-            InvoiceItem(invoice = invoice, onClick = { onClick(invoice) })
-            HorizontalDivider()
+            InvoiceItem(
+                invoice = invoice,
+                onClick = { onClick(invoice) }
+            )
         }
     }
 }
@@ -221,7 +225,9 @@ fun StatusBadge(status: String, modifier: Modifier = Modifier) {
     Text(
         text = status,
         color = textColor,
-        style = MaterialTheme.typography.labelSmall,
+        style = MaterialTheme.typography.labelSmall.copy(
+            fontWeight = FontWeight.Bold
+        ),
         modifier = modifier
             .background(
                 color = bgColor,
@@ -237,8 +243,6 @@ fun StatusBadge(status: String, modifier: Modifier = Modifier) {
 @Composable
 fun InvoicesHeader(
     onBackClick: () -> Unit,
-    useMock: Boolean,
-    onToggleMock: () -> Unit,
     selectedStreet: String?
 ) {
     Column(
@@ -252,31 +256,7 @@ fun InvoicesHeader(
             )
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                    contentDescription = stringResource(R.string.back),
-                    tint = colorResource(R.color.iberdrola_green),
-                    modifier = Modifier
-                        .size(dimensionResource(R.dimen.icon_size_medium))
-                        .graphicsLayer { scaleX = -1f }
-                )
-            }
-            Text(
-                text = stringResource(R.string.back),
-                style = MaterialTheme.typography.bodyMedium,
-                color = colorResource(R.color.iberdrola_green),
-                textDecoration = TextDecoration.Underline,
-                modifier = Modifier.clickable { onBackClick() }
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            OutlinedButton(
-                onClick = onToggleMock,
-                border = BorderStroke(2.dp, colorResource(R.color.iberdrola_green)),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = colorResource(R.color.iberdrola_green))
-            ) {
-                Text(if (useMock) stringResource(R.string.mock_on) else stringResource(R.string.mock_off))
-            }
+            BackButton(onClick = onBackClick)
         }
 
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
@@ -288,10 +268,41 @@ fun InvoicesHeader(
         )
         Text(
             text = selectedStreet ?: stringResource(R.string.invoices_subtitle),
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleLarge
         )
     }
 }
+
+@Composable
+fun BackButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+            contentDescription = stringResource(R.string.back),
+            tint = colorResource(R.color.iberdrola_green),
+            modifier = Modifier
+                .size(dimensionResource(R.dimen.icon_size_medium))
+                .graphicsLayer { scaleX = -1f }
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Text(
+            text = stringResource(R.string.back),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = colorResource(R.color.iberdrola_green),
+            textDecoration = TextDecoration.Underline
+        )
+    }
+}
+
 
 @Composable
 fun TabItemUnderline(
@@ -555,8 +566,6 @@ fun PreviewSkeletonLast() {
 fun PreviewInvoicesHeader() {
     InvoicesHeader(
         onBackClick = {},
-        useMock = true,
-        onToggleMock = {},
         selectedStreet = "CALLE LARIOS"
     )
 }
