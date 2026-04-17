@@ -109,26 +109,9 @@ fun FilterScreen(
         ) {
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-            // Header
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                        contentDescription = stringResource(R.string.back),
-                        tint = colorResource(R.color.iberdrola_green),
-                        modifier = Modifier
-                            .size(dimensionResource(R.dimen.icon_size_medium))
-                            .graphicsLayer { scaleX = -1f }
-                    )
-                }
-                Text(
-                    text = stringResource(R.string.back),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colorResource(R.color.iberdrola_green),
-                    textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable { navController.popBackStack() }
-                )
-            }
+            BackButton(
+                onClick = { navController.popBackStack() }
+            )
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
@@ -172,7 +155,7 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
+
 
             // --- Por importe ---
             Text(
@@ -251,7 +234,7 @@ fun FilterScreen(
             }
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
-            HorizontalDivider()
+
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
             // --- Por estado ---
