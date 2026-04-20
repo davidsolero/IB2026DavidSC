@@ -3,20 +3,22 @@ package com.iberdrola.practicas2026.davidsc.ui.invoices
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -28,26 +30,28 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -65,6 +69,8 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.math.floor
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -156,7 +162,6 @@ fun FilterScreen(
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
 
-
             // --- Por importe ---
             Text(
                 text = stringResource(R.string.filter_by_amount),
@@ -175,7 +180,6 @@ fun FilterScreen(
                     (activeFilter.importeMax ?: maxAmount).toFloat().coerceIn(safeMin, safeMax)
                 mutableStateOf(currentMin..maxOf(currentMin, currentMax))
             }
-
             Box(
                 modifier = Modifier
                     .background(
@@ -198,40 +202,13 @@ fun FilterScreen(
                 )
             }
 
-            RangeSlider(
-                value = sliderRange.start.coerceIn(minAmount.toFloat(), maxAmount.toFloat())
-                        ..sliderRange.endInclusive.coerceIn(
-                    minAmount.toFloat(),
-                    maxAmount.toFloat()
-                ),
-                onValueChange = { newRange ->
-                    if (newRange.start <= newRange.endInclusive) {
-                        sliderRange = newRange
-                    }
-                },
-                valueRange = minAmount.toFloat()..maxOf(minAmount.toFloat(), maxAmount.toFloat()),
-                colors = SliderDefaults.colors(
-                    thumbColor = iberdrolaGreen,
-                    activeTrackColor = iberdrolaGreen
-                )
+            IberdrolaRangeSlider(
+                value = sliderRange,
+                onValueChange = { sliderRange = it },
+                min = minAmount.toFloat(),
+                max = maxAmount.toFloat(),
+                modifier = Modifier.fillMaxWidth()
             )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "$minAmount €",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    text = "$maxAmount €",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
-                )
-            }
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
@@ -269,8 +246,11 @@ fun FilterScreen(
                                 selectedEstados - estado
                             }
                         },
+                        modifier = Modifier.scale(1.2f),
                         colors = CheckboxDefaults.colors(
-                            checkedColor = colorResource(R.color.iberdrola_green)
+                            checkedColor = colorResource(R.color.iberdrola_green),
+                            checkmarkColor = Color.White,
+                            uncheckedColor = colorResource(R.color.iberdrola_green)
                         )
                     )
                     Spacer(modifier = Modifier.width(dimensionResource(R.dimen.margin_small)))
@@ -284,6 +264,7 @@ fun FilterScreen(
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
             // --- Botones ---
+            // --- Botón aplicar ---
             Button(
                 onClick = {
                     viewModel.applyFilter(
@@ -297,31 +278,38 @@ fun FilterScreen(
                     )
                     navController.popBackStack()
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = dimensionResource(R.dimen.invoice_amount_text))
+                    .height(60.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorResource(R.color.iberdrola_green),
                 )
             ) {
-                Text(stringResource(R.string.filter_apply))
+                Text(text = stringResource(R.string.filter_apply), fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
+            // --- Botón limpiar ---
             TextButton(
                 onClick = {
                     viewModel.clearFilter()
                     navController.popBackStack()
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = dimensionResource(R.dimen.invoice_amount_text))
+                    .height(60.dp)
             ) {
                 Text(
                     text = stringResource(R.string.filter_clear),
+                    fontWeight = FontWeight.SemiBold,
                     color = colorResource(R.color.iberdrola_green),
                     textDecoration = TextDecoration.Underline
                 )
             }
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
         }
     }
 
@@ -394,7 +382,8 @@ private fun DateField(
             )
         }
         HorizontalDivider(
-            color = Color.LightGray
+            color = Color.Gray,
+            thickness = 3.dp
         )
     }
 }
@@ -478,4 +467,129 @@ private fun IberdrolaDatePickerDialog(
             )
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun IberdrolaRangeSlider(
+    value: ClosedFloatingPointRange<Float>,
+    onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+    min: Float,
+    max: Float,
+    modifier: Modifier = Modifier
+) {
+    val iberdrolaGreen = colorResource(R.color.iberdrola_green)
+
+    val range = max - min
+    val startFraction = (value.start - min) / range
+    val endFraction = (value.endInclusive - min) / range
+
+    Column(modifier = modifier) {
+
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(20.dp),
+            contentAlignment = Alignment.Center
+        ) {
+
+            val widthPx = maxWidth
+
+            val range = max - min
+            val startFraction = (value.start - min) / range
+            val endFraction = (value.endInclusive - min) / range
+
+            // 🔵 BASE
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(3.dp)
+                    .background(Color.LightGray, CircleShape)
+            )
+
+            // 🟢 ACTIVE (CORRECTO)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(3.dp)
+                    .drawWithContent {
+
+                        val start = size.width * startFraction
+                        val end = size.width * endFraction
+
+                        // fondo gris
+                        drawRect(Color.LightGray)
+
+                        // rango verde
+                        drawRect(
+                            color = iberdrolaGreen,
+                            topLeft = Offset(start, 0f),
+                            size = Size(end - start, size.height)
+                        )
+                    }
+            )
+            // 🎚 SLIDER
+            RangeSlider(
+                value = value,
+                onValueChange = onValueChange,
+                valueRange = min..max,
+                colors = SliderDefaults.colors(
+                    inactiveTrackColor = Color.Transparent,
+                    activeTrackColor = Color.Transparent
+                ),
+                startThumb = {
+                    Box(
+                        Modifier
+                            .size(20.dp)
+                            .background(iberdrolaGreen, CircleShape)
+                    )
+                },
+                endThumb = {
+                    Box(
+                        Modifier
+                            .size(20.dp)
+                            .background(iberdrolaGreen, CircleShape)
+                    )
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "${floor(min).toInt()} €",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = "${floor(max).toInt()} €",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+        }
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewIberdrolaRangeSlider() {
+    var value by remember { mutableStateOf(20f..80f) }
+
+    IberdrolaRangeSlider(
+        value = value,
+        onValueChange = { value = it },
+        min = 0f,
+        max = 100f,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    )
 }
