@@ -189,8 +189,11 @@ class InvoicesViewModel @Inject constructor(
 
             _allInvoices.value = invoices.sortedByDescending { it.date }
 
-            val min = invoices.minOfOrNull { it.amount.toInt() } ?: 0
-            val max = invoices.maxOfOrNull { it.amount.toInt() } ?: 0
+            val rawMin = invoices.minOfOrNull { it.amount }?.toFloat() ?: 0f
+            val rawMax = invoices.maxOfOrNull { it.amount }?.toFloat() ?: 0f
+
+            val min = kotlin.math.floor(rawMin).toInt()
+            val max = kotlin.math.ceil(rawMax).toInt().coerceAtLeast(min + 1)
 
             val currentFilter = _activeFilter.value
             val oldMin = _minAmount.value
@@ -309,5 +312,16 @@ class InvoicesViewModel @Inject constructor(
     }
 
 
+    val hasInvoicesForSelectedType: StateFlow<Boolean> =
+        combine(
+            _allInvoices,
+            _selectedType
+        ) { invoices, type ->
+            invoices.any { it.type == type }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            false
+        )
 
 }

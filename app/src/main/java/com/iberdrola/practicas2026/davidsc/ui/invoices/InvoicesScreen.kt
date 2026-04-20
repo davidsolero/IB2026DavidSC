@@ -61,7 +61,7 @@ fun InvoicesScreen(
     val selectedType by viewModel.selectedType.collectAsState()
     val selectedStreet by viewModel.selectedStreet.collectAsState()
     val isFilterActive by viewModel.isFilterActive.collectAsState()
-
+    val hasInvoices by viewModel.hasInvoicesForSelectedType.collectAsState()
     val isLandscape =
         LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -181,7 +181,8 @@ fun InvoicesScreen(
 
                             InvoiceHistoryHeader(
                                 onFilterClick = { navController.navigate(Screen.FILTER) },
-                                isFilterActive = isFilterActive
+                                isFilterActive = isFilterActive,
+                                enabled = hasInvoices
                             )
 
                             if (history.isEmpty()) {
@@ -214,7 +215,8 @@ fun InvoicesScreen(
 
                     InvoiceHistoryHeader(
                         onFilterClick = { navController.navigate(Screen.FILTER) },
-                        isFilterActive = isFilterActive
+                        isFilterActive = isFilterActive,
+                        enabled = hasInvoices
                     )
 
                     if (history.isEmpty()) {
@@ -278,8 +280,9 @@ fun InvoicesScreen(
 @Composable
 private fun InvoiceHistoryHeader(
     onFilterClick: () -> Unit,
-    isFilterActive: Boolean
-) {
+    isFilterActive: Boolean,
+    enabled: Boolean = true
+){
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -297,10 +300,13 @@ private fun InvoiceHistoryHeader(
         )
         OutlinedButton(
             onClick = onFilterClick,
+            enabled = enabled,
             border = BorderStroke(2.dp, colorResource(R.color.iberdrola_green)),
             colors = ButtonDefaults.outlinedButtonColors(
                 containerColor = if (isFilterActive) colorResource(R.color.iberdrola_green) else Color.Transparent,
-                contentColor = if (isFilterActive) Color.White else colorResource(R.color.iberdrola_green)
+                contentColor = if (isFilterActive) Color.White else colorResource(R.color.iberdrola_green),
+                disabledContainerColor = Color.LightGray.copy(alpha = 0.3f),
+                disabledContentColor = Color.Gray
             )
         ) {
             Icon(
