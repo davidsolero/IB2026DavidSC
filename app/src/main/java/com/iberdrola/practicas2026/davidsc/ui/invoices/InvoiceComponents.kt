@@ -40,8 +40,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.iberdrola.practicas2026.davidsc.R
@@ -93,10 +96,29 @@ fun LastInvoiceCard(
                             bottom = 15.dp
                         )
                     )
+                    val amountText = currencyFormatter.format(invoice.amount)
+
+                    val baseStyle = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize * 1.1f,
+                        fontWeight = FontWeight.Black
+                    )
+
                     Text(
-                        text = currencyFormatter.format(invoice.amount),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Black,
+                        text = buildAnnotatedString {
+                            if (amountText.isNotEmpty()) {
+                                append(amountText.dropLast(1))
+
+                                withStyle(
+                                    SpanStyle(
+                                        fontSize = baseStyle.fontSize * 0.7f,
+                                        fontWeight = FontWeight.Black
+                                    )
+                                ) {
+                                    append(amountText.last().toString())
+                                }
+                            }
+                        },
+                        style = baseStyle,
                         modifier = Modifier.padding(top = dimensionResource(R.dimen.margin_xsmall))
                     )
                     Text(
@@ -263,12 +285,16 @@ fun InvoicesHeader(
 
         Text(
             text = stringResource(R.string.invoices_title),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontSize = MaterialTheme.typography.titleLarge.fontSize * 1.15f,
+                fontWeight = FontWeight.Bold
+            )
         )
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
         Text(
             text = selectedStreet ?: stringResource(R.string.invoices_subtitle),
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold
         )
     }
 }
@@ -435,7 +461,7 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .padding(dimensionResource(R.dimen.margin_medium)),
         border = BorderStroke(1.3.dp, Color.Gray),
-        shape = CardDefaults.outlinedShape,
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent)
     ) {
         Column(
@@ -443,42 +469,99 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .padding(dimensionResource(R.dimen.margin_medium))
         ) {
+
+            Box(modifier = Modifier.fillMaxWidth()) {
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 38.dp) // deja espacio para el icono
+                ) {
+
+                    // Título
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.45f)
+                            .height(22.dp)
+                            .background(
+                                color = colorResource(R.color.skeleton_darkgray),
+                                RoundedCornerShape(4.dp)
+                            )
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Descripción
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.35f)
+                            .height(18.dp)
+                            .background(
+                                color = colorResource(R.color.skeleton_darkgray),
+                                RoundedCornerShape(4.dp)
+                            )
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Importe grande
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.25f)
+                            .height(30.dp)
+                            .background(
+                                color = colorResource(R.color.skeleton_darkgray),
+                                RoundedCornerShape(4.dp)
+                            )
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Rango
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.6f)
+                            .height(16.dp)
+                            .background(
+                                color = colorResource(R.color.skeleton_darkgray),
+                                RoundedCornerShape(4.dp)
+                            )
+                    )
+                }
+
+                // Icono
+                Box(
+                    modifier = Modifier
+                        .size(dimensionResource(R.dimen.icon_size_large))
+                        .background(
+                            color = colorResource(R.color.skeleton_darkgray),
+                            RoundedCornerShape(4.dp)
+                        )
+                        .align(Alignment.TopEnd)
+                )
+            }
+
+
+
+            // Divider (igual que el real)
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                thickness = 1.dp,
+                color = Color.Gray.copy(alpha = 0.3f)
+            )
+
+            // Badge skeleton
             Box(
                 modifier = Modifier
-                    .size(dimensionResource(R.dimen.icon_size_large))
+                    .width(90.dp)
+                    .height(22.dp)
                     .background(
                         color = colorResource(R.color.skeleton_darkgray),
-                        RoundedCornerShape(20.dp)
-                    )
-                    .align(Alignment.End)
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.5f)
-                    .height(24.dp)
-                    .background(
-                        color = colorResource(R.color.skeleton_darkgray),
-                        RoundedCornerShape(4.dp)
+                        RoundedCornerShape(20)
                     )
             )
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .height(20.dp)
-                    .background(
-                        color = colorResource(R.color.skeleton_darkgray),
-                        RoundedCornerShape(4.dp)
-                    )
-            )
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.3f)
-                    .height(24.dp)
-                    .background(Color(0xFFBDBDBD), RoundedCornerShape(4.dp))
-            )
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
         }
     }
 }
