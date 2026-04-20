@@ -418,7 +418,7 @@ fun SkeletonItem() {
                     .width(120.dp)
                     .height(14.dp)
                     .background(
-                        color = colorResource(R.color.skeleton_gray),
+                        color = colorResource(R.color.skeleton_darkgray),
                         RoundedCornerShape(4.dp)
                     )
             )
@@ -428,7 +428,7 @@ fun SkeletonItem() {
                     .width(80.dp)
                     .height(12.dp)
                     .background(
-                        color = colorResource(R.color.skeleton_gray),
+                        color = colorResource(R.color.skeleton_darkgray),
                         RoundedCornerShape(4.dp)
                     )
             )
@@ -438,7 +438,7 @@ fun SkeletonItem() {
                     .width(60.dp)
                     .height(12.dp)
                     .background(
-                        color = colorResource(R.color.skeleton_gray),
+                        color = colorResource(R.color.skeleton_darkgray),
                         RoundedCornerShape(4.dp)
                     )
             )
@@ -448,7 +448,7 @@ fun SkeletonItem() {
                 .width(30.dp)
                 .height(30.dp)
                 .background(
-                    color = colorResource(R.color.skeleton_gray), RoundedCornerShape(4.dp)
+                    color = colorResource(R.color.skeleton_darkgray), RoundedCornerShape(4.dp)
                 )
         )
     }
@@ -484,7 +484,7 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                             .fillMaxWidth(0.45f)
                             .height(22.dp)
                             .background(
-                                color = colorResource(R.color.skeleton_darkgray),
+                                color = colorResource(R.color.skeleton_gray),
                                 RoundedCornerShape(4.dp)
                             )
                     )
@@ -497,7 +497,7 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                             .fillMaxWidth(0.35f)
                             .height(18.dp)
                             .background(
-                                color = colorResource(R.color.skeleton_darkgray),
+                                color = colorResource(R.color.skeleton_gray),
                                 RoundedCornerShape(4.dp)
                             )
                     )
@@ -510,7 +510,7 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                             .fillMaxWidth(0.25f)
                             .height(30.dp)
                             .background(
-                                color = colorResource(R.color.skeleton_darkgray),
+                                color = colorResource(R.color.skeleton_gray),
                                 RoundedCornerShape(4.dp)
                             )
                     )
@@ -523,7 +523,7 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                             .fillMaxWidth(0.6f)
                             .height(16.dp)
                             .background(
-                                color = colorResource(R.color.skeleton_darkgray),
+                                color = colorResource(R.color.skeleton_gray),
                                 RoundedCornerShape(4.dp)
                             )
                     )
@@ -534,7 +534,7 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.icon_size_large))
                         .background(
-                            color = colorResource(R.color.skeleton_darkgray),
+                            color = colorResource(R.color.skeleton_gray),
                             RoundedCornerShape(4.dp)
                         )
                         .align(Alignment.TopEnd)
@@ -558,7 +558,7 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                     .width(90.dp)
                     .height(22.dp)
                     .background(
-                        color = colorResource(R.color.skeleton_darkgray),
+                        color = colorResource(R.color.skeleton_gray),
                         RoundedCornerShape(20)
                     )
             )
