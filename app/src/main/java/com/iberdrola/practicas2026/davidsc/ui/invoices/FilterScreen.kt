@@ -498,7 +498,7 @@ fun IberdrolaRangeSlider(
             val range = max - min
             val startFraction = (value.start - min) / range
             val endFraction = (value.endInclusive - min) / range
-
+            val sliderColor = colorResource(R.color.slider_importe)
             // 🔵 BASE
             Box(
                 modifier = Modifier
@@ -522,7 +522,7 @@ fun IberdrolaRangeSlider(
 
                         // rango verde
                         drawRect(
-                            color = iberdrolaGreen,
+                            color = sliderColor,
                             topLeft = Offset(start, 0f),
                             size = Size(end - start, size.height)
                         )
@@ -541,14 +541,14 @@ fun IberdrolaRangeSlider(
                     Box(
                         Modifier
                             .size(20.dp)
-                            .background(iberdrolaGreen, CircleShape)
+                            .background(    sliderColor, CircleShape)
                     )
                 },
                 endThumb = {
                     Box(
                         Modifier
                             .size(20.dp)
-                            .background(iberdrolaGreen, CircleShape)
+                            .background(   sliderColor, CircleShape)
                     )
                 }
             )

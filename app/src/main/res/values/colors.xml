@@ -18,5 +18,6 @@
     <color name="status_anulada_texto">#424242</color>
     <color name="status_cuota_fija_fondo">#D9C8EF</color>
     <color name="status_cuota_fija_texto">#4A2080</color>
+    <color name="slider_importe">#006e31</color>
 
 </resources>
