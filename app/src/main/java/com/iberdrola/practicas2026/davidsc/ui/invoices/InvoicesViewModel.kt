@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -79,9 +78,10 @@ class InvoicesViewModel @Inject constructor(
             f.desde != null ||
                     f.hasta != null ||
                     f.estados.isNotEmpty() ||
-                    f.importeMin != null ||
-                    f.importeMax != null
+                    f.importeMin != null && f.importeMin != _minAmount.value ||
+                    f.importeMax != null && f.importeMax != _maxAmount.value
         }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
     // -----------------------------
     // INIT
     // -----------------------------
@@ -252,6 +252,9 @@ class InvoicesViewModel @Inject constructor(
         newMin: Int,
         newMax: Int
     ): InvoiceFilter {
+        if (oldFilter == InvoiceFilter()) {
+            return oldFilter
+        }
 
         fun mapValue(value: Int?): Int? {
             if (value == null) return null
@@ -294,12 +297,21 @@ class InvoicesViewModel @Inject constructor(
         val newMaxValue = mapValue(oldFilter.importeMax)
 
 
-        val finalMin = newMinValue ?: newMin
-        val finalMax = newMaxValue ?: newMax
+        val isDefaultRange =
+            (newMinValue == null || newMinValue == newMin) &&
+                    (newMaxValue == null || newMaxValue == newMax)
+
+        if (isDefaultRange &&
+            oldFilter.desde == null &&
+            oldFilter.hasta == null &&
+            oldFilter.estados.isEmpty()
+        ) {
+            return InvoiceFilter()
+        }
 
         return oldFilter.copy(
-            importeMin = minOf(finalMin, finalMax),
-            importeMax = maxOf(finalMin, finalMax)
+            importeMin = newMinValue,
+            importeMax = newMaxValue
         )
     }
 

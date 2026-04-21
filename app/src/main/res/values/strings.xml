@@ -40,5 +40,5 @@
     <string name="status_fixed_fee">Cuota Fija</string>
     <string name="cancel">Cancelar</string>
     <string name="no_older_invoices">No hay facturas anteriores</string>
-
+    <string name="no_older_invoices_with_filter">No hay facturas anteriores con este filtro</string>
 </resources>

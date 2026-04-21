@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +44,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.Screen
@@ -67,19 +70,26 @@ fun InvoicesScreen(
 
     var showRatingSheet by remember { mutableStateOf(false) }
     var showInvoiceDialog by remember { mutableStateOf(false) }
+    var isNavigating by remember { mutableStateOf(false) }
+
 
     val activity = LocalActivity.current
 
-    val navigateBack = {
-        val popped = navController.popBackStack()
-        if (!popped) activity?.finish()
+    val navigateBack: () -> Unit = {
+        if (!isNavigating) {
+            isNavigating = true
+            val popped = navController.popBackStack()
+            if (!popped) activity?.finish()
+        }
     }
 
-    val handleBack = {
-        if (viewModel.onBackPressed()) {
-            showRatingSheet = true
-        } else {
-            navigateBack()
+    val handleBack: () -> Unit = {
+        if (!isNavigating) {
+            if (viewModel.onBackPressed()) {
+                showRatingSheet = true
+            } else {
+                navigateBack()
+            }
         }
     }
 
@@ -100,6 +110,19 @@ fun InvoicesScreen(
                 dateFormatter.formatRange(first, last)
             }
         }
+    }
+
+
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                isNavigating = false
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     BackHandler { handleBack() }
@@ -180,14 +203,23 @@ fun InvoicesScreen(
                         Column(modifier = Modifier.weight(2f)) {
 
                             InvoiceHistoryHeader(
-                                onFilterClick = { navController.navigate(Screen.FILTER) },
+                                onFilterClick = {
+                                    if (!isNavigating && !showRatingSheet) {
+                                        isNavigating = true
+                                        navController.navigate(Screen.FILTER)
+                                    }
+                                },
                                 isFilterActive = isFilterActive,
-                                enabled = hasInvoices
+                                enabled = hasInvoices && !showRatingSheet
                             )
 
                             if (history.isEmpty()) {
                                 Text(
-                                    text = stringResource(R.string.no_invoices_found),
+                                    text = if (isFilterActive) {
+                                        stringResource(R.string.no_older_invoices_with_filter)
+                                    } else {
+                                        stringResource(R.string.no_older_invoices)
+                                    },
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = Color.Gray,
                                     modifier = Modifier.padding(
@@ -214,14 +246,23 @@ fun InvoicesScreen(
                     }
 
                     InvoiceHistoryHeader(
-                        onFilterClick = { navController.navigate(Screen.FILTER) },
+                        onFilterClick = {
+                            if (!isNavigating && !showRatingSheet) {
+                                isNavigating = true
+                                navController.navigate(Screen.FILTER)
+                            }
+                        },
                         isFilterActive = isFilterActive,
-                        enabled = hasInvoices
+                        enabled = hasInvoices && !showRatingSheet
                     )
 
                     if (history.isEmpty()) {
                         Text(
-                            text = stringResource(R.string.no_invoices_found),
+                            text = if (isFilterActive) {
+                                stringResource(R.string.no_older_invoices_with_filter)
+                            } else {
+                                stringResource(R.string.no_older_invoices)
+                            },
                             style = MaterialTheme.typography.bodyLarge,
                             color = Color.Gray,
                             modifier = Modifier.padding(
@@ -282,7 +323,7 @@ private fun InvoiceHistoryHeader(
     onFilterClick: () -> Unit,
     isFilterActive: Boolean,
     enabled: Boolean = true
-){
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -301,7 +342,14 @@ private fun InvoiceHistoryHeader(
         OutlinedButton(
             onClick = onFilterClick,
             enabled = enabled,
-            border = BorderStroke(2.dp, colorResource(R.color.iberdrola_green)),
+            border = BorderStroke(
+                2.dp,
+                if (enabled) {
+                    colorResource(R.color.iberdrola_green)
+                } else {
+                    Color.Gray
+                }
+            ),
             colors = ButtonDefaults.outlinedButtonColors(
                 containerColor = if (isFilterActive) colorResource(R.color.iberdrola_green) else Color.Transparent,
                 contentColor = if (isFilterActive) Color.White else colorResource(R.color.iberdrola_green),

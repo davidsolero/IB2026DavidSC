@@ -392,9 +392,9 @@ fun SkeletonList() {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 50.dp)
+            .padding(top = 110.dp)
     ) {
-        items(7) {
+        items(4) {
             SkeletonItem()
             HorizontalDivider()
         }
@@ -408,7 +408,7 @@ fun SkeletonItem() {
             .fillMaxWidth()
             .padding(
                 horizontal = dimensionResource(R.dimen.margin_medium),
-                vertical = dimensionResource(R.dimen.margin_small)
+                vertical = dimensionResource(R.dimen.margin_medium)
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
