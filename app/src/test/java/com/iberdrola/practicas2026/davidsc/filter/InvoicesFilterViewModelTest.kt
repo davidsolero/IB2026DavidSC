@@ -219,4 +219,132 @@ class InvoicesFilterViewModelTest {
 
         assertTrue(viewModel.isFilterActive.value)
     }
+
+
+    @Test
+    fun `filter returns empty list when no invoices match`() = runTest {
+        val viewModel = InvoicesViewModel(useCase, prefs)
+        advanceUntilIdle()
+
+        viewModel.applyFilter(
+            InvoiceFilter(
+                estados = setOf("NoExisteEstado")
+            )
+        )
+
+        advanceUntilIdle()
+
+        assertTrue(viewModel.invoices.value.isEmpty())
+    }
+
+    @Test
+    fun `handles empty invoice list`() = runTest {
+        coEvery { useCase(any(), any(), any()) } returns emptyList()
+
+        val viewModel = InvoicesViewModel(useCase, prefs)
+        advanceUntilIdle()
+
+        assertTrue(viewModel.invoices.value.isEmpty())
+    }
+
+
+    @Test
+    fun `default filter shows all invoices`() = runTest {
+        val viewModel = InvoicesViewModel(useCase, prefs)
+        advanceUntilIdle()
+
+        viewModel.applyFilter(InvoiceFilter())
+        advanceUntilIdle()
+
+        assertEquals(4, viewModel.invoices.value.size)
+    }
+
+
+    @Test
+    fun `invalid date invoices are excluded`() = runTest {
+        val badData = listOf(
+            Invoice(1, "invalid-date", "Factura", 50.0, "Pagada", InvoiceType.LUZ, "Calle")
+        )
+
+        coEvery { useCase(any(), any(), any()) } returns badData
+
+        val viewModel = InvoicesViewModel(useCase, prefs)
+        advanceUntilIdle()
+
+        assertTrue(viewModel.invoices.value.isEmpty())
+    }
+
+    @Test
+    fun `amount boundary values are included`() = runTest {
+        val viewModel = InvoicesViewModel(useCase, prefs)
+        advanceUntilIdle()
+
+        viewModel.applyFilter(
+            InvoiceFilter(
+                importeMin = 50,
+                importeMax = 50
+            )
+        )
+
+        advanceUntilIdle()
+
+        val result = viewModel.invoices.value
+
+        assertTrue(result.all { it.amount == 50.0 })
+    }
+
+    @Test
+    fun `date boundaries are included`() = runTest {
+        val viewModel = InvoicesViewModel(useCase, prefs)
+        advanceUntilIdle()
+
+        viewModel.applyFilter(
+            InvoiceFilter(
+                desde = LocalDate.parse("2026-02-15"),
+                hasta = LocalDate.parse("2026-02-15")
+            )
+        )
+
+        advanceUntilIdle()
+
+        val result = viewModel.invoices.value
+
+        assertTrue(result.all { it.date == "2026-02-15" })
+    }
+
+    @Test
+    fun `multiple statuses filter correctly`() = runTest {
+        val viewModel = InvoicesViewModel(useCase, prefs)
+        advanceUntilIdle()
+
+        viewModel.applyFilter(
+            InvoiceFilter(
+                estados = setOf("Pagada", "Pendiente de Pago")
+            )
+        )
+
+        advanceUntilIdle()
+
+        val result = viewModel.invoices.value
+
+        assertTrue(result.all {
+            it.status in setOf("Pagada", "Pendiente de Pago")
+        })
+    }
+
+    @Test
+    fun `changing filter replaces previous filter`() = runTest {
+        val viewModel = InvoicesViewModel(useCase, prefs)
+        advanceUntilIdle()
+
+        viewModel.applyFilter(InvoiceFilter(estados = setOf("Pagada")))
+        advanceUntilIdle()
+
+        viewModel.applyFilter(InvoiceFilter(estados = setOf("Pendiente de Pago")))
+        advanceUntilIdle()
+
+        val result = viewModel.invoices.value
+
+        assertTrue(result.all { it.status == "Pendiente de Pago" })
+    }
 }
