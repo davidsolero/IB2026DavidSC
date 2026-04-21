@@ -281,8 +281,8 @@ fun InvoicesScreen(
 
         if (showRatingSheet) {
             RatingBottomSheet(
-                onRated = {
-                    viewModel.onRated()
+                onRated = { viewModel.onRated() },
+                onRatedDismiss = {
                     showRatingSheet = false
                     navigateBack()
                 },
@@ -302,15 +302,19 @@ fun InvoicesScreen(
         if (showInvoiceDialog) {
             AlertDialog(
                 onDismissRequest = { showInvoiceDialog = false },
+                containerColor = Color.White,
                 text = {
                     Text(stringResource(R.string.invoice_not_available))
                 },
                 confirmButton = {
-                    TextButton(onClick = { showInvoiceDialog = false }) {
-                        Text(
-                            stringResource(R.string.accept),
-                            color = colorResource(R.color.iberdrola_green)
+                    TextButton(
+                        onClick = { showInvoiceDialog = false },
+                        colors = ButtonDefaults.textButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = colorResource(R.color.iberdrola_green)
                         )
+                    ) {
+                        Text(stringResource(R.string.accept))
                     }
                 }
             )
