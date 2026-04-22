@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -115,6 +116,7 @@ private fun ThanksContent() {
         Text(
             text = stringResource(R.string.rate_thanks),
             style = MaterialTheme.typography.displaySmall,
+            fontWeight = FontWeight.Bold,
             color = colorResource(R.color.slider_importe),
             textAlign = TextAlign.Center
         )

@@ -3,6 +3,7 @@ package com.iberdrola.practicas2026.davidsc.ui.invoices
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -304,28 +306,35 @@ fun BackButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    TextButton(
+    Surface(
         onClick = onClick,
+        shape = RoundedCornerShape(20.dp),
+        color = Color.Transparent,
         modifier = modifier
     ) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-            contentDescription = stringResource(R.string.back),
-            tint = colorResource(R.color.iberdrola_green),
-            modifier = Modifier
-                .size(dimensionResource(R.dimen.icon_size_medium))
-                .graphicsLayer { scaleX = -1f }
-        )
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                contentDescription = stringResource(R.string.back),
+                tint = colorResource(R.color.iberdrola_green),
+                modifier = Modifier
+                    .size(dimensionResource(R.dimen.icon_size_medium))
+                    .graphicsLayer { scaleX = -1f }
+            )
 
-        Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(10.dp))
 
-        Text(
-            text = stringResource(R.string.back),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            color = colorResource(R.color.iberdrola_green),
-            textDecoration = TextDecoration.Underline
-        )
+            Text(
+                text = stringResource(R.string.back),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = colorResource(R.color.iberdrola_green),
+                textDecoration = TextDecoration.Underline
+            )
+        }
     }
 }
 
