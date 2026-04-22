@@ -7,7 +7,7 @@ import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 
 fun InvoiceDto.toDomainOrNull(): Invoice? {
     val id = id ?: return null
-    val date = startDate ?: return null
+    val date = emissionDate ?: return null
     val type = type?.toInvoiceTypeOrNull() ?: return null
 
     return Invoice(

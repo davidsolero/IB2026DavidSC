@@ -11,6 +11,7 @@ data class InvoiceDto(
     @SerializedName("id") val id: Int?,
     @SerializedName("startDate") val startDate: String?,
     @SerializedName("endDate") val endDate: String?,
+    @SerializedName("emissionDate") val emissionDate: String?,
     @SerializedName("description") val description: String?,
     @SerializedName("amount") val amount: Double?,
     @SerializedName("status") val status: String?,

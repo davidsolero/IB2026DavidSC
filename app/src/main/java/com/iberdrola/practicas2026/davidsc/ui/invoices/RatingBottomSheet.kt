@@ -116,7 +116,7 @@ private fun ThanksContent() {
         Text(
             text = stringResource(R.string.rate_thanks),
             style = MaterialTheme.typography.displaySmall,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
             color = colorResource(R.color.slider_importe),
             textAlign = TextAlign.Center
         )
