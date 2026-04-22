@@ -436,38 +436,39 @@ private fun IberdrolaDatePickerDialog(
             }
         },
         dismissButton = {
-            Row {
-                TextButton(
-                    onClick = {
-                        onConfirm(null)
-                        onDismiss()
-                    }
-                ) {
-                    Text(
-                        text = "Borrar",
-                        color = Color.Red
-                    )
+            TextButton(
+                onClick = {
+                    onConfirm(null)
+                    onDismiss()
                 }
-
-
+            ) {
+                Text("Borrar", color = Color.Red)
             }
-        }
-    ) {
-        DatePicker(
-            state = datePickerState,
-            colors = DatePickerDefaults.colors(
-                selectedDayContainerColor = iberdrolaGreen,
-                selectedDayContentColor = Color.White,
-                todayDateBorderColor = iberdrolaGreen,
-                todayContentColor = iberdrolaGreen,
-                headlineContentColor = iberdrolaGreen,
-                subheadContentColor = iberdrolaGreen,
-                titleContentColor = iberdrolaGreen,
-                navigationContentColor = iberdrolaGreen
-            )
+        },shape = DatePickerDefaults.shape,
+        colors = DatePickerDefaults.colors(
+            containerColor = Color.White
         )
+    ) {
+
+        Surface(color = Color.White) {
+            DatePicker(
+                state = datePickerState,
+                colors = DatePickerDefaults.colors(
+                    containerColor = Color.White,
+                    selectedDayContainerColor = iberdrolaGreen,
+                    selectedDayContentColor = Color.White,
+                    todayDateBorderColor = iberdrolaGreen,
+                    todayContentColor = iberdrolaGreen,
+                    headlineContentColor = iberdrolaGreen,
+                    subheadContentColor = iberdrolaGreen,
+                    titleContentColor = iberdrolaGreen,
+                    navigationContentColor = iberdrolaGreen
+                )
+            )
+        }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -541,14 +542,14 @@ fun IberdrolaRangeSlider(
                     Box(
                         Modifier
                             .size(20.dp)
-                            .background(    sliderColor, CircleShape)
+                            .background(sliderColor, CircleShape)
                     )
                 },
                 endThumb = {
                     Box(
                         Modifier
                             .size(20.dp)
-                            .background(   sliderColor, CircleShape)
+                            .background(sliderColor, CircleShape)
                     )
                 }
             )
