@@ -14,9 +14,18 @@ import com.iberdrola.practicas2026.davidsc.R
 /**
  * IB2026DavidSCTheme
  *
- * This file is kept even though it currently only wraps the default MaterialTheme.
- * Reason: it serves as a central point to customize colors, typography, or shapes
- * of the project later on without having to modify each individual component.
+ * Custom Material 3 theme wrapper for the application.
+ *
+ * This theme centralizes design system configuration, including:
+ * - Color scheme (currently a minimal white-based avoiding pink scheme)
+ * - Typography (custom IberPangea font family applied globally)
+ *
+ * Although currently simple, this file acts as the single entry point for
+ * future theming evolution (dark mode, semantic colors, spacing system, etc.)
+ * without requiring changes across individual composables.
+ *
+ * Keeping this abstraction ensures consistent UI styling across the app
+ * and decouples design decisions from feature implementations.
  */
 
 private val WhiteColorScheme = lightColorScheme(

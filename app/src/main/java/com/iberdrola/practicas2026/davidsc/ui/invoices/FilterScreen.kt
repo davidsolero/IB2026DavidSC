@@ -83,7 +83,6 @@ fun FilterScreen(
     val minAmount by viewModel.minAmount.collectAsState()
     val maxAmount by viewModel.maxAmount.collectAsState()
 
-    // Local UI state — only committed to the ViewModel when the user taps "Aplicar filtros".
     var desde by remember { mutableStateOf(activeFilter.desde) }
     var hasta by remember { mutableStateOf(activeFilter.hasta) }
     var selectedEstados by remember { mutableStateOf(activeFilter.estados) }
@@ -128,7 +127,7 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-            // --- Por fecha ---
+            // --- DATE ---
             Text(
                 text = stringResource(R.string.filter_by_date),
                 style = MaterialTheme.typography.titleSmall,
@@ -161,7 +160,7 @@ fun FilterScreen(
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
 
-            // --- Por importe ---
+            // --- COST ---
             Text(
                 text = stringResource(R.string.filter_by_amount),
                 style = MaterialTheme.typography.titleSmall,
@@ -213,7 +212,7 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-            // --- Por estado ---
+            // --- STATE ---
             Text(
                 text = stringResource(R.string.filter_by_status),
                 style = MaterialTheme.typography.titleSmall,
@@ -247,9 +246,9 @@ fun FilterScreen(
                         },
                         modifier = Modifier.scale(1.2f),
                         colors = CheckboxDefaults.colors(
-                            checkedColor = colorResource(R.color.iberdrola_green),
+                            checkedColor = iberdrolaGreen,
                             checkmarkColor = Color.White,
-                            uncheckedColor = colorResource(R.color.iberdrola_green)
+                            uncheckedColor = iberdrolaGreen
                         )
                     )
                     Spacer(modifier = Modifier.width(dimensionResource(R.dimen.margin_small)))
@@ -262,8 +261,8 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-            // --- Botones ---
-            // --- Botón aplicar ---
+            // --- BUTTONS ---
+            // --- APPLY ---
             Button(
                 onClick = {
                     viewModel.applyFilter(
@@ -282,7 +281,7 @@ fun FilterScreen(
                     .padding(horizontal = dimensionResource(R.dimen.invoice_amount_text))
                     .height(60.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(R.color.iberdrola_green),
+                    containerColor = iberdrolaGreen,
                 )
             ) {
                 Text(text = stringResource(R.string.filter_apply), fontWeight = FontWeight.SemiBold)
@@ -290,7 +289,7 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
-            // --- Botón limpiar ---
+            // --- CLEAR ---
             TextButton(
                 onClick = {
                     viewModel.clearFilter()
@@ -304,7 +303,7 @@ fun FilterScreen(
                 Text(
                     text = stringResource(R.string.filter_clear),
                     fontWeight = FontWeight.SemiBold,
-                    color = colorResource(R.color.iberdrola_green),
+                    color = iberdrolaGreen,
                     textDecoration = TextDecoration.Underline
                 )
             }
@@ -478,7 +477,6 @@ fun IberdrolaRangeSlider(
     max: Float,
     modifier: Modifier = Modifier
 ) {
-    val iberdrolaGreen = colorResource(R.color.iberdrola_green)
 
     val range = max - min
     val startFraction = (value.start - min) / range
@@ -499,7 +497,7 @@ fun IberdrolaRangeSlider(
             val startFraction = (value.start - min) / range
             val endFraction = (value.endInclusive - min) / range
             val sliderColor = colorResource(R.color.slider_importe)
-            // 🔵 BASE
+            // BASE
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -507,7 +505,7 @@ fun IberdrolaRangeSlider(
                     .background(Color.LightGray, CircleShape)
             )
 
-            // 🟢 ACTIVE (CORRECTO)
+            // ACTIVE
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -528,7 +526,7 @@ fun IberdrolaRangeSlider(
                         )
                     }
             )
-            // 🎚 SLIDER
+            // SLIDER (used instead of material3 for UI porpoises)
             RangeSlider(
                 value = value,
                 onValueChange = onValueChange,

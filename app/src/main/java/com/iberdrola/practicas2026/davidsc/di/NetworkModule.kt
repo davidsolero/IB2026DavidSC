@@ -54,6 +54,7 @@ object NetworkModule {
             retrofit.create(InvoiceApi::class.java)
         }
     }
+
     @Provides
     @Singleton
     fun provideOkHttpClient(

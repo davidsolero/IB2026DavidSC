@@ -31,7 +31,6 @@ class MainViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    // Inicializa desde prefs para que sea coherente con InvoicesViewModel.
     private val _useMock = MutableStateFlow(prefs.getBoolean(PREF_USE_MOCK, AppConfig.useMockLocal))
     val useMock: StateFlow<Boolean> = _useMock.asStateFlow()
 

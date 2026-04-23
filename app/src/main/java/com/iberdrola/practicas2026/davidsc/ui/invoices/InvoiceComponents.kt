@@ -82,7 +82,7 @@ fun LastInvoiceCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.TopStart) // ocupa el ancho, texto puede ir debajo del icono
+                        .align(Alignment.TopStart)
                 ) {
                     Text(
                         text = stringResource(R.string.last_invoice),
@@ -141,7 +141,7 @@ fun LastInvoiceCard(
                     tint = colorResource(R.color.iberdrola_green),
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.icon_size_large))
-                        .align(Alignment.TopEnd) // icono fijo arriba a la derecha
+                        .align(Alignment.TopEnd)
                 )
             }
 
@@ -482,10 +482,10 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(end = 38.dp) // deja espacio para el icono
+                        .padding(end = 38.dp)
                 ) {
 
-                    // Título
+                    // Title
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(0.45f)
@@ -498,7 +498,7 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Descripción
+                    // Desc
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(0.35f)
@@ -511,7 +511,7 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Importe grande
+                    // Cost
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(0.25f)
@@ -524,7 +524,7 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Rango
+                    // Range
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(0.6f)
@@ -536,7 +536,7 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                     )
                 }
 
-                // Icono
+                // Icon
                 Box(
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.icon_size_large))
@@ -550,7 +550,7 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
 
 
 
-            // Divider (igual que el real)
+            // Divider
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -5,6 +5,9 @@ import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
+import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig.RATING_THRESHOLD_DISMISSED
+import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig.RATING_THRESHOLD_LATER
+import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig.RATING_THRESHOLD_RATED
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceFilter
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
@@ -52,16 +55,7 @@ class InvoicesViewModel @Inject constructor(
     val activeFilter = _activeFilter.asStateFlow()
 
     // -----------------------------
-    // UI STATE
-    // -----------------------------
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
-
-    private val _error = MutableStateFlow<String?>(null)
-    val error = _error.asStateFlow()
-
-    // -----------------------------
-    // DERIVED VALUES (FILTERED)
+    // DERIVED VALUES
     // -----------------------------
     private val _filteredInvoices = MutableStateFlow<List<Invoice>>(emptyList())
     val invoices = _filteredInvoices.asStateFlow()
@@ -78,9 +72,23 @@ class InvoicesViewModel @Inject constructor(
             f.desde != null ||
                     f.hasta != null ||
                     f.estados.isNotEmpty() ||
-                    f.importeMin != null && f.importeMin != _minAmount.value ||
-                    f.importeMax != null && f.importeMax != _maxAmount.value
+                    (f.importeMin != null && f.importeMin != _minAmount.value) ||
+                    (f.importeMax != null && f.importeMax != _maxAmount.value)
         }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val hasInvoicesForSelectedType: StateFlow<Boolean> =
+        combine(_allInvoices, _selectedType) { invoices, type ->
+            invoices.any { it.type == type }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    // -----------------------------
+    // UI STATE
+    // -----------------------------
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error = _error.asStateFlow()
 
     // -----------------------------
     // INIT
@@ -90,7 +98,11 @@ class InvoicesViewModel @Inject constructor(
         AppConfig.useMockLocal = savedMock
         _useMock.value = savedMock
 
-        // 1) FETCH ONLY WHEN SOURCE CHANGES
+        observeSourceChanges()
+        observeFiltering()
+    }
+
+    private fun observeSourceChanges() {
         viewModelScope.launch {
             combine(
                 _selectedType,
@@ -102,8 +114,9 @@ class InvoicesViewModel @Inject constructor(
                 loadInvoices(type, street, useMock)
             }
         }
+    }
 
-        // 2) FILTER IN MEMORY (NO FETCH)
+    private fun observeFiltering() {
         viewModelScope.launch {
             combine(
                 _allInvoices,
@@ -135,10 +148,7 @@ class InvoicesViewModel @Inject constructor(
     fun applyFilter(filter: InvoiceFilter) {
         val current = _activeFilter.value
 
-        // 1. Si es igual al actual → no hacer nada
         if (current == filter) return
-
-        // 2. Si ambos son default → no hacer nada
         if (filter == InvoiceFilter() && current == InvoiceFilter()) return
 
         _activeFilter.value = filter
@@ -154,13 +164,15 @@ class InvoicesViewModel @Inject constructor(
     fun onBackPressed(): Boolean {
         val count = prefs.getInt(PREF_CLOSE_COUNT, 0) + 1
         val threshold = prefs.getInt(PREF_THRESHOLD, 1)
+
         prefs.edit { putInt(PREF_CLOSE_COUNT, count) }
+
         return count >= threshold
     }
 
-    fun onRated() = resetSheet(10)
-    fun onRespondLater() = resetSheet(3)
-    fun onSheetDismissed() = resetSheet(1)
+    fun onRated() = resetSheet(RATING_THRESHOLD_RATED)
+    fun onRespondLater() = resetSheet(RATING_THRESHOLD_LATER)
+    fun onSheetDismissed() = resetSheet(RATING_THRESHOLD_DISMISSED)
 
     private fun resetSheet(threshold: Int) {
         prefs.edit {
@@ -170,7 +182,7 @@ class InvoicesViewModel @Inject constructor(
     }
 
     // -----------------------------
-    // FETCH ONLY HERE
+    // FETCH
     // -----------------------------
     private suspend fun loadInvoices(
         type: InvoiceType,
@@ -198,8 +210,14 @@ class InvoicesViewModel @Inject constructor(
             val currentFilter = _activeFilter.value
             val oldMin = _minAmount.value
             val oldMax = _maxAmount.value
-            _activeFilter.value = transferFilterIntent(currentFilter, oldMin, oldMax, min, max)
 
+            _activeFilter.value = transferFilterIntent(
+                currentFilter,
+                oldMin,
+                oldMax,
+                min,
+                max
+            )
 
             _minAmount.value = min
             _maxAmount.value = max
@@ -212,12 +230,13 @@ class InvoicesViewModel @Inject constructor(
         }
     }
 
-
+    // -----------------------------
+    // FILTER LOGIC
+    // -----------------------------
     private fun applyFilter(
         invoices: List<Invoice>,
         filter: InvoiceFilter
     ): List<Invoice> {
-
         return invoices.filter { invoice ->
 
             val invoiceDate = try {
@@ -252,9 +271,8 @@ class InvoicesViewModel @Inject constructor(
         newMin: Int,
         newMax: Int
     ): InvoiceFilter {
-        if (oldFilter == InvoiceFilter()) {
-            return oldFilter
-        }
+
+        if (oldFilter == InvoiceFilter()) return oldFilter
 
         fun mapValue(value: Int?): Int? {
             if (value == null) return null
@@ -267,28 +285,18 @@ class InvoicesViewModel @Inject constructor(
             val threshold = oldRange * 0.25f
 
             return when {
-                // Pegado a extremos (intención fuerte)
                 value == oldMin -> newMin
                 value == oldMax -> newMax
 
-                // Zona baja
-                value <= oldMin + threshold -> {
+                value <= oldMin + threshold ->
                     (newMin + newRange * 0.25f).toInt()
-                }
 
-                // Zona alta
-                value >= oldMax - threshold -> {
+                value >= oldMax - threshold ->
                     (newMax - newRange * 0.25f).toInt()
-                }
 
-                // Zona media (custom)
                 else -> {
-                    // Si el valor no tiene sentido en el nuevo rango → reset parcial
-                    if (value < newMin || value > newMax) {
-                        null // fuerza a UI a usar defaults (min/max)
-                    } else {
-                        value
-                    }
+                    if (value < newMin || value > newMax) null
+                    else value
                 }
             }
         }
@@ -296,12 +304,12 @@ class InvoicesViewModel @Inject constructor(
         val newMinValue = mapValue(oldFilter.importeMin)
         val newMaxValue = mapValue(oldFilter.importeMax)
 
-
         val isDefaultRange =
             (newMinValue == null || newMinValue == newMin) &&
                     (newMaxValue == null || newMaxValue == newMax)
 
-        if (isDefaultRange &&
+        if (
+            isDefaultRange &&
             oldFilter.desde == null &&
             oldFilter.hasta == null &&
             oldFilter.estados.isEmpty()
@@ -315,25 +323,12 @@ class InvoicesViewModel @Inject constructor(
         )
     }
 
-
+    // -----------------------------
+    // PREFS
+    // -----------------------------
     companion object {
         private const val PREF_USE_MOCK = "use_mock"
         private const val PREF_CLOSE_COUNT = "invoice_close_count"
         private const val PREF_THRESHOLD = "invoice_show_sheet_threshold"
-
     }
-
-
-    val hasInvoicesForSelectedType: StateFlow<Boolean> =
-        combine(
-            _allInvoices,
-            _selectedType
-        ) { invoices, type ->
-            invoices.any { it.type == type }
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            false
-        )
-
 }

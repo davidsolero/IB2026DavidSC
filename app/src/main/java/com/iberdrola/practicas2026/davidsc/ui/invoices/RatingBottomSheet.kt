@@ -165,7 +165,6 @@ private fun RatingContent(
                 Icons.Outlined.SentimentVerySatisfied
             )
 
-            // Colors map 1-to-1 with the sentiment scale: very negative to very positive.
             val colors = listOf(
                 colorResource(R.color.rating_very_negative),
                 colorResource(R.color.rating_negative),

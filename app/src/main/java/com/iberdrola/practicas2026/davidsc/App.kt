@@ -9,13 +9,11 @@ import jakarta.inject.Inject
 @HiltAndroidApp
 class App : Application() {
 
-    // Inyectamos SharedPreferences directamente en Application
     @Inject
     lateinit var prefs: SharedPreferences
 
     override fun onCreate() {
         super.onCreate()
-        // Restaurar configuración antes de que cualquier ViewModel se inicialice.
         AppConfig.useMockLocal = prefs.getBoolean("use_mock", false)
     }
 }
