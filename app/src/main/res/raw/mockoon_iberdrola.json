@@ -69,11 +69,11 @@
   "proxyHost": "",
   "proxyRemovePrefix": false,
   "tlsOptions": {
-    "enabled": false,
+    "enabled": true,
     "type": "CERT",
     "pfxPath": "",
-    "certPath": "",
-    "keyPath": "",
+    "certPath": "./certificado.crt",
+    "keyPath": "./clave.key",
     "caPath": "",
     "passphrase": ""
   },

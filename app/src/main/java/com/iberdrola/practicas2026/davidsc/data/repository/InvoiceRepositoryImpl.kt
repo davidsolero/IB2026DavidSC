@@ -53,7 +53,7 @@ class InvoiceRepositoryImpl(
     override suspend fun fetchInvoicesFromNetwork(): List<Invoice> {
         val response = api.getInvoices()
         val invoices = response.facturas.toDomainList()
-        dao.clearInvoices() // limpia antes de insertar
+        dao.clearInvoices()
         dao.insertInvoices(invoices.map { it.toEntity() })
         return invoices
     }

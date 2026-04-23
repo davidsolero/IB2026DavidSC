@@ -11,7 +11,15 @@ import java.time.LocalDate
  *
  * Filtering is applied in memory after fetching from the repository,
  * keeping the repository responsible only for data access.
- */
+ * Retrieves invoices from repository and applies optional filters.
+ *
+ * Data is always fetched first, and filtering is done in memory:
+ * - Type
+ * - Street
+ * - Date range
+ * - Amount range
+ * - Status list
+*/
 class GetInvoicesUseCase(private val repository: InvoiceRepository) {
     suspend operator fun invoke(
         type: InvoiceType? = null,
