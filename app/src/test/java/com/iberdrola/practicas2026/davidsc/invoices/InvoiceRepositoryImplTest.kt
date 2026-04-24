@@ -55,7 +55,7 @@ class InvoiceRepositoryImplTest {
         fakeApi.shouldFail = true
 
         fakeDao.savedInvoices = listOf(
-            InvoiceEntity(99, "2026-01-01", "2026-01-31", "Cache", 10.0, "Pagada", "luz", "C/Larios")
+            InvoiceEntity(99, "2026-01-01", "Cache", 10.0, "Pagada", "luz", "C/Larios")
         )
 
         val result = repository.getInvoices()

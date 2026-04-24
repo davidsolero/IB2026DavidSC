@@ -27,12 +27,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,8 +47,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
+import com.iberdrola.practicas2026.davidsc.core.utils.Screen
 
 @Composable
 fun MainScreen(
@@ -56,10 +62,15 @@ fun MainScreen(
 
     val navigateToInvoices = { street: String? ->
         AppConfig.mockStreet = street
-        navController.navigate("invoices_screen")
+        navController.navigate(Screen.INVOICES) {
+            launchSingleTop = true
+        }
     }
 
-    LaunchedEffect(Unit) {
+
+    val useMock by viewModel.useMock.collectAsState()
+
+    LaunchedEffect(useMock) {
         viewModel.loadStreets()
     }
 
@@ -72,12 +83,29 @@ fun MainScreen(
         ) {
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = colorResource(R.color.iberdrola_green)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.app_name),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = colorResource(R.color.iberdrola_green)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                OutlinedButton(
+                    onClick =  { viewModel.toggleMock() },
+                    border = BorderStroke(2.dp, colorResource(R.color.iberdrola_green)),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = colorResource(R.color.iberdrola_green)
+                    )
+                ) {
+                    Text(if (useMock) "Mock ON" else "Mock OFF")
+                }
+            }
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 

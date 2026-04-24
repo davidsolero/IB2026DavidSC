@@ -18,15 +18,14 @@ class GetStreetsUseCaseTest {
             Invoice(
                 1,
                 "2026-01-01",
-                "2026-01-31",
                 "Luz Enero",
                 50.0,
                 "PAID",
                 InvoiceType.LUZ,
                 "Calle A"
             ),
-            Invoice(2, "2026-02-01", "2026-02-28", "Gas Febrero", 30.0, "PAID", InvoiceType.GAS, "Calle B"),
-            Invoice(3, "2026-03-01", "2026-03-31", "Luz Marzo", 60.0, "PAID", InvoiceType.LUZ, "Calle A") // repetida
+            Invoice(2, "2026-02-01",  "Gas Febrero", 30.0, "PAID", InvoiceType.GAS, "Calle B"),
+            Invoice(3, "2026-03-01", "Luz Marzo", 60.0, "PAID", InvoiceType.LUZ, "Calle A") // repetida
         )
 
         val fakeRepository = FakeInvoiceRepository(invoices)

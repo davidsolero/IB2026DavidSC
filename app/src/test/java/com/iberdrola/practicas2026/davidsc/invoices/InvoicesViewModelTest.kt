@@ -23,8 +23,8 @@ class InvoicesViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     private val fakeInvoices = listOf(
-        Invoice(1, "2026-01-01", "2026-01-31", "Factura Luz", 50.0, "Pagada", InvoiceType.LUZ, "C/Larios"),
-        Invoice(2, "2026-02-01", "2026-02-28", "Factura Gas", 30.0, "Pendiente", InvoiceType.GAS, "C/Larios")
+        Invoice(1, "2026-01-01",  "Factura Luz", 50.0, "Pagada", InvoiceType.LUZ, "C/Larios"),
+        Invoice(2, "2026-02-01",  "Factura Gas", 30.0, "Pendiente", InvoiceType.GAS, "C/Larios")
     )
 
     private val fakeUseCase = GetInvoicesUseCase(
