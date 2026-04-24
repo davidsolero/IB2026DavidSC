@@ -189,7 +189,7 @@ El repositorio es público y se comparte con los tutores desde el primer commit.
 | Sin conexión | Los datos de caché se sirven correctamente |
 | Datos corruptos o nulos en mock | OK, mapper descarta registros inválidos |
 | Filtro fecha con rango de un único día | OK |
-| Filtro importe con min == max | OK, slider ajustado |
+| Filtro importe con min == max | OK, aunque se queda clipeado si pulsas lejos |
 | Combinación de los tres filtros | OK |
 | Borrar filtros restaura la lista completa | OK |
 | Cambio de pestaña Luz/Gas con filtro activo | Filtro se conserva; slider se recalcula manteniendo intención de usuario |
