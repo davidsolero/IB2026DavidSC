@@ -62,7 +62,9 @@ fun MainScreen(
 
     val navigateToInvoices = { street: String? ->
         AppConfig.mockStreet = street
-        navController.navigate(Screen.INVOICES)
+        navController.navigate(Screen.INVOICES) {
+            launchSingleTop = true
+        }
     }
 
 
