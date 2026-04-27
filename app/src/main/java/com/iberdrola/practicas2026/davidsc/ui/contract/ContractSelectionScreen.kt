@@ -1,0 +1,159 @@
+package com.iberdrola.practicas2026.davidsc.ui.contracts
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.material.icons.outlined.Whatshot
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.iberdrola.practicas2026.davidsc.R
+import com.iberdrola.practicas2026.davidsc.core.utils.Screen
+import com.iberdrola.practicas2026.davidsc.domain.model.Contract
+import com.iberdrola.practicas2026.davidsc.domain.model.ContractType
+import com.iberdrola.practicas2026.davidsc.ui.invoices.BackButton
+
+@Composable
+fun ContractSelectionScreen(
+    navController: NavController,
+    viewModel: ContractSelectionViewModel = hiltViewModel()
+) {
+    val contracts by viewModel.contracts.collectAsState()
+
+    Scaffold { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = dimensionResource(R.dimen.margin_medium))
+        ) {
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
+
+            BackButton(onClick = { navController.popBackStack() })
+
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
+
+            Text(
+                text = stringResource(R.string.contract_selection_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
+
+            if (contracts.isNotEmpty()) {
+                Card(
+                    colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
+                    border = BorderStroke(1.dp, Color.LightGray),
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.margin_small))
+                ) {
+                    contracts.forEachIndexed { index, contract ->
+                        ContractItem(
+                            contract = contract,
+                            onClick = {
+                                val route = if (contract.isActive) {
+                                    Screen.activeContract(contract.id)
+                                } else {
+                                    Screen.activateContract(contract.id)
+                                }
+                                navController.navigate(route)
+                            }
+                        )
+                        if (index < contracts.lastIndex) {
+                            HorizontalDivider(color = Color.LightGray)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContractItem(
+    contract: Contract,
+    onClick: () -> Unit
+) {
+    val iberdrolaGreen = colorResource(R.color.iberdrola_green)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(
+                horizontal = dimensionResource(R.dimen.margin_medium),
+                vertical = dimensionResource(R.dimen.margin_medium)
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = if (contract.type == ContractType.LUZ) {
+                Icons.Outlined.Lightbulb
+            } else {
+                Icons.Outlined.Whatshot
+            },
+            contentDescription = null,
+            tint = iberdrolaGreen,
+            modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
+        )
+
+        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.margin_medium)))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = if (contract.type == ContractType.LUZ) {
+                    stringResource(R.string.contract_luz)
+                } else {
+                    stringResource(R.string.contract_gas)
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = if (contract.isActive) {
+                    stringResource(R.string.contract_active)
+                } else {
+                    stringResource(R.string.contract_inactive)
+                },
+                style = MaterialTheme.typography.labelSmall,
+                color = if (contract.isActive) iberdrolaGreen else Color.Gray
+            )
+        }
+
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+            contentDescription = null,
+            tint = Color.Gray,
+            modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
+        )
+    }
+}
