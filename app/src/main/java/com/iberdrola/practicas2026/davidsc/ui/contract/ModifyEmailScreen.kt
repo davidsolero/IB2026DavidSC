@@ -28,8 +28,6 @@ import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.OtpFlow
 import com.iberdrola.practicas2026.davidsc.core.utils.Screen
-import com.iberdrola.practicas2026.davidsc.ui.contracts.ContractEmailField
-import com.iberdrola.practicas2026.davidsc.ui.invoices.BackButton
 import com.iberdrola.practicas2026.davidsc.ui.util.isValidEmail
 
 /**
@@ -48,67 +46,52 @@ fun ModifyEmailScreen(
     val iberdrolaGreen = colorResource(R.color.iberdrola_green)
 
     Scaffold { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = dimensionResource(R.dimen.margin_medium))
         ) {
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-            BackButton(onClick = { navController.popBackStack() })
-
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
-            Text(
-                text = stringResource(R.string.modify_email_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+            FlowHeader(
+                title = stringResource(R.string.modify_email_title),
+                step = 1,
+                totalSteps = 2
             )
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = dimensionResource(R.dimen.margin_medium))
+            ) {
 
-            Text(
-                text = stringResource(R.string.activate_contract_email_question),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium
-            )
+                Text(
+                    text = stringResource(R.string.activate_contract_email_question),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-            ContractEmailField(
-                value = email,
-                onValueChange = { email = it },
-                label = stringResource(R.string.modify_email_field_label)
-            )
+                ContractEmailField(
+                    value = email,
+                    onValueChange = { email = it },
+                    placeholder = "Nuevo email"
+                )
 
-            Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(1f))
 
-            Row(modifier = Modifier.fillMaxWidth()) {
-                OutlinedButton(
-                    onClick = { navController.popBackStack() },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(stringResource(R.string.nav_previous))
-                }
-
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.margin_medium)))
-
-                Button(
-                    onClick = {
-                        navController.navigate(
-                            Screen.otpVerification(email, OtpFlow.MODIFY)
-                        )
+                ContractNavigationButtons(
+                    onPrevious = { navController.popBackStack() },
+                    onNext = {
+                        navController.navigate(Screen.otpVerification(email, OtpFlow.MODIFY))
                     },
-                    enabled = isValidEmail(email),
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = iberdrolaGreen)
-                ) {
-                    Text(stringResource(R.string.nav_next))
-                }
-            }
+                    nextEnabled = isValidEmail(email),
+                    nextText = stringResource(R.string.nav_next)
+                )
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
+            }
         }
     }
 }

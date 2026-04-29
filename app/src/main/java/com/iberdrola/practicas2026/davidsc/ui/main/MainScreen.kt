@@ -130,6 +130,20 @@ fun MainScreen(
                 )
             }
 
+            OutlinedButton(
+                onClick = { navController.navigate(Screen.CONTRACT_SELECTION) },
+                modifier = Modifier.fillMaxWidth(),
+                border = BorderStroke(2.dp, colorResource(R.color.iberdrola_green)),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = colorResource(R.color.iberdrola_green)
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.main_electronic_invoice),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
             if (isLoading) {
@@ -171,19 +185,7 @@ fun MainScreen(
 
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
-                OutlinedButton(
-                    onClick = { navController.navigate(Screen.CONTRACT_SELECTION) },
-                    modifier = Modifier.fillMaxWidth(),
-                    border = BorderStroke(2.dp, colorResource(R.color.iberdrola_green)),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = colorResource(R.color.iberdrola_green)
-                    )
-                ) {
-                    Text(
-                        text = stringResource(R.string.main_electronic_invoice),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
+
             }
         }
     }

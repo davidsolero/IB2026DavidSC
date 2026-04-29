@@ -1,6 +1,6 @@
-package com.iberdrola.practicas2026.davidsc.ui.contracts
+package com.iberdrola.practicas2026.davidsc.ui.contract
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,13 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Whatshot
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -56,6 +56,7 @@ fun ContractSelectionScreen(
                 .padding(innerPadding)
                 .padding(horizontal = dimensionResource(R.dimen.margin_medium))
         ) {
+
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
             BackButton(onClick = { navController.popBackStack() })
@@ -70,34 +71,27 @@ fun ContractSelectionScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-            if (contracts.isNotEmpty()) {
-                Card(
-                    colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
-                    border = BorderStroke(1.dp, Color.LightGray),
-                    shape = RoundedCornerShape(dimensionResource(R.dimen.margin_small))
-                ) {
-                    contracts.forEachIndexed { index, contract ->
-                        ContractItem(
-                            contract = contract,
-                            onClick = {
-                                val route = if (contract.isActive) {
-                                    Screen.activeContract(contract.id)
-                                } else {
-                                    Screen.activateContract(contract.id)
-                                }
-                                navController.navigate(route)
+            LazyColumn {
+                items(contracts) { contract ->
+
+                    ContractItem(
+                        contract = contract,
+                        onClick = {
+                            val route = if (contract.isActive) {
+                                Screen.activeContract(contract.id)
+                            } else {
+                                Screen.activateContract(contract.id)
                             }
-                        )
-                        if (index < contracts.lastIndex) {
-                            HorizontalDivider(color = Color.LightGray)
+                            navController.navigate(route)
                         }
-                    }
+                    )
+
+                    HorizontalDivider(color = Color.LightGray)
                 }
             }
         }
     }
 }
-
 @Composable
 private fun ContractItem(
     contract: Contract,
@@ -115,6 +109,7 @@ private fun ContractItem(
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
+
         Icon(
             imageVector = if (contract.type == ContractType.LUZ) {
                 Icons.Outlined.Lightbulb
@@ -123,12 +118,13 @@ private fun ContractItem(
             },
             contentDescription = null,
             tint = iberdrolaGreen,
-            modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
+            modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
         )
 
         Spacer(modifier = Modifier.width(dimensionResource(R.dimen.margin_medium)))
 
         Column(modifier = Modifier.weight(1f)) {
+
             Text(
                 text = if (contract.type == ContractType.LUZ) {
                     stringResource(R.string.contract_luz)
@@ -136,17 +132,12 @@ private fun ContractItem(
                     stringResource(R.string.contract_gas)
                 },
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.SemiBold
             )
-            Text(
-                text = if (contract.isActive) {
-                    stringResource(R.string.contract_active)
-                } else {
-                    stringResource(R.string.contract_inactive)
-                },
-                style = MaterialTheme.typography.labelSmall,
-                color = if (contract.isActive) iberdrolaGreen else Color.Gray
-            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            ContractStatusBadge(isActive = contract.isActive)
         }
 
         Icon(
@@ -156,4 +147,36 @@ private fun ContractItem(
             modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
         )
     }
+}
+
+@Composable
+fun ContractStatusBadge(isActive: Boolean) {
+    val bgColor = if (isActive) {
+        colorResource(R.color.status_pagado_fondo)
+    } else {
+        colorResource(R.color.status_anulada_fondo)
+    }
+
+    val textColor = if (isActive) {
+        colorResource(R.color.status_pagado_texto)
+    } else {
+        colorResource(R.color.status_anulada_texto)
+    }
+
+    Text(
+        text = if (isActive) "Activo" else "Sin activar",
+        color = textColor,
+        style = MaterialTheme.typography.labelSmall.copy(
+            fontWeight = FontWeight.Bold
+        ),
+        modifier = Modifier
+            .background(
+                color = bgColor,
+                shape = RoundedCornerShape(dimensionResource(R.dimen.status_badge_radius))
+            )
+            .padding(
+                horizontal = dimensionResource(R.dimen.margin_small),
+                vertical = dimensionResource(R.dimen.margin_xsmall)
+            )
+    )
 }

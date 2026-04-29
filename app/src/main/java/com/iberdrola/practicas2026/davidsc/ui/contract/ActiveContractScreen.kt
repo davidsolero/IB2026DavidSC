@@ -14,6 +14,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,7 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.Screen
-import com.iberdrola.practicas2026.davidsc.ui.contracts.ContractDetailViewModel
+import com.iberdrola.practicas2026.davidsc.ui.contract.ContractDetailViewModel
 import com.iberdrola.practicas2026.davidsc.ui.invoices.BackButton
 import com.iberdrola.practicas2026.davidsc.ui.util.maskEmail
 
@@ -70,11 +71,12 @@ fun ActiveContractScreen(
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
                 Text(
                     text = c.address,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
                 )
 
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
@@ -84,6 +86,12 @@ fun ActiveContractScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.icon_size_medium)))
+                Text(
+                    text = stringResource(R.string.here_in_this_mail),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
 
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
@@ -91,10 +99,12 @@ fun ActiveContractScreen(
                     text = c.email?.let { maskEmail(it) }
                         ?: stringResource(R.string.no_email_available),
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
-
+                HorizontalDivider(color = Color.LightGray)
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
                 Row(
                     verticalAlignment = Alignment.Top,
                     modifier = Modifier.fillMaxWidth()
@@ -130,7 +140,7 @@ fun ActiveContractScreen(
                     Icon(
                         imageVector = Icons.Outlined.Edit,
                         contentDescription = null,
-                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
                     )
                     Spacer(modifier = Modifier.width(dimensionResource(R.dimen.margin_small)))
                     Text(

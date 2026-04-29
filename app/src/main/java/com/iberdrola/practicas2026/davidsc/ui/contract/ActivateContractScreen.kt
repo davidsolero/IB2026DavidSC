@@ -1,6 +1,8 @@
 package com.iberdrola.practicas2026.davidsc.ui.contract
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,21 +30,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.OtpFlow
 import com.iberdrola.practicas2026.davidsc.core.utils.Screen
-import com.iberdrola.practicas2026.davidsc.ui.contracts.ContractDetailViewModel
-import com.iberdrola.practicas2026.davidsc.ui.contracts.ContractEmailField
-import com.iberdrola.practicas2026.davidsc.ui.contracts.PrivacyInfoBlock
-import com.iberdrola.practicas2026.davidsc.ui.invoices.BackButton
+import com.iberdrola.practicas2026.davidsc.ui.contract.ContractDetailViewModel
 import com.iberdrola.practicas2026.davidsc.ui.util.maskEmail
 
 @Composable
@@ -62,118 +62,126 @@ fun ActivateContractScreen(
     val iberdrolaGreen = colorResource(R.color.iberdrola_green)
 
     Scaffold { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = dimensionResource(R.dimen.margin_medium))
-                .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-            BackButton(onClick = { navController.popBackStack() })
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
-            Text(
-                text = stringResource(R.string.activate_contract_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+            FlowHeader(
+                title = stringResource(R.string.activate_contract_title),
+                step = 1,
+                totalSteps = 2
             )
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-            contract?.let { c ->
-                if (!c.email.isNullOrBlank()) {
-                    Text(
-                        text = stringResource(R.string.activate_contract_linked_email),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text = maskEmail(c.email),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
-                }
-            }
-
-            Text(
-                text = stringResource(R.string.activate_contract_email_question),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium
-            )
-
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
-            ContractEmailField(
-                value = email,
-                onValueChange = { viewModel.onEmailChange(it) },
-                label = stringResource(R.string.field_email)
-            )
-
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
-
-            PrivacyInfoBlock()
-
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
-
-            Row(
-                verticalAlignment = Alignment.Top,
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = dimensionResource(R.dimen.margin_medium))
+                    .verticalScroll(rememberScrollState())
             ) {
-                Checkbox(
-                    checked = legalChecked,
-                    onCheckedChange = { viewModel.onLegalCheckedChange(it) },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = iberdrolaGreen,
-                        checkmarkColor = Color.White,
-                        uncheckedColor = iberdrolaGreen
-                    )
-                )
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.margin_xsmall)))
-                Text(
-                    text = buildAnnotatedString {
-                        append(stringResource(R.string.activate_contract_legal_prefix))
-                        append(" ")
-                        withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) {
-                            append(stringResource(R.string.activate_contract_legal_conditions))
-                        }
-                        append(" ")
-                        append(stringResource(R.string.activate_contract_legal_suffix))
-                    },
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-            Row(modifier = Modifier.fillMaxWidth()) {
-                OutlinedButton(
-                    onClick = { navController.popBackStack() },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(stringResource(R.string.nav_previous))
-                }
-
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.margin_medium)))
-
-                Button(
-                    onClick = {
-                        navController.navigate(
-                            Screen.otpVerification(email, OtpFlow.ACTIVATE)
+                contract?.let { c ->
+                    if (!c.email.isNullOrBlank()) {
+                        Text(
+                            text = stringResource(R.string.activate_contract_linked_email),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
                         )
-                    },
-                    enabled = canContinue,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = iberdrolaGreen)
-                ) {
-                    Text(stringResource(R.string.nav_next))
+                        Text(
+                            text = maskEmail(c.email),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
+                Text(
+                    text = stringResource(R.string.activate_contract_email_question),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
+
+                ContractEmailField(
+                    value = email,
+                    onValueChange = { viewModel.onEmailChange(it) },
+                    placeholder = "Email"
+                )
+
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
+
+                PrivacyInfoBlock()
+
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
+
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Checkbox(
+                        checked = legalChecked,
+                        onCheckedChange = { viewModel.onLegalCheckedChange(it) },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = iberdrolaGreen,
+                            checkmarkColor = Color.White,
+                            uncheckedColor = iberdrolaGreen
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.margin_xsmall)))
+
+                    val prefix = stringResource(R.string.activate_contract_legal_prefix)
+                    val conditions = stringResource(R.string.activate_contract_legal_conditions)
+                    val suffix = stringResource(R.string.activate_contract_legal_suffix)
+
+                    FlowRow {
+                        Text(
+                            text = "$prefix ",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Black
+                        )
+
+                        Text(
+                            text = conditions,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = iberdrolaGreen,
+                                textDecoration = TextDecoration.Underline
+                            ),
+                            modifier = Modifier.clickable {
+                                // click aunque no haga nada
+                            }
+                        )
+
+                        Text(
+                            text = " $suffix",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Black
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                ContractNavigationButtons(
+                    onPrevious = { navController.popBackStack() },
+                    onNext = {
+                        navController.navigate(Screen.otpVerification(email, OtpFlow.ACTIVATE))
+                    },
+                    nextEnabled = canContinue,
+                    nextText = stringResource(R.string.nav_next)
+                )
+
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
+            }
         }
     }
 }

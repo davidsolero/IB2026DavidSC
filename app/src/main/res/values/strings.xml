@@ -51,7 +51,8 @@
     <string name="contract_inactive">Sin Activar</string>
 
     <!-- Active contract screen -->
-    <string name="active_contract_receives_here">Recibes tus facturas en este email</string>
+    <string name="active_contract_receives_here">Actualmente recibes tus facturas de este contrato al:</string>
+    <string name="here_in_this_mail">Recibes tus facturas en este email</string>
     <string name="active_contract_disclaimer">Recuerda que la factura electrónica es un requisito de este Plan, por lo que no es posible desactivarla.</string>
     <string name="active_contract_modify_email">Modificar email</string>
 
@@ -73,7 +74,7 @@
     <!-- OTP screen -->
     <string name="otp_introduce_code">Introduce tu código de verificación</string>
     <string name="otp_sent_to">Para verificar tu identidad, hemos enviado un código al teléfono %s. Por favor, introdúcelo a continuación.</string>
-    <string name="otp_field_label">* Código de verificación</string>
+    <string name="otp_field_label">Código de verificación</string>
     <string name="otp_not_received">¿No has recibido el código?</string>
     <string name="otp_resend_sms">Si no lo encuentras, podemos volver a enviar el SMS.</string>
     <string name="otp_resends_remaining">Recuerda que hoy te quedan %d intentos.</string>
@@ -83,9 +84,9 @@
 
     <!-- Privacy block -->
     <string name="privacy_title">Información básica sobre protección de datos</string>
-    <string name="privacy_responsible">Responsable: Iberdrola Clientes S.A.U. Más info</string>
-    <string name="privacy_purpose">Finalidad: Gestión de la factura electrónica. Más info</string>
-    <string name="privacy_rights">Derechos: Acceso, rectificación, supresión, limitación del tratamiento, portabilidad de datos u oposición, incluida la oposición a decisiones individuales automatizadas. Más info</string>
+    <string name="privacy_responsible">Responsable: Iberdrola Clientes S.A.U.</string>
+    <string name="privacy_purpose">Finalidad: Gestión de la factura electrónica.</string>
+    <string name="privacy_rights">Derechos: Acceso, rectificación, supresión, limitación del tratamiento, portabilidad de datos u oposición, incluida la oposición a decisiones individuales automatizadas.</string>
 
     <!-- Confirmation screen -->
     <string name="confirmation_activated_title">¡Has activado correctamente tu factura electrónica!</string>

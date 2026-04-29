@@ -1,4 +1,4 @@
-package com.iberdrola.practicas2026.davidsc.ui.contracts
+package com.iberdrola.practicas2026.davidsc.ui.contract
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,7 +26,8 @@ class OtpViewModel @Inject constructor() : ViewModel() {
     // Shown briefly after a successful resend action
     private val _resendConfirmationVisible = MutableStateFlow(false)
     val resendConfirmationVisible: StateFlow<Boolean> = _resendConfirmationVisible.asStateFlow()
-
+    private val _isResending = MutableStateFlow(false)
+    val isResending: StateFlow<Boolean> = _isResending.asStateFlow()
     fun onCodeChange(value: String) {
         if (value.length > OTP_LENGTH) return
         if (value.isNotEmpty() && !value.all { it.isDigit() }) return
@@ -37,20 +38,30 @@ class OtpViewModel @Inject constructor() : ViewModel() {
     fun resendCode() {
         if (_remainingResends.value <= 0) return
         _remainingResends.value -= 1
-        showResendConfirmation()
+        viewModelScope.launch {
+            _isResending.value = true
+            delay(RESEND_LOADING_MILLIS)        // simula la llamada
+            _isResending.value = false
+            showResendConfirmation()
+        }
     }
 
     private fun showResendConfirmation() {
         viewModelScope.launch {
             _resendConfirmationVisible.value = true
-            delay(CONFIRMATION_VISIBLE_MILLIS)
-            _resendConfirmationVisible.value = false
+            //delay(CONFIRMATION_VISIBLE_MILLIS)
+            //_resendConfirmationVisible.value = false
         }
     }
-
+    fun hideResendConfirmation() {
+        _resendConfirmationVisible.value = false
+    }
     companion object {
         const val OTP_LENGTH = 6
         const val MAX_RESENDS = 3
+        private const val RESEND_LOADING_MILLIS = 1500L
         private const val CONFIRMATION_VISIBLE_MILLIS = 3000L
     }
+
+
 }

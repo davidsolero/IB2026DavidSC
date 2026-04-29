@@ -1,8 +1,12 @@
 package com.iberdrola.practicas2026.davidsc
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,9 +16,9 @@ import com.iberdrola.practicas2026.davidsc.core.utils.Screen
 import com.iberdrola.practicas2026.davidsc.ui.contract.ActivateContractScreen
 import com.iberdrola.practicas2026.davidsc.ui.contract.ActiveContractScreen
 import com.iberdrola.practicas2026.davidsc.ui.contract.ConfirmationScreen
+import com.iberdrola.practicas2026.davidsc.ui.contract.ContractSelectionScreen
 import com.iberdrola.practicas2026.davidsc.ui.contract.ModifyEmailScreen
 import com.iberdrola.practicas2026.davidsc.ui.contract.OtpVerificationScreen
-import com.iberdrola.practicas2026.davidsc.ui.contracts.ContractSelectionScreen
 import com.iberdrola.practicas2026.davidsc.ui.invoices.FilterScreen
 import com.iberdrola.practicas2026.davidsc.ui.invoices.InvoicesScreen
 import com.iberdrola.practicas2026.davidsc.ui.main.MainScreen
@@ -28,6 +32,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             IB2026DavidSCTheme {
+                val window = (LocalView.current.context as Activity).window
+
+                SideEffect {
+                    WindowCompat.getInsetsController(window, window.decorView).apply {
+                        isAppearanceLightStatusBars = true
+                    }
+                }
+
                 val navController = rememberNavController()
 
                 NavHost(
@@ -54,7 +66,8 @@ class MainActivity : ComponentActivity() {
                         arguments = listOf(navArgument("contractId") { type = NavType.StringType })
                     ) { backStackEntry ->
                         ActiveContractScreen(
-                            contractId = backStackEntry.arguments?.getString("contractId").orEmpty(),
+                            contractId = backStackEntry.arguments?.getString("contractId")
+                                .orEmpty(),
                             navController = navController
                         )
                     }
@@ -63,7 +76,8 @@ class MainActivity : ComponentActivity() {
                         arguments = listOf(navArgument("contractId") { type = NavType.StringType })
                     ) { backStackEntry ->
                         ActivateContractScreen(
-                            contractId = backStackEntry.arguments?.getString("contractId").orEmpty(),
+                            contractId = backStackEntry.arguments?.getString("contractId")
+                                .orEmpty(),
                             navController = navController
                         )
                     }

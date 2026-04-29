@@ -19,5 +19,7 @@
     <color name="status_cuota_fija_fondo">#D9C8EF</color>
     <color name="status_cuota_fija_texto">#4A2080</color>
     <color name="slider_importe">#006e31</color>
+    <color name="modified_email">#016C31</color>
+    <color name="otp_box">#DBF3FD</color>
 
 </resources>

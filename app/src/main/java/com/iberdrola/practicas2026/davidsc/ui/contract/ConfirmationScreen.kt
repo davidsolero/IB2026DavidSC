@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ThumbUp
+import androidx.compose.material.icons.outlined.ThumbUpOffAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -28,6 +29,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
@@ -35,46 +37,67 @@ import com.iberdrola.practicas2026.davidsc.core.utils.OtpFlow
 import com.iberdrola.practicas2026.davidsc.core.utils.Screen
 import com.iberdrola.practicas2026.davidsc.ui.util.maskEmail
 
+
 @Composable
 fun ConfirmationScreen(
     flow: String,
     email: String,
     navController: NavController
 ) {
-    val iberdrolaGreen = colorResource(R.color.iberdrola_green)
+    ConfirmationScreenContent(
+        flow = flow,
+        email = email,
+        onClose = {
+            navController.navigate(Screen.CONTRACT_SELECTION) {
+                popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
+            }
+        },
+        onAccept = {
+            navController.navigate(Screen.CONTRACT_SELECTION) {
+                popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
+            }
+        }
+    )
+}
+
+@Composable
+fun ConfirmationScreenContent(
+    flow: String,
+    email: String,
+    onClose: () -> Unit,
+    onAccept: () -> Unit
+) {
+    val green = colorResource(R.color.modified_email)
     val isActivation = flow == OtpFlow.ACTIVATE
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(iberdrolaGreen)
+            .background(green)
     ) {
+
         IconButton(
-            onClick = {
-                navController.navigate(Screen.CONTRACT_SELECTION) {
-                    // Pop the entire contract flow off the back stack so the user
-                    // returns to contract selection with a clean state.
-                    popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
-                }
-            },
+            onClick = onClose,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(dimensionResource(R.dimen.margin_medium))
         ) {
             Icon(
                 imageVector = Icons.Outlined.Close,
-                contentDescription = stringResource(R.string.cancel),
+                contentDescription = null,
                 tint = Color.White
             )
         }
 
+        // CENTRO PERFECTO
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .align(Alignment.Center)
+                .fillMaxWidth()
                 .padding(horizontal = dimensionResource(R.dimen.margin_large)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Icon(
                 imageVector = Icons.Outlined.ThumbUp,
                 contentDescription = null,
@@ -90,8 +113,8 @@ fun ConfirmationScreen(
                 } else {
                     stringResource(R.string.confirmation_modified_title)
                 },
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
                 color = Color.White,
                 textAlign = TextAlign.Center
             )
@@ -104,28 +127,41 @@ fun ConfirmationScreen(
                 color = Color.White,
                 textAlign = TextAlign.Center
             )
+        }
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
-
-            Button(
-                onClick = {
-                    navController.navigate(Screen.CONTRACT_SELECTION) {
-                        popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = iberdrolaGreen
+        // BOTÓN REALMENTE ABAJO
+        Button(
+            onClick = onAccept,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(
+                    start = dimensionResource(R.dimen.icon_size_large),
+                    end = dimensionResource(R.dimen.icon_size_large),
+                    bottom =70.dp
                 )
-            ) {
-                Text(
-                    text = stringResource(R.string.accept),
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = green
+            )
+        ) {
+            Text(
+                text = stringResource(R.string.accept),
+                color = colorResource(R.color.iberdrola_green),
+                fontWeight = FontWeight.Bold
+            )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ConfirmationScreenPreview() {
+    ConfirmationScreenContent(
+        flow = OtpFlow.ACTIVATE,
+        email = "usuario@correo.com",
+        onClose = {},
+        onAccept = {}
+    )
 }

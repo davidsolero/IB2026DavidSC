@@ -1,4 +1,4 @@
-package com.iberdrola.practicas2026.davidsc.ui.contracts
+package com.iberdrola.practicas2026.davidsc.ui.contract
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
