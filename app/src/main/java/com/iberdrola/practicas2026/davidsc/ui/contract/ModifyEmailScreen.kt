@@ -1,17 +1,11 @@
 package com.iberdrola.practicas2026.davidsc.ui.contract
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,10 +18,10 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.OtpFlow
-import com.iberdrola.practicas2026.davidsc.core.utils.Screen
+import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
+import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 import com.iberdrola.practicas2026.davidsc.ui.util.isValidEmail
 
 /**
@@ -37,10 +31,7 @@ import com.iberdrola.practicas2026.davidsc.ui.util.isValidEmail
  * email input field, which is local UI state. Validation is stateless.
  */
 @Composable
-fun ModifyEmailScreen(
-    contractId: String,
-    currentEmail: String,
-    navController: NavController
+fun ModifyEmailScreen(contractId: String, currentEmail: String, safeNav: SafeNavController
 ) {
     var email by remember { mutableStateOf("") }
     val iberdrolaGreen = colorResource(R.color.iberdrola_green)
@@ -56,7 +47,12 @@ fun ModifyEmailScreen(
             FlowHeader(
                 title = stringResource(R.string.modify_email_title),
                 step = 1,
-                totalSteps = 2
+                totalSteps = 2,
+                onClose = {
+                    safeNav.navigate(Screen.CONTRACT_SELECTION) {
+                        popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
+                    }
+                }
             )
 
             Column(
@@ -82,9 +78,9 @@ fun ModifyEmailScreen(
                 Spacer(modifier = Modifier.weight(1f))
 
                 ContractNavigationButtons(
-                    onPrevious = { navController.popBackStack() },
+                    onPrevious = { safeNav.popBackStack() },
                     onNext = {
-                        navController.navigate(Screen.otpVerification(email, OtpFlow.MODIFY))
+                        safeNav.navigate(Screen.otpVerification(email, OtpFlow.MODIFY))
                     },
                     nextEnabled = isValidEmail(email),
                     nextText = stringResource(R.string.nav_next)

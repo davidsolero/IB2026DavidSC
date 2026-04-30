@@ -37,14 +37,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
-import com.iberdrola.practicas2026.davidsc.core.utils.Screen
+import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 import com.iberdrola.practicas2026.davidsc.domain.model.Contract
 import com.iberdrola.practicas2026.davidsc.domain.model.ContractType
 import com.iberdrola.practicas2026.davidsc.ui.invoices.BackButton
+import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 
 @Composable
 fun ContractSelectionScreen(
-    navController: NavController,
+    safeNav: SafeNavController,
     viewModel: ContractSelectionViewModel = hiltViewModel()
 ) {
     val contracts by viewModel.contracts.collectAsState()
@@ -59,7 +60,7 @@ fun ContractSelectionScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-            BackButton(onClick = { navController.popBackStack() })
+            BackButton(onClick = { safeNav.popBackStack()})
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
@@ -82,7 +83,7 @@ fun ContractSelectionScreen(
                             } else {
                                 Screen.activateContract(contract.id)
                             }
-                            navController.navigate(route)
+                            safeNav.navigate(route)
                         }
                     )
 

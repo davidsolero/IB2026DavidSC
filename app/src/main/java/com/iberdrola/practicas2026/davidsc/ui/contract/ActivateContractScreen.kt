@@ -41,14 +41,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.OtpFlow
-import com.iberdrola.practicas2026.davidsc.core.utils.Screen
+import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 import com.iberdrola.practicas2026.davidsc.ui.contract.ContractDetailViewModel
+import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 import com.iberdrola.practicas2026.davidsc.ui.util.maskEmail
 
 @Composable
 fun ActivateContractScreen(
-    contractId: String,
-    navController: NavController,
+    contractId: String, safeNav: SafeNavController,
     viewModel: ContractDetailViewModel = hiltViewModel()
 ) {
     LaunchedEffect(contractId) {
@@ -73,7 +73,12 @@ fun ActivateContractScreen(
             FlowHeader(
                 title = stringResource(R.string.activate_contract_title),
                 step = 1,
-                totalSteps = 2
+                totalSteps = 2,
+                onClose = {
+                    safeNav.navigate(Screen.CONTRACT_SELECTION) {
+                        popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
+                    }
+                }
             )
 
 
@@ -172,9 +177,9 @@ fun ActivateContractScreen(
                 Spacer(modifier = Modifier.weight(1f))
 
                 ContractNavigationButtons(
-                    onPrevious = { navController.popBackStack() },
+                    onPrevious = { safeNav.popBackStack() },
                     onNext = {
-                        navController.navigate(Screen.otpVerification(email, OtpFlow.ACTIVATE))
+                        safeNav.navigate(Screen.otpVerification(email, OtpFlow.ACTIVATE))
                     },
                     nextEnabled = canContinue,
                     nextText = stringResource(R.string.nav_next)

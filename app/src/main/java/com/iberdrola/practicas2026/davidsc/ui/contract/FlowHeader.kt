@@ -23,13 +23,15 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.iberdrola.practicas2026.davidsc.R
+import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
+import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 
 @Composable
 fun FlowHeader(
     title: String,
     step: Int,
     totalSteps: Int,
-    onClose: (() -> Unit)? = null
+    onClose: () -> Unit
 ) {
     val progress = step.toFloat() / totalSteps.coerceAtLeast(1)
     val green = colorResource(R.color.iberdrola_green)
@@ -45,7 +47,7 @@ fun FlowHeader(
             ) {
 
                 IconButton(
-                    onClick = { onClose?.invoke() },
+                    onClick = onClose,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(dimensionResource(R.dimen.margin_medium))

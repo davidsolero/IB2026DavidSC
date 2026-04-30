@@ -50,19 +50,19 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
-import com.iberdrola.practicas2026.davidsc.core.utils.Screen
+import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
+import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 
 @Composable
-fun MainScreen(
-    navController: NavController,
-    viewModel: MainViewModel = hiltViewModel()
+fun MainScreen(safeNav: SafeNavController,
+               viewModel: MainViewModel = hiltViewModel()
 ) {
     val streets by viewModel.streets.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
     val navigateToInvoices = { street: String? ->
         AppConfig.mockStreet = street
-        navController.navigate(Screen.INVOICES) {
+        safeNav.navigate(Screen.INVOICES) {
             launchSingleTop = true
         }
     }
@@ -131,7 +131,7 @@ fun MainScreen(
             }
 
             OutlinedButton(
-                onClick = { navController.navigate(Screen.CONTRACT_SELECTION) },
+                onClick = { safeNav.navigate(Screen.CONTRACT_SELECTION) },
                 modifier = Modifier.fillMaxWidth(),
                 border = BorderStroke(2.dp, colorResource(R.color.iberdrola_green)),
                 colors = ButtonDefaults.outlinedButtonColors(

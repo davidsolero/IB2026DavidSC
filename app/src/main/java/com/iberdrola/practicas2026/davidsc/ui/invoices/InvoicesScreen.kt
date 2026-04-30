@@ -47,16 +47,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
-import com.iberdrola.practicas2026.davidsc.core.utils.Screen
+import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import com.iberdrola.practicas2026.davidsc.ui.util.DateFormatter
 import androidx.activity.compose.LocalActivity
+import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InvoicesScreen(
-    navController: NavController,
-    viewModel: InvoicesViewModel = hiltViewModel()
+fun InvoicesScreen(navController: NavController, safeNav: SafeNavController,
+                   viewModel: InvoicesViewModel = hiltViewModel()
 ) {
     val invoices by viewModel.invoices.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -70,21 +70,17 @@ fun InvoicesScreen(
 
     var showRatingSheet by remember { mutableStateOf(false) }
     var showInvoiceDialog by remember { mutableStateOf(false) }
-    var isNavigating by remember { mutableStateOf(false) }
 
 
     val activity = LocalActivity.current
 
     val navigateBack: () -> Unit = {
-        if (!isNavigating) {
-            isNavigating = true
-            val popped = navController.popBackStack()
-            if (!popped) activity?.finish()
-        }
+        val popped = safeNav.popBackStack()
+        if (!popped) activity?.finish()
     }
 
     val handleBack: () -> Unit = {
-        if (!isNavigating) {
+        if (safeNav.canNavigate()) {
             if (viewModel.onBackPressed()) {
                 showRatingSheet = true
             } else {
@@ -115,15 +111,6 @@ fun InvoicesScreen(
 
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                isNavigating = false
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
 
     BackHandler { handleBack() }
 
@@ -204,9 +191,8 @@ fun InvoicesScreen(
 
                             InvoiceHistoryHeader(
                                 onFilterClick = {
-                                    if (!isNavigating && !showRatingSheet) {
-                                        isNavigating = true
-                                        navController.navigate(Screen.FILTER)
+                                    if (!showRatingSheet) {
+                                        safeNav.navigate(Screen.FILTER)
                                     }
                                 },
                                 isFilterActive = isFilterActive,
@@ -247,9 +233,8 @@ fun InvoicesScreen(
 
                     InvoiceHistoryHeader(
                         onFilterClick = {
-                            if (!isNavigating && !showRatingSheet) {
-                                isNavigating = true
-                                navController.navigate(Screen.FILTER)
+                            if (!showRatingSheet) {
+                                safeNav.navigate(Screen.FILTER)
                             }
                         },
                         isFilterActive = isFilterActive,

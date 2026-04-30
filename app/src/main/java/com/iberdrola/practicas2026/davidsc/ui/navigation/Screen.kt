@@ -1,4 +1,6 @@
-package com.iberdrola.practicas2026.davidsc.core.utils
+package com.iberdrola.practicas2026.davidsc.ui.navigation
+
+import java.net.URLEncoder
 
 object Screen {
     const val MAIN = "main_screen"
@@ -33,5 +35,5 @@ object Screen {
 
     // Encode email so '@' '.' etc. don't break navigation routes
     private fun String.encodeForRoute(): String =
-        java.net.URLEncoder.encode(this, "UTF-8")
+        URLEncoder.encode(this, "UTF-8")
 }

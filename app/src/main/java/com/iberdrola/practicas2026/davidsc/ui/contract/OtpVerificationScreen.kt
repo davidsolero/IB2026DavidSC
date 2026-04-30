@@ -44,16 +44,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
-import com.iberdrola.practicas2026.davidsc.core.utils.Screen
+import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
+import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 
 private const val MASKED_PHONE = "*****146"
 
 
 @Composable
 fun OtpVerificationScreen(
-    email: String,
-    flow: String,
-    navController: NavController,
+    email: String, flow: String, safeNav: SafeNavController,
     viewModel: OtpViewModel = hiltViewModel()
 ) {
     val code by viewModel.code.collectAsState()
@@ -77,7 +76,12 @@ fun OtpVerificationScreen(
                 FlowHeader(
                     title = stringResource(R.string.activate_contract_title),
                     step = 2,
-                    totalSteps = 3
+                    totalSteps = 3,
+                    onClose = {
+                        safeNav.navigate(Screen.CONTRACT_SELECTION) {
+                            popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
+                        }
+                    }
                 )
 
                 // =======================
@@ -150,9 +154,9 @@ fun OtpVerificationScreen(
                     }
 
                     ContractNavigationButtons(
-                        onPrevious = { navController.popBackStack() },
+                        onPrevious = { safeNav.popBackStack() },
                         onNext = {
-                            navController.navigate(Screen.confirmation(flow, email)) {
+                            safeNav.navigate(Screen.confirmation(flow, email)) {
                                 popUpTo(Screen.OTP_VERIFICATION) { inclusive = true }
                             }
                         },

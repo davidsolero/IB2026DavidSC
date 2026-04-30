@@ -32,17 +32,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
-import com.iberdrola.practicas2026.davidsc.core.utils.Screen
-import com.iberdrola.practicas2026.davidsc.ui.contract.ContractDetailViewModel
 import com.iberdrola.practicas2026.davidsc.ui.invoices.BackButton
+import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
+import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 import com.iberdrola.practicas2026.davidsc.ui.util.maskEmail
 
 @Composable
 fun ActiveContractScreen(
-    contractId: String,
-    navController: NavController,
+    contractId: String, safeNav: SafeNavController,
     viewModel: ContractDetailViewModel = hiltViewModel()
 ) {
     LaunchedEffect(contractId) {
@@ -61,7 +59,7 @@ fun ActiveContractScreen(
         ) {
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-            BackButton(onClick = { navController.popBackStack() })
+            BackButton(onClick = {safeNav.popBackStack() })
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
@@ -128,9 +126,7 @@ fun ActiveContractScreen(
                 Button(
                     onClick = {
                         val email = c.email ?: ""
-                        navController.navigate(
-                            Screen.modifyEmail(c.id, email)
-                        )
+                        safeNav.navigate(Screen.modifyEmail(c.id, email))
                     },
                     modifier = Modifier
                         .fillMaxWidth()
