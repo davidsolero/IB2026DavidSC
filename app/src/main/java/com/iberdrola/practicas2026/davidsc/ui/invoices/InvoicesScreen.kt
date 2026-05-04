@@ -2,6 +2,7 @@ package com.iberdrola.practicas2026.davidsc.ui.invoices
 
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,7 +28,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,16 +43,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
-import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
-import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
-import com.iberdrola.practicas2026.davidsc.ui.util.DateFormatter
-import androidx.activity.compose.LocalActivity
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
+import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
+import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
+import com.iberdrola.practicas2026.davidsc.ui.util.DateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

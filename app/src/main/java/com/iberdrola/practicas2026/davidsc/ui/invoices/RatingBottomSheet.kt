@@ -82,7 +82,8 @@ fun RatingBottomSheet(
         }
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    ModalBottomSheet(onDismissRequest = onDismiss,
+        containerColor = Color.White ) {
         if (rated) {
             ThanksContent()
         } else {
