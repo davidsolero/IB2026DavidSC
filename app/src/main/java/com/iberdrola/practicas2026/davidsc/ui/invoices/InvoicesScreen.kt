@@ -51,16 +51,18 @@ import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import com.iberdrola.practicas2026.davidsc.ui.util.DateFormatter
 import androidx.activity.compose.LocalActivity
+import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InvoicesScreen(navController: NavController, safeNav: SafeNavController,
-                   viewModel: InvoicesViewModel = hiltViewModel()
+fun InvoicesScreen(
+    navController: NavController,
+    safeNav: SafeNavController,
+    viewModel: InvoicesViewModel = hiltViewModel()
 ) {
     val invoices by viewModel.invoices.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    val useMock by viewModel.useMock.collectAsState()
     val selectedType by viewModel.selectedType.collectAsState()
     val selectedStreet by viewModel.selectedStreet.collectAsState()
     val isFilterActive by viewModel.isFilterActive.collectAsState()
@@ -71,16 +73,22 @@ fun InvoicesScreen(navController: NavController, safeNav: SafeNavController,
     var showRatingSheet by remember { mutableStateOf(false) }
     var showInvoiceDialog by remember { mutableStateOf(false) }
 
+    // Set to true the moment we decide to leave this screen.
+    // Never reset to false — once exiting, all interaction is blocked.
+    var isExiting by remember { mutableStateOf(false) }
 
     val activity = LocalActivity.current
 
     val navigateBack: () -> Unit = {
-        val popped = safeNav.popBackStack()
-        if (!popped) activity?.finish()
+        if (!isExiting) {
+            isExiting = true
+            val popped = safeNav.popBackStack()
+            if (!popped) activity?.finish()
+        }
     }
 
     val handleBack: () -> Unit = {
-        if (safeNav.canNavigate()) {
+        if (!isExiting) {
             if (viewModel.onBackPressed()) {
                 showRatingSheet = true
             } else {
@@ -89,30 +97,19 @@ fun InvoicesScreen(navController: NavController, safeNav: SafeNavController,
         }
     }
 
-    val sortedInvoices = invoices
-
     val dateFormatter = remember { DateFormatter() }
 
-    val rangeText = remember(sortedInvoices) {
-        if (sortedInvoices.isEmpty()) {
-            ""
-        } else {
-            val first = sortedInvoices.minOf { it.date }
-            val last = sortedInvoices.maxOf { it.date }
-
-            if (first == last) {
-                dateFormatter.formatCompact(first)
-            } else {
-                dateFormatter.formatRange(first, last)
-            }
+    val rangeText = remember(invoices) {
+        if (invoices.isEmpty()) ""
+        else {
+            val first = invoices.minOf { it.date }
+            val last = invoices.maxOf { it.date }
+            if (first == last) dateFormatter.formatCompact(first)
+            else dateFormatter.formatRange(first, last)
         }
     }
 
-
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-
-
-    BackHandler { handleBack() }
+    BackHandler(enabled = !isExiting) { handleBack() }
 
     Scaffold(
         topBar = {
@@ -128,8 +125,8 @@ fun InvoicesScreen(navController: NavController, safeNav: SafeNavController,
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -150,22 +147,14 @@ fun InvoicesScreen(navController: NavController, safeNav: SafeNavController,
             HorizontalDivider(color = Color.LightGray)
 
             if (isLoading) {
-
-                if (isLandscape) {
-                    SkeletonInvoicesLandscape()
-                } else {
+                if (isLandscape) SkeletonInvoicesLandscape()
+                else {
                     SkeletonLastInvoiceCard()
                     SkeletonList()
                 }
-
             } else {
-
-                val latest = sortedInvoices.firstOrNull()
-                val history = if (sortedInvoices.size > 1) {
-                    sortedInvoices.drop(1)
-                } else {
-                    emptyList()
-                }
+                val latest = invoices.firstOrNull()
+                val history = if (invoices.size > 1) invoices.drop(1) else emptyList()
 
                 if (isLandscape) {
                     Row(
@@ -174,7 +163,6 @@ fun InvoicesScreen(navController: NavController, safeNav: SafeNavController,
                             dimensionResource(R.dimen.margin_small)
                         )
                     ) {
-
                         latest?.let {
                             LastInvoiceCard(
                                 invoice = it,
@@ -186,43 +174,20 @@ fun InvoicesScreen(navController: NavController, safeNav: SafeNavController,
                                     .padding(horizontal = dimensionResource(R.dimen.margin_medium))
                             )
                         }
-
                         Column(modifier = Modifier.weight(2f)) {
-
                             InvoiceHistoryHeader(
-                                onFilterClick = {
-                                    if (!showRatingSheet) {
-                                        safeNav.navigate(Screen.FILTER)
-                                    }
-                                },
+                                onFilterClick = { safeNav.navigate(Screen.FILTER) },
                                 isFilterActive = isFilterActive,
-                                enabled = hasInvoices && !showRatingSheet
+                                enabled = hasInvoices && !showRatingSheet && !isExiting
                             )
-
-                            if (history.isEmpty()) {
-                                Text(
-                                    text = if (isFilterActive) {
-                                        stringResource(R.string.no_older_invoices_with_filter)
-                                    } else {
-                                        stringResource(R.string.no_older_invoices)
-                                    },
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = Color.Gray,
-                                    modifier = Modifier.padding(
-                                        dimensionResource(R.dimen.margin_medium)
-                                    )
-                                )
-                            } else {
-                                InvoiceListGroupedByYear(
-                                    invoices = history,
-                                    onClick = { showInvoiceDialog = true }
-                                )
-                            }
+                            InvoiceHistoryContent(
+                                history = history,
+                                isFilterActive = isFilterActive,
+                                onClick = { showInvoiceDialog = true }
+                            )
                         }
                     }
-
                 } else {
-
                     latest?.let {
                         LastInvoiceCard(
                             invoice = it,
@@ -230,36 +195,16 @@ fun InvoicesScreen(navController: NavController, safeNav: SafeNavController,
                             onClick = { showInvoiceDialog = true }
                         )
                     }
-
                     InvoiceHistoryHeader(
-                        onFilterClick = {
-                            if (!showRatingSheet) {
-                                safeNav.navigate(Screen.FILTER)
-                            }
-                        },
+                        onFilterClick = { safeNav.navigate(Screen.FILTER) },
                         isFilterActive = isFilterActive,
-                        enabled = hasInvoices && !showRatingSheet
+                        enabled = hasInvoices && !showRatingSheet && !isExiting
                     )
-
-                    if (history.isEmpty()) {
-                        Text(
-                            text = if (isFilterActive) {
-                                stringResource(R.string.no_older_invoices_with_filter)
-                            } else {
-                                stringResource(R.string.no_older_invoices)
-                            },
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(
-                                dimensionResource(R.dimen.margin_medium)
-                            )
-                        )
-                    } else {
-                        InvoiceListGroupedByYear(
-                            invoices = history,
-                            onClick = { showInvoiceDialog = true }
-                        )
-                    }
+                    InvoiceHistoryContent(
+                        history = history,
+                        isFilterActive = isFilterActive,
+                        onClick = { showInvoiceDialog = true }
+                    )
                 }
             }
         }
@@ -288,9 +233,7 @@ fun InvoicesScreen(navController: NavController, safeNav: SafeNavController,
             AlertDialog(
                 onDismissRequest = { showInvoiceDialog = false },
                 containerColor = Color.White,
-                text = {
-                    Text(stringResource(R.string.invoice_not_available))
-                },
+                text = { Text(stringResource(R.string.invoice_not_available)) },
                 confirmButton = {
                     TextButton(
                         onClick = { showInvoiceDialog = false },
@@ -304,6 +247,29 @@ fun InvoicesScreen(navController: NavController, safeNav: SafeNavController,
                 }
             )
         }
+    }
+}
+
+
+@Composable
+private fun InvoiceHistoryContent(
+    history: List<Invoice>,
+    isFilterActive: Boolean,
+    onClick: () -> Unit
+) {
+    if (history.isEmpty()) {
+        Text(
+            text = if (isFilterActive) {
+                stringResource(R.string.no_older_invoices_with_filter)
+            } else {
+                stringResource(R.string.no_older_invoices)
+            },
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.Gray,
+            modifier = Modifier.padding(dimensionResource(R.dimen.margin_medium))
+        )
+    } else {
+        InvoiceListGroupedByYear(invoices = history, onClick = { onClick() })
     }
 }
 

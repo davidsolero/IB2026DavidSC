@@ -30,7 +30,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,7 +54,9 @@ private const val MASKED_PHONE = "*****146"
 
 @Composable
 fun OtpVerificationScreen(
-    email: String, flow: String, safeNav: SafeNavController,
+    email: String,
+    flow: String,
+    safeNav: SafeNavController,
     viewModel: OtpViewModel = hiltViewModel()
 ) {
     val code by viewModel.code.collectAsState()
@@ -60,64 +64,58 @@ fun OtpVerificationScreen(
     val remainingResends by viewModel.remainingResends.collectAsState()
     val resendConfirmationVisible by viewModel.resendConfirmationVisible.collectAsState()
     val isResending by viewModel.isResending.collectAsState()
-    BackHandler(enabled = isResending) {
-        // no hacemos nada -> bloquea back
-    }
+
+    // Set to true the moment we decide to leave this screen.
+    // Never reset to false — once exiting, all interaction is blocked.
+    var isExiting by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = isResending) { }
+
     Box(modifier = Modifier.fillMaxSize()) {
-
         Scaffold { innerPadding ->
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-
                 FlowHeader(
                     title = stringResource(R.string.activate_contract_title),
                     step = 2,
                     totalSteps = 3,
                     onClose = {
-                        safeNav.navigate(Screen.CONTRACT_SELECTION) {
-                            popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
+                        if (!isExiting) {
+                            isExiting = true
+                            safeNav.navigate(Screen.CONTRACT_SELECTION) {
+                                popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
+                            }
                         }
                     }
                 )
 
-                // =======================
-                // CONTENT (con padding)
-                // =======================
                 Column(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
                         .padding(horizontal = dimensionResource(R.dimen.margin_medium))
                 ) {
-
                     Text(
                         text = stringResource(R.string.otp_introduce_code),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
-
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
                     Text(
                         text = stringResource(R.string.otp_sent_to, MASKED_PHONE),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Black
                     )
-
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
-
                     ContractEmailField(
                         value = code,
                         onValueChange = { viewModel.onCodeChange(it) },
                         placeholder = stringResource(R.string.otp_field_label)
                     )
-
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.icon_size_large)))
-
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(
@@ -139,25 +137,28 @@ fun OtpVerificationScreen(
                     }
                 }
 
-                // =======================
-                // FOOTER (FULL WIDTH)
-                // =======================
                 Column(modifier = Modifier.fillMaxWidth()) {
-
                     if (resendConfirmationVisible) {
                         ResendConfirmationBanner(
                             onClose = { viewModel.hideResendConfirmation() },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 12.dp) // separación con botones
+                                .padding(bottom = 12.dp)
                         )
                     }
-
                     ContractNavigationButtons(
-                        onPrevious = { safeNav.popBackStack() },
+                        onPrevious = {
+                            if (!isExiting) {
+                                isExiting = true
+                                safeNav.popBackStack()
+                            }
+                        },
                         onNext = {
-                            safeNav.navigate(Screen.confirmation(flow, email)) {
-                                popUpTo(Screen.OTP_VERIFICATION) { inclusive = true }
+                            if (!isExiting) {
+                                isExiting = true
+                                safeNav.navigate(Screen.confirmation(flow, email)) {
+                                    popUpTo(Screen.OTP_VERIFICATION) { inclusive = true }
+                                }
                             }
                         },
                         nextEnabled = canContinue,
@@ -166,15 +167,11 @@ fun OtpVerificationScreen(
                             .fillMaxWidth()
                             .padding(horizontal = dimensionResource(R.dimen.margin_medium))
                     )
-
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
                 }
             }
         }
 
-        // =======================
-        // LOADING OVERLAY
-        // =======================
         if (isResending) {
             Box(
                 modifier = Modifier

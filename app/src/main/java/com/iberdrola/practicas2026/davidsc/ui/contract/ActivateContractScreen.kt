@@ -24,6 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,12 +51,11 @@ import com.iberdrola.practicas2026.davidsc.ui.util.maskEmail
 
 @Composable
 fun ActivateContractScreen(
-    contractId: String, safeNav: SafeNavController,
+    contractId: String,
+    safeNav: SafeNavController,
     viewModel: ContractDetailViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(contractId) {
-        viewModel.loadContract(contractId)
-    }
+    LaunchedEffect(contractId) { viewModel.loadContract(contractId) }
 
     val contract by viewModel.contract.collectAsState()
     val email by viewModel.email.collectAsState()
@@ -61,26 +63,29 @@ fun ActivateContractScreen(
     val canContinue by viewModel.canContinue.collectAsState()
     val iberdrolaGreen = colorResource(R.color.iberdrola_green)
 
-    Scaffold { innerPadding ->
+    // Set to true the moment we decide to leave this screen.
+    // Never reset to false — once exiting, all interaction is blocked.
+    var isExiting by remember { mutableStateOf(false) }
 
+    Scaffold { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-
-
             FlowHeader(
                 title = stringResource(R.string.activate_contract_title),
                 step = 1,
                 totalSteps = 2,
                 onClose = {
-                    safeNav.navigate(Screen.CONTRACT_SELECTION) {
-                        popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
+                    if (!isExiting) {
+                        isExiting = true
+                        safeNav.navigate(Screen.CONTRACT_SELECTION) {
+                            popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
+                        }
                     }
                 }
             )
-
 
             Column(
                 modifier = Modifier
@@ -88,7 +93,6 @@ fun ActivateContractScreen(
                     .padding(horizontal = dimensionResource(R.dimen.margin_medium))
                     .verticalScroll(rememberScrollState())
             ) {
-
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
                 contract?.let { c ->
@@ -112,19 +116,14 @@ fun ActivateContractScreen(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
                 ContractEmailField(
                     value = email,
                     onValueChange = { viewModel.onEmailChange(it) },
                     placeholder = "Email"
                 )
-
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
-
                 PrivacyInfoBlock()
-
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
                 Row(
@@ -140,7 +139,6 @@ fun ActivateContractScreen(
                             uncheckedColor = iberdrolaGreen
                         )
                     )
-
                     Spacer(modifier = Modifier.width(dimensionResource(R.dimen.margin_xsmall)))
 
                     val prefix = stringResource(R.string.activate_contract_legal_prefix)
@@ -148,12 +146,7 @@ fun ActivateContractScreen(
                     val suffix = stringResource(R.string.activate_contract_legal_suffix)
 
                     FlowRow {
-                        Text(
-                            text = "$prefix ",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Black
-                        )
-
+                        Text(text = "$prefix ", style = MaterialTheme.typography.bodyLarge, color = Color.Black)
                         Text(
                             text = conditions,
                             style = MaterialTheme.typography.bodyLarge.copy(
@@ -161,25 +154,26 @@ fun ActivateContractScreen(
                                 color = iberdrolaGreen,
                                 textDecoration = TextDecoration.Underline
                             ),
-                            modifier = Modifier.clickable {
-                                // click aunque no haga nada
-                            }
+                            modifier = Modifier.clickable { }
                         )
-
-                        Text(
-                            text = " $suffix",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Black
-                        )
+                        Text(text = " $suffix", style = MaterialTheme.typography.bodyLarge, color = Color.Black)
                     }
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 ContractNavigationButtons(
-                    onPrevious = { safeNav.popBackStack() },
+                    onPrevious = {
+                        if (!isExiting) {
+                            isExiting = true
+                            safeNav.popBackStack()
+                        }
+                    },
                     onNext = {
-                        safeNav.navigate(Screen.otpVerification(email, OtpFlow.ACTIVATE))
+                        if (!isExiting) {
+                            isExiting = true
+                            safeNav.navigate(Screen.otpVerification(email, OtpFlow.ACTIVATE))
+                        }
                     },
                     nextEnabled = canContinue,
                     nextText = stringResource(R.string.nav_next)

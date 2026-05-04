@@ -23,6 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,15 +43,18 @@ import com.iberdrola.practicas2026.davidsc.ui.util.maskEmail
 
 @Composable
 fun ActiveContractScreen(
-    contractId: String, safeNav: SafeNavController,
+    contractId: String,
+    safeNav: SafeNavController,
     viewModel: ContractDetailViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(contractId) {
-        viewModel.loadContract(contractId)
-    }
+    LaunchedEffect(contractId) { viewModel.loadContract(contractId) }
 
     val contract by viewModel.contract.collectAsState()
     val iberdrolaGreen = colorResource(R.color.iberdrola_green)
+
+    // Set to true the moment we decide to leave this screen.
+    // Never reset to false — once exiting, all interaction is blocked.
+    var isExiting by remember { mutableStateOf(false) }
 
     Scaffold { innerPadding ->
         Column(
@@ -59,7 +65,12 @@ fun ActiveContractScreen(
         ) {
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-            BackButton(onClick = {safeNav.popBackStack() })
+            BackButton(onClick = {
+                if (!isExiting) {
+                    isExiting = true
+                    safeNav.popBackStack()
+                }
+            })
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
@@ -70,15 +81,12 @@ fun ActiveContractScreen(
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
                 Text(
                     text = c.address,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
-
                 Text(
                     text = stringResource(R.string.active_contract_receives_here),
                     style = MaterialTheme.typography.bodyMedium,
@@ -90,9 +98,7 @@ fun ActiveContractScreen(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
-
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
                 Text(
                     text = c.email?.let { maskEmail(it) }
                         ?: stringResource(R.string.no_email_available),
@@ -120,13 +126,14 @@ fun ActiveContractScreen(
                         color = Color.Gray
                     )
                 }
-
                 Spacer(modifier = Modifier.weight(1f))
-
                 Button(
                     onClick = {
-                        val email = c.email ?: ""
-                        safeNav.navigate(Screen.modifyEmail(c.id, email))
+                        if (!isExiting) {
+                            isExiting = true
+                            val email = c.email ?: ""
+                            safeNav.navigate(Screen.modifyEmail(c.id, email))
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -144,7 +151,6 @@ fun ActiveContractScreen(
                         fontWeight = FontWeight.SemiBold
                     )
                 }
-
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
             }
         }

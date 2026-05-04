@@ -31,26 +31,33 @@ import com.iberdrola.practicas2026.davidsc.ui.util.isValidEmail
  * email input field, which is local UI state. Validation is stateless.
  */
 @Composable
-fun ModifyEmailScreen(contractId: String, currentEmail: String, safeNav: SafeNavController
+fun ModifyEmailScreen(
+    contractId: String,
+    currentEmail: String,
+    safeNav: SafeNavController
 ) {
     var email by remember { mutableStateOf("") }
-    val iberdrolaGreen = colorResource(R.color.iberdrola_green)
+
+    // Set to true the moment we decide to leave this screen.
+    // Never reset to false — once exiting, all interaction is blocked.
+    var isExiting by remember { mutableStateOf(false) }
 
     Scaffold { innerPadding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-
             FlowHeader(
                 title = stringResource(R.string.modify_email_title),
                 step = 1,
                 totalSteps = 2,
                 onClose = {
-                    safeNav.navigate(Screen.CONTRACT_SELECTION) {
-                        popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
+                    if (!isExiting) {
+                        isExiting = true
+                        safeNav.navigate(Screen.CONTRACT_SELECTION) {
+                            popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
+                        }
                     }
                 }
             )
@@ -60,32 +67,34 @@ fun ModifyEmailScreen(contractId: String, currentEmail: String, safeNav: SafeNav
                     .fillMaxSize()
                     .padding(horizontal = dimensionResource(R.dimen.margin_medium))
             ) {
-
                 Text(
                     text = stringResource(R.string.activate_contract_email_question),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
-
                 ContractEmailField(
                     value = email,
                     onValueChange = { email = it },
                     placeholder = "Nuevo email"
                 )
-
                 Spacer(modifier = Modifier.weight(1f))
-
                 ContractNavigationButtons(
-                    onPrevious = { safeNav.popBackStack() },
+                    onPrevious = {
+                        if (!isExiting) {
+                            isExiting = true
+                            safeNav.popBackStack()
+                        }
+                    },
                     onNext = {
-                        safeNav.navigate(Screen.otpVerification(email, OtpFlow.MODIFY))
+                        if (!isExiting) {
+                            isExiting = true
+                            safeNav.navigate(Screen.otpVerification(email, OtpFlow.MODIFY))
+                        }
                     },
                     nextEnabled = isValidEmail(email),
                     nextText = stringResource(R.string.nav_next)
                 )
-
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
             }
         }

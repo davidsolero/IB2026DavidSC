@@ -21,6 +21,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,21 +45,28 @@ import com.iberdrola.practicas2026.davidsc.ui.util.maskEmail
 
 @Composable
 fun ConfirmationScreen(
-    flow: String, email: String, safeNav: SafeNavController
+    flow: String,
+    email: String,
+    safeNav: SafeNavController
 ) {
-    ConfirmationScreenContent(
-        flow = flow,
-        email = email,
-        onClose = {
-            safeNav.navigate(Screen.CONTRACT_SELECTION) {
-                popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
-            }
-        },
-        onAccept = {
+    // Set to true the moment we decide to leave this screen.
+    // Never reset to false — once exiting, all interaction is blocked.
+    var isExiting by remember { mutableStateOf(false) }
+
+    val navigateToSelection: () -> Unit = {
+        if (!isExiting) {
+            isExiting = true
             safeNav.navigate(Screen.CONTRACT_SELECTION) {
                 popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
             }
         }
+    }
+
+    ConfirmationScreenContent(
+        flow = flow,
+        email = email,
+        onClose = { navigateToSelection() },
+        onAccept = { navigateToSelection() }
     )
 }
 

@@ -1,71 +1,68 @@
 package com.iberdrola.practicas2026.davidsc.ui.navigation
 
-import android.os.Handler
-import android.os.Looper
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
+import java.util.concurrent.atomic.AtomicBoolean
+import android.os.Handler
+import android.os.Looper
 
+/**
+ * Wraps [NavHostController] to prevent concurrent navigation calls and back-spam.
+ *
+ * The lock is released only after the destination changes AND the transition
+ * animation has had time to complete. This prevents the user from triggering
+ * a second navigation before the first one is visually finished.
+ */
 class SafeNavController(
     private val navController: NavHostController
 ) {
 
-    private var isNavigating = false
+    private val isNavigating = AtomicBoolean(false)
     private val handler = Handler(Looper.getMainLooper())
 
-    fun navigate(route: String) {
-        if (isNavigating) return
+    private val destinationListener =
+        NavController.OnDestinationChangedListener { _, _, _ ->
+            // Destination changed, but the transition animation is still running.
+            // Wait for it to finish before accepting the next navigation.
+            handler.removeCallbacksAndMessages(null)
+            handler.postDelayed({ isNavigating.set(false) }, TRANSITION_DELAY_MS)
+        }
 
-        lock()
-        navController.navigate(route)
-        unlockWithDelay()
+    init {
+        navController.addOnDestinationChangedListener(destinationListener)
     }
 
-    fun navigate(
-        route: String,
-        builder: NavOptionsBuilder.() -> Unit
-    ) {
-        if (isNavigating) return
+    fun navigate(route: String) {
+        if (!isNavigating.compareAndSet(false, true)) return
+        navController.navigate(route)
+    }
 
-        lock()
+    fun navigate(route: String, builder: NavOptionsBuilder.() -> Unit) {
+        if (!isNavigating.compareAndSet(false, true)) return
         navController.navigate(route, builder)
-        unlockWithDelay()
     }
 
     fun popBackStack(): Boolean {
-        if (isNavigating) return false
-
-        lock()
+        if (!isNavigating.compareAndSet(false, true)) return false
         val result = navController.popBackStack()
-        unlockWithDelay()
+        // If there was nothing to pop, the listener will never fire.
+        if (!result) isNavigating.set(false)
         return result
     }
 
     fun popTo(route: String, inclusive: Boolean = false) {
-        if (isNavigating) return
-
-        lock()
+        if (!isNavigating.compareAndSet(false, true)) return
         navController.popBackStack(route, inclusive)
-        unlockWithDelay()
     }
 
-    fun currentRoute(): String? {
-        return navController.currentDestination?.route
-    }
+    fun currentRoute(): String? = navController.currentDestination?.route
 
-    fun canNavigate(): Boolean = !isNavigating
+    fun canNavigate(): Boolean = !isNavigating.get()
 
-    private fun lock() {
-        isNavigating = true
-    }
-
-    private fun unlockWithDelay() {
-        handler.removeCallbacksAndMessages(null)
-        handler.postDelayed({
-            isNavigating = false
-        }, NAVIGATION_DELAY)
-    }
-
-    private companion object {
-        const val NAVIGATION_DELAY = 300L
+    companion object {
+        // Compose Navigation's default transition is ~300ms.
+        // A small buffer on top ensures the animation is fully complete.
+        private const val TRANSITION_DELAY_MS = 400L
     }
 }

@@ -18,8 +18,8 @@
     <string name="invoices_history">Histórico de facturas</string>
     <string name="invoices_filter">Filtrar</string>
     <string name="back">Atrás</string>
-    <string name="mock_on">Mock ON</string>
-    <string name="mock_off">Mock OFF</string>
+    <string name="mock_on">LOCAL</string>
+    <string name="mock_off">MOCKOON</string>
     <string name="status_paid">Pagada</string>
     <string name="status_pending">Pendiente de Pago</string>
     <string name="main_select_street">Selecciona una dirección para ver sus facturas</string>

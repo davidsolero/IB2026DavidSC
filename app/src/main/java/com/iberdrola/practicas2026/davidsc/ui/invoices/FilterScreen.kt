@@ -75,7 +75,8 @@ import kotlin.math.floor
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterScreen(
-    navController: NavController, safeNav: SafeNavController,
+    navController: NavController,
+    safeNav: SafeNavController,
     viewModel: InvoicesViewModel = hiltViewModel(
         navController.getBackStackEntry(Screen.INVOICES)
     )
@@ -91,6 +92,10 @@ fun FilterScreen(
     var showDesdePicker by remember { mutableStateOf(false) }
     var showHastaPicker by remember { mutableStateOf(false) }
 
+    // Set to true the moment we decide to leave this screen.
+    // Never reset to false — once exiting, all interaction is blocked.
+    var isExiting by remember { mutableStateOf(false) }
+
     val displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale("es", "ES"))
     val iberdrolaGreen = colorResource(R.color.iberdrola_green)
 
@@ -101,8 +106,6 @@ fun FilterScreen(
         stringResource(R.string.status_cancelled),
         stringResource(R.string.status_fixed_fee)
     )
-
-
 
     Scaffold { innerPadding ->
         Column(
@@ -115,7 +118,12 @@ fun FilterScreen(
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
             BackButton(
-                onClick = { safeNav.popBackStack() }
+                onClick = {
+                    if (!isExiting) {
+                        isExiting = true
+                        safeNav.popBackStack()
+                    }
+                }
             )
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
@@ -160,7 +168,6 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-
             // --- COST ---
             Text(
                 text = stringResource(R.string.filter_by_amount),
@@ -179,13 +186,12 @@ fun FilterScreen(
                     (activeFilter.importeMax ?: maxAmount).toFloat().coerceIn(safeMin, safeMax)
                 mutableStateOf(currentMin..maxOf(currentMin, currentMax))
             }
+
             Box(
                 modifier = Modifier
                     .background(
                         color = colorResource(R.color.status_pagado_fondo).copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(
-                            dimensionResource(R.dimen.margin_xsmall)
-                        )
+                        shape = RoundedCornerShape(dimensionResource(R.dimen.margin_xsmall))
                     )
                     .padding(
                         horizontal = dimensionResource(R.dimen.margin_small),
@@ -262,20 +268,22 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-            // --- BUTTONS ---
             // --- APPLY ---
             Button(
                 onClick = {
-                    viewModel.applyFilter(
-                        InvoiceFilter(
-                            desde = desde,
-                            hasta = hasta,
-                            importeMin = sliderRange.start.toInt(),
-                            importeMax = sliderRange.endInclusive.toInt(),
-                            estados = selectedEstados
+                    if (!isExiting) {
+                        isExiting = true
+                        viewModel.applyFilter(
+                            InvoiceFilter(
+                                desde = desde,
+                                hasta = hasta,
+                                importeMin = sliderRange.start.toInt(),
+                                importeMax = sliderRange.endInclusive.toInt(),
+                                estados = selectedEstados
+                            )
                         )
-                    )
-                    safeNav.popBackStack()
+                        safeNav.popBackStack()
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -293,8 +301,11 @@ fun FilterScreen(
             // --- CLEAR ---
             TextButton(
                 onClick = {
-                    viewModel.clearFilter()
-                    safeNav.popBackStack()
+                    if (!isExiting) {
+                        isExiting = true
+                        viewModel.clearFilter()
+                        safeNav.popBackStack()
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -308,7 +319,6 @@ fun FilterScreen(
                     textDecoration = TextDecoration.Underline
                 )
             }
-
         }
     }
 
@@ -343,7 +353,6 @@ fun FilterScreen(
         )
     }
 }
-
 @Composable
 private fun DateField(
     label: String,

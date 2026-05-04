@@ -26,6 +26,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,6 +53,10 @@ fun ContractSelectionScreen(
 ) {
     val contracts by viewModel.contracts.collectAsState()
 
+    // Set to true the moment we decide to leave this screen.
+    // Never reset to false — once exiting, all interaction is blocked.
+    var isExiting by remember { mutableStateOf(false) }
+
     Scaffold { innerPadding ->
         Column(
             modifier = Modifier
@@ -57,10 +64,14 @@ fun ContractSelectionScreen(
                 .padding(innerPadding)
                 .padding(horizontal = dimensionResource(R.dimen.margin_medium))
         ) {
-
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-            BackButton(onClick = { safeNav.popBackStack()})
+            BackButton(onClick = {
+                if (!isExiting) {
+                    isExiting = true
+                    safeNav.popBackStack()
+                }
+            })
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
@@ -74,19 +85,20 @@ fun ContractSelectionScreen(
 
             LazyColumn {
                 items(contracts) { contract ->
-
                     ContractItem(
                         contract = contract,
                         onClick = {
-                            val route = if (contract.isActive) {
-                                Screen.activeContract(contract.id)
-                            } else {
-                                Screen.activateContract(contract.id)
+                            if (!isExiting) {
+                                isExiting = true
+                                val route = if (contract.isActive) {
+                                    Screen.activeContract(contract.id)
+                                } else {
+                                    Screen.activateContract(contract.id)
+                                }
+                                safeNav.navigate(route)
                             }
-                            safeNav.navigate(route)
                         }
                     )
-
                     HorizontalDivider(color = Color.LightGray)
                 }
             }

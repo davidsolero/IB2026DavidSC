@@ -46,29 +46,33 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
 import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 
 @Composable
-fun MainScreen(safeNav: SafeNavController,
-               viewModel: MainViewModel = hiltViewModel()
+fun MainScreen(
+    safeNav: SafeNavController,
+    viewModel: MainViewModel = hiltViewModel()
 ) {
     val streets by viewModel.streets.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val useMock by viewModel.useMock.collectAsState()
+
+    // Set to true the moment we decide to leave this screen.
+    // Never reset to false — once exiting, all interaction is blocked.
+    var isExiting by remember { mutableStateOf(false) }
 
     val navigateToInvoices = { street: String? ->
-        AppConfig.mockStreet = street
-        safeNav.navigate(Screen.INVOICES) {
-            launchSingleTop = true
+        if (!isExiting) {
+            isExiting = true
+            AppConfig.mockStreet = street
+            safeNav.navigate(Screen.INVOICES) {
+                launchSingleTop = true
+            }
         }
     }
-
-
-    val useMock by viewModel.useMock.collectAsState()
 
     LaunchedEffect(useMock) {
         viewModel.loadStreets()
@@ -97,7 +101,7 @@ fun MainScreen(safeNav: SafeNavController,
                 Spacer(modifier = Modifier.weight(1f))
 
                 OutlinedButton(
-                    onClick =  { viewModel.toggleMock() },
+                    onClick = { viewModel.toggleMock() },
                     border = BorderStroke(2.dp, colorResource(R.color.iberdrola_green)),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = colorResource(R.color.iberdrola_green)
@@ -131,7 +135,12 @@ fun MainScreen(safeNav: SafeNavController,
             }
 
             OutlinedButton(
-                onClick = { safeNav.navigate(Screen.CONTRACT_SELECTION) },
+                onClick = {
+                    if (!isExiting) {
+                        isExiting = true
+                        safeNav.navigate(Screen.CONTRACT_SELECTION)
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 border = BorderStroke(2.dp, colorResource(R.color.iberdrola_green)),
                 colors = ButtonDefaults.outlinedButtonColors(
@@ -182,10 +191,7 @@ fun MainScreen(safeNav: SafeNavController,
                     }
                 }
 
-
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
-
             }
         }
     }
