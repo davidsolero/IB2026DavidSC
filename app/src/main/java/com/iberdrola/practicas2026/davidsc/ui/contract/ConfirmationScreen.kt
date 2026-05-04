@@ -1,5 +1,6 @@
 package com.iberdrola.practicas2026.davidsc.ui.contract
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -108,11 +110,10 @@ fun ConfirmationScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Icon(
-                imageVector = Icons.Outlined.ThumbUp,
+            Image(
+                painter = painterResource(id = R.drawable.iberdrolathumbs),
                 contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(120.dp)
+                modifier = Modifier.size(220.dp)
             )
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
