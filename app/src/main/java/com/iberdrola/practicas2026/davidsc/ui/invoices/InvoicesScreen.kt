@@ -67,6 +67,9 @@ fun InvoicesScreen(
     val isLandscape =
         LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
+    val allInvoices by viewModel.allInvoices.collectAsState()
+    val filteredInvoices by viewModel.invoices.collectAsState()
+
     var showRatingSheet by remember { mutableStateOf(false) }
     var showInvoiceDialog by remember { mutableStateOf(false) }
 
@@ -96,16 +99,19 @@ fun InvoicesScreen(
 
     val dateFormatter = remember { DateFormatter() }
 
-    val rangeText = remember(invoices) {
-        if (invoices.isEmpty()) ""
+    val rangeText = remember(allInvoices) {
+        if (allInvoices.isEmpty()) ""
         else {
-            val first = invoices.minOf { it.date }
-            val last = invoices.maxOf { it.date }
-            if (first == last) dateFormatter.formatCompact(first)
-            else dateFormatter.formatRange(first, last)
+            val first = allInvoices.minOf { it.date }
+            val last = allInvoices.maxOf { it.date }
+
+            if (first == last) {
+                dateFormatter.formatCompact(first)
+            } else {
+                dateFormatter.formatRange(first, last)
+            }
         }
     }
-
     BackHandler(enabled = !isExiting) { handleBack() }
 
     Scaffold(
@@ -150,8 +156,16 @@ fun InvoicesScreen(
                     SkeletonList()
                 }
             } else {
-                val latest = invoices.firstOrNull()
-                val history = if (invoices.size > 1) invoices.drop(1) else emptyList()
+                val lastInvoice = allInvoices.firstOrNull()
+
+                val history = remember(lastInvoice, filteredInvoices) {
+                    if (lastInvoice == null) {
+                        filteredInvoices
+                    } else {
+                        filteredInvoices.filterNot { it.id == lastInvoice.id }
+                    }
+                }
+
 
                 if (isLandscape) {
                     Row(
@@ -160,7 +174,7 @@ fun InvoicesScreen(
                             dimensionResource(R.dimen.margin_small)
                         )
                     ) {
-                        latest?.let {
+                        lastInvoice?.let {
                             LastInvoiceCard(
                                 invoice = it,
                                 rangeText = rangeText,
@@ -185,7 +199,7 @@ fun InvoicesScreen(
                         }
                     }
                 } else {
-                    latest?.let {
+                    lastInvoice?.let {
                         LastInvoiceCard(
                             invoice = it,
                             rangeText = rangeText,
