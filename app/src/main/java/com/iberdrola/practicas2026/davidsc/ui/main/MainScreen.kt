@@ -107,7 +107,7 @@ fun MainScreen(
                         contentColor = colorResource(R.color.iberdrola_green)
                     )
                 ) {
-                    Text(if (useMock) "Mock ON" else "Mock OFF")
+                            Text(if (useMock)  stringResource(R.string.mock_on) else  stringResource(R.string.mock_off) )
                 }
             }
 

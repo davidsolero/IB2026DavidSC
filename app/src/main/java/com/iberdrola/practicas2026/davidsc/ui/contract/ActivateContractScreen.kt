@@ -95,21 +95,21 @@ fun ActivateContractScreen(
             ) {
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-                contract?.let { c ->
-                    if (!c.email.isNullOrBlank()) {
+                    val email = "dasun817@correo.com"
+                    if (email.isNotBlank()) {
                         Text(
                             text = stringResource(R.string.activate_contract_linked_email),
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
+                            color = Color.DarkGray
                         )
                         Text(
-                            text = maskEmail(c.email),
+                            text = maskEmail(email),
                             style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
                     }
-                }
+
 
                 Text(
                     text = stringResource(R.string.activate_contract_email_question),
