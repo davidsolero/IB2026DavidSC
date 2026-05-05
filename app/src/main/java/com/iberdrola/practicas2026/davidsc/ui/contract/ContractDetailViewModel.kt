@@ -1,9 +1,11 @@
 package com.iberdrola.practicas2026.davidsc.ui.contract
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iberdrola.practicas2026.davidsc.domain.model.Contract
 import com.iberdrola.practicas2026.davidsc.domain.usecase.GetContractsUseCase
+import com.iberdrola.practicas2026.davidsc.domain.usecase.UpdateContractEmailUseCase
 import com.iberdrola.practicas2026.davidsc.ui.util.isValidEmail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -18,6 +20,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class ContractDetailViewModel @Inject constructor(
     private val getContractsUseCase: GetContractsUseCase,
+    private val updateContractEmailUseCase: UpdateContractEmailUseCase,
     @Named("io") private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -30,14 +33,12 @@ class ContractDetailViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    // Fields for the activation form (inactive contract flow)
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email.asStateFlow()
 
     private val _legalChecked = MutableStateFlow(false)
     val legalChecked: StateFlow<Boolean> = _legalChecked.asStateFlow()
 
-    // Siguiente is enabled only when both email is valid and legal is accepted
     val canContinue: StateFlow<Boolean> = combine(_email, _legalChecked) { email, checked ->
         isValidEmail(email) && checked
     }.let { flow ->
@@ -49,19 +50,43 @@ class ContractDetailViewModel @Inject constructor(
     }
 
     fun loadContract(contractId: String) {
-        // Avoid reloading if the same contract is already loaded
-        if (_contract.value?.id == contractId) return
+        if (_contract.value?.id == contractId) {
+            Log.d(TAG, "loadContract: guard hit — id=$contractId email=${_contract.value?.email}")
+            return
+        }
 
         viewModelScope.launch(ioDispatcher) {
             _isLoading.value = true
             try {
-                _contract.value = getContractsUseCase()
-                    .firstOrNull { it.id == contractId }
+                val loaded = getContractsUseCase().firstOrNull { it.id == contractId }
+                Log.d(TAG, "loadContract: loaded — id=$contractId email=${loaded?.email}")
+                _contract.value = loaded
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {
                 _isLoading.value = false
             }
+        }
+    }
+
+    fun commitEmail(newEmail: String) {
+        val contractId = _contract.value?.id
+        Log.d(
+            TAG,
+            "commitEmail called — contractId=$contractId newEmail=$newEmail instance=${
+                System.identityHashCode(this)
+            }"
+        )
+
+        if (contractId == null) {
+            Log.e(TAG, "commitEmail: _contract is null, nothing to update")
+            return
+        }
+
+        viewModelScope.launch(ioDispatcher) {
+            updateContractEmailUseCase(contractId, newEmail)
+            _contract.value = _contract.value?.copy(email = newEmail)
+            Log.d(TAG, "commitEmail: done — _contract.email is now ${_contract.value?.email}")
         }
     }
 
@@ -71,5 +96,9 @@ class ContractDetailViewModel @Inject constructor(
 
     fun onLegalCheckedChange(value: Boolean) {
         _legalChecked.value = value
+    }
+
+    companion object {
+        private const val TAG = "ContractDetailVM"
     }
 }

@@ -2,7 +2,6 @@ package com.iberdrola.practicas2026.davidsc.ui.contract
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,8 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.material.icons.outlined.ThumbUpOffAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -22,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.OtpFlow
@@ -44,15 +43,23 @@ import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 import com.iberdrola.practicas2026.davidsc.ui.util.maskEmail
 
-
 @Composable
 fun ConfirmationScreen(
     flow: String,
     email: String,
-    safeNav: SafeNavController
+    safeNav: SafeNavController,
+    navController: NavController,
+    viewModel: ContractDetailViewModel = hiltViewModel(
+        navController.getBackStackEntry(Screen.ACTIVE_CONTRACT)
+    )
 ) {
-    // Set to true the moment we decide to leave this screen.
-    // Never reset to false — once exiting, all interaction is blocked.
+
+    LaunchedEffect(Unit) {
+        if (flow == OtpFlow.MODIFY) {
+            viewModel.commitEmail(email)
+        }
+    }
+
     var isExiting by remember { mutableStateOf(false) }
 
     val navigateToSelection: () -> Unit = {
@@ -101,7 +108,6 @@ fun ConfirmationScreenContent(
             )
         }
 
-        // CENTRO PERFECTO
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -140,7 +146,6 @@ fun ConfirmationScreenContent(
             )
         }
 
-        // BOTÓN REALMENTE ABAJO
         Button(
             onClick = onAccept,
             modifier = Modifier
@@ -149,7 +154,7 @@ fun ConfirmationScreenContent(
                 .padding(
                     start = dimensionResource(R.dimen.icon_size_large),
                     end = dimensionResource(R.dimen.icon_size_large),
-                    bottom =70.dp
+                    bottom = 70.dp
                 )
                 .height(56.dp),
             colors = ButtonDefaults.buttonColors(

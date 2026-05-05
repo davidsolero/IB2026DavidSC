@@ -34,7 +34,7 @@ fun AppNavHost(
         }
 
         composable(Screen.FILTER) {
-            // FilterScreen necesita el NavController real para getBackStackEntry
+            // FilterScreen needs the real NavController to call getBackStackEntry.
             FilterScreen(navController, safeNav)
         }
 
@@ -112,7 +112,8 @@ fun AppNavHost(
             ConfirmationScreen(
                 flow = flow,
                 email = email,
-                safeNav = safeNav
+                safeNav = safeNav,
+                navController = navController
             )
         }
     }

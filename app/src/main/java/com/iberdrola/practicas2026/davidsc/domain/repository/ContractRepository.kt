@@ -4,4 +4,6 @@ import com.iberdrola.practicas2026.davidsc.domain.model.Contract
 
 interface ContractRepository {
     suspend fun getContracts(): List<Contract>
+
+    suspend fun updateContractEmail(contractId: String, newEmail: String)
 }
