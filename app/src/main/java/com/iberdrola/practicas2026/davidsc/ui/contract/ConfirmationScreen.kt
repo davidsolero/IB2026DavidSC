@@ -46,20 +46,30 @@ import com.iberdrola.practicas2026.davidsc.ui.util.maskEmail
 @Composable
 fun ConfirmationScreen(
     flow: String,
-    email: String,
+    email: String?,
     safeNav: SafeNavController,
-    navController: NavController,
-    viewModel: ContractDetailViewModel = hiltViewModel(
-        navController.getBackStackEntry(Screen.ACTIVE_CONTRACT)
-    )
+    navController: NavController
 ) {
 
+    val parentEntry = remember(navController) {
+        runCatching {
+            navController.getBackStackEntry(Screen.ACTIVE_CONTRACT)
+        }.getOrNull()
+    }
+
+    val viewModel: ContractDetailViewModel = if (parentEntry != null) {
+        hiltViewModel(parentEntry)
+    } else {
+        hiltViewModel()
+    }
+
     LaunchedEffect(Unit) {
-        if (flow == OtpFlow.MODIFY) {
+        if (flow == OtpFlow.MODIFY && !email.isNullOrBlank()) {
             viewModel.commitEmail(email)
         }
     }
 
+    val safeEmail = email.orEmpty()
     var isExiting by remember { mutableStateOf(false) }
 
     val navigateToSelection: () -> Unit = {
@@ -76,7 +86,7 @@ fun ConfirmationScreen(
 
     ConfirmationScreenContent(
         flow = flow,
-        email = email,
+        email = safeEmail,
         onClose = { navigateToSelection() },
         onAccept = { navigateToSelection() }
     )
@@ -89,6 +99,7 @@ fun ConfirmationScreenContent(
     onClose: () -> Unit,
     onAccept: () -> Unit
 ) {
+    val safeEmail = email.orEmpty()
     val green = colorResource(R.color.modified_email)
     val isActivation = flow == OtpFlow.ACTIVATE
 
@@ -142,8 +153,10 @@ fun ConfirmationScreenContent(
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
             Text(
-                text = stringResource(R.string.confirmation_body, maskEmail(email)),
-                style = MaterialTheme.typography.bodyMedium,
+                text = stringResource(
+                    R.string.confirmation_body,
+                    maskEmail(safeEmail)
+                ),style = MaterialTheme.typography.bodyMedium,
                 color = Color.White,
                 textAlign = TextAlign.Center
             )

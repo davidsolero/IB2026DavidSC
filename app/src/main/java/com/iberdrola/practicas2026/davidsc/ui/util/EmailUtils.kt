@@ -11,7 +11,8 @@ package com.iberdrola.practicas2026.davidsc.ui.util
  *   pepe2@gmail.com  → p****2@gmail.com
  *   a@b.com          → a@b.com  (too short to mask, returned as-is)
  */
-fun maskEmail(email: String): String {
+fun maskEmail(email: String?): String {
+    if (email.isNullOrBlank()) return ""
     val atIndex = email.indexOf('@')
     if (atIndex <= 1) return email
 

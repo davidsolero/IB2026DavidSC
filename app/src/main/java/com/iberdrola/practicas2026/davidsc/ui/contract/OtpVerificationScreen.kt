@@ -156,7 +156,7 @@ fun OtpVerificationScreen(
                         onNext = {
                             if (!isExiting) {
                                 isExiting = true
-                                safeNav.navigate(Screen.confirmation(flow, email)) {
+                                safeNav.navigate(Screen.confirmation(flow, email.orEmpty())) {
                                     popUpTo(Screen.OTP_VERIFICATION) { inclusive = true }
                                 }
                             }
