@@ -3,6 +3,7 @@ package com.iberdrola.practicas2026.davidsc.ui.contract
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -59,6 +60,7 @@ fun OtpVerificationScreen(
     safeNav: SafeNavController,
     viewModel: OtpViewModel = hiltViewModel()
 ) {
+
     val code by viewModel.code.collectAsState()
     val canContinue by viewModel.canContinue.collectAsState()
     val remainingResends by viewModel.remainingResends.collectAsState()
@@ -68,7 +70,8 @@ fun OtpVerificationScreen(
     // Set to true the moment we decide to leave this screen.
     // Never reset to false — once exiting, all interaction is blocked.
     var isExiting by remember { mutableStateOf(false) }
-
+    val isBlocked = viewModel.isOtpBlocked()
+    val canResend = remainingResends > 0 && !isBlocked
     BackHandler(enabled = isResending) { }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -132,7 +135,8 @@ fun OtpVerificationScreen(
                         ResendCodeBlock(
                             remainingResends = remainingResends,
                             onResend = { viewModel.resendCode() },
-                            modifier = Modifier.padding(dimensionResource(R.dimen.margin_medium))
+                            modifier = Modifier.padding(dimensionResource(R.dimen.margin_medium)),
+                            canResend = canResend
                         )
                     }
                 }
@@ -181,7 +185,7 @@ fun OtpVerificationScreen(
                         enabled = true,
                         indication = null,
                         interactionSource = remember {
-                            androidx.compose.foundation.interaction.MutableInteractionSource()
+                            MutableInteractionSource()
                         }
                     ) {},
                 contentAlignment = Alignment.Center
@@ -199,11 +203,10 @@ fun OtpVerificationScreen(
 @Composable
 private fun ResendCodeBlock(
     remainingResends: Int,
+    canResend: Boolean,
     onResend: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val canResend = remainingResends > 0
-
     Row(
         verticalAlignment = Alignment.Top,
         modifier = modifier.fillMaxWidth()
