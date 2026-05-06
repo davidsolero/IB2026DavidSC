@@ -25,9 +25,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -77,6 +81,7 @@ fun InvoicesScreen(
     // Never reset to false — once exiting, all interaction is blocked.
     var isExiting by remember { mutableStateOf(false) }
 
+    val snackbarHostState = remember { SnackbarHostState() }
     val activity = LocalActivity.current
 
     val navigateBack: () -> Unit = {
@@ -112,6 +117,22 @@ fun InvoicesScreen(
             }
         }
     }
+
+    // Collect amount filter adjustment events and surface them as a Snackbar.
+    // The message differs depending on whether the filter was adjusted to fit
+    // the new tab's range or cleared entirely because no overlap existed.
+    LaunchedEffect(Unit) {
+        viewModel.amountFilterAdjusted.collect { event ->
+            val message = when (event) {
+                is InvoicesViewModel.AmountFilterEvent.Adjusted ->
+                    "Hemos adaptado el filtro al rango disponible:\n (${event.newMin} € – ${event.newMax} €)"
+                is InvoicesViewModel.AmountFilterEvent.Reset ->
+                    "Filtro de importe eliminado: fuera del rango disponible"
+            }
+            snackbarHostState.showSnackbar(message)
+        }
+    }
+
     BackHandler(enabled = !isExiting) { handleBack() }
 
     Scaffold(
@@ -120,6 +141,15 @@ fun InvoicesScreen(
                 onBackClick = { handleBack() },
                 selectedStreet = selectedStreet
             )
+        },
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = colorResource(R.color.iberdrola_green),
+                    contentColor = Color.White
+                )
+            }
         }
     ) { innerPadding ->
 
@@ -165,7 +195,6 @@ fun InvoicesScreen(
                         filteredInvoices.filterNot { it.id == lastInvoice.id }
                     }
                 }
-
 
                 if (isLandscape) {
                     Row(

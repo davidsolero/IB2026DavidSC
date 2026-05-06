@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -65,6 +67,10 @@ class InvoicesViewModel @Inject constructor(
 
     private val _maxAmount = MutableStateFlow(0)
     val maxAmount = _maxAmount.asStateFlow()
+
+
+    private val _amountFilterAdjusted = MutableSharedFlow<AmountFilterEvent>(extraBufferCapacity = 1)
+    val amountFilterAdjusted: SharedFlow<AmountFilterEvent> = _amountFilterAdjusted
 
     val isFilterActive: StateFlow<Boolean> =
         combine(_activeFilter) { filter ->
@@ -211,7 +217,7 @@ class InvoicesViewModel @Inject constructor(
             val oldMin = _minAmount.value
             val oldMax = _maxAmount.value
 
-            _activeFilter.value = transferFilterIntent(
+            val newFilter = transferFilterIntent(
                 currentFilter,
                 oldMin,
                 oldMax,
@@ -219,6 +225,24 @@ class InvoicesViewModel @Inject constructor(
                 max
             )
 
+            // Notify the UI if the amount bounds were silently adjusted so it can
+            // show feedback to the user. Only fires when there is an active filter
+            // and the effective range actually changed.
+            val amountWasAdjusted = newFilter != currentFilter &&
+                    (newFilter.importeMin != currentFilter.importeMin ||
+                            newFilter.importeMax != currentFilter.importeMax)
+
+            if (amountWasAdjusted) {
+                if (newFilter == InvoiceFilter()) {
+                    _amountFilterAdjusted.tryEmit(AmountFilterEvent.Reset)
+                } else {
+                    val effectiveMin = newFilter.importeMin ?: min
+                    val effectiveMax = newFilter.importeMax ?: max
+                    _amountFilterAdjusted.tryEmit(AmountFilterEvent.Adjusted(effectiveMin, effectiveMax))
+                }
+            }
+
+            _activeFilter.value = newFilter
             _minAmount.value = min
             _maxAmount.value = max
 
@@ -323,6 +347,13 @@ class InvoicesViewModel @Inject constructor(
         )
     }
 
+
+    sealed class AmountFilterEvent {
+        // The filter was mapped to the new tab's range.
+        data class Adjusted(val newMin: Int, val newMax: Int) : AmountFilterEvent()
+        // The previous filter fell entirely outside the new range and was cleared.
+        object Reset : AmountFilterEvent()
+    }
     // -----------------------------
     // PREFS
     // -----------------------------
