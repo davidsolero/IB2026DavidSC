@@ -70,8 +70,9 @@ fun OtpVerificationScreen(
     // Set to true the moment we decide to leave this screen.
     // Never reset to false — once exiting, all interaction is blocked.
     var isExiting by remember { mutableStateOf(false) }
-    val isBlocked = viewModel.isOtpBlocked()
+    val isBlocked by viewModel.isOtpBlocked.collectAsState()
     val canResend = remainingResends > 0 && !isBlocked
+    val remainingTime by viewModel.remainingTime.collectAsState()
     BackHandler(enabled = isResending) { }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -136,7 +137,8 @@ fun OtpVerificationScreen(
                             remainingResends = remainingResends,
                             onResend = { viewModel.resendCode() },
                             modifier = Modifier.padding(dimensionResource(R.dimen.margin_medium)),
-                            canResend = canResend
+                            canResend = canResend,
+                            remainingTime = remainingTime
                         )
                     }
                 }
@@ -204,9 +206,11 @@ fun OtpVerificationScreen(
 private fun ResendCodeBlock(
     remainingResends: Int,
     canResend: Boolean,
+    remainingTime: Long,
     onResend: () -> Unit,
     modifier: Modifier = Modifier
-) {
+){
+
     Row(
         verticalAlignment = Alignment.Top,
         modifier = modifier.fillMaxWidth()
@@ -232,11 +236,13 @@ private fun ResendCodeBlock(
                 color = Color.Black
             )
             if (canResend) {
-                Text(
-                    text = stringResource(R.string.otp_resends_remaining, remainingResends),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Black
-                )
+                if (remainingResends != 3) {
+                    Text(
+                        text = stringResource(R.string.otp_resends_remaining, remainingResends),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Black
+                    )
+                }
             } else {
                 Text(
                     text = stringResource(R.string.otp_no_resends_left),
@@ -258,6 +264,26 @@ private fun ResendCodeBlock(
                     onResend()
                 }
             )
+            if (!canResend) {
+                val totalSeconds = (remainingTime / 1000).coerceAtLeast(0)
+
+                val hours = totalSeconds / 3600
+                val minutes = (totalSeconds % 3600) / 60
+                val seconds = totalSeconds % 60
+
+                val timeText = if (hours > 0) {
+                    "Vuelve en ${hours}h ${minutes}m"
+                } else {
+                    "Vuelve en ${minutes}m ${seconds}s"
+                }
+
+                Text(
+                    text = timeText,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Gray
+                )
+            }
         }
     }
 }

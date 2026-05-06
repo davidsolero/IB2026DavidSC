@@ -16,61 +16,138 @@ class OtpViewModel @Inject constructor(
     private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
 
-    init {
-        otpBlockedUntil = sharedPreferences.getLong(PREF_KEY_OTP_BLOCK, 0L)
-        resetIfExpired()
-    }
+    // =========================
+    // STATE FLOWS
+    // =========================
+
     private val _code = MutableStateFlow("")
     val code: StateFlow<String> = _code.asStateFlow()
 
-    // True when exactly OTP_LENGTH digits have been entered
-    val canContinue: StateFlow<Boolean> get() = _canContinue
     private val _canContinue = MutableStateFlow(false)
+    val canContinue: StateFlow<Boolean> = _canContinue.asStateFlow()
 
     private val _remainingResends = MutableStateFlow(MAX_RESENDS)
     val remainingResends: StateFlow<Int> = _remainingResends.asStateFlow()
 
-    // Shown briefly after a successful resend action
     private val _resendConfirmationVisible = MutableStateFlow(false)
-    val resendConfirmationVisible: StateFlow<Boolean> = _resendConfirmationVisible.asStateFlow()
+    val resendConfirmationVisible: StateFlow<Boolean> =
+        _resendConfirmationVisible.asStateFlow()
+
     private val _isResending = MutableStateFlow(false)
     val isResending: StateFlow<Boolean> = _isResending.asStateFlow()
+
+    private val _isOtpBlocked = MutableStateFlow(false)
+    val isOtpBlocked: StateFlow<Boolean> = _isOtpBlocked.asStateFlow()
+
+    private val _remainingTime = MutableStateFlow(0L)
+    val remainingTime: StateFlow<Long> = _remainingTime.asStateFlow()
+
+    // =========================
+    // INTERNAL STATE
+    // =========================
+
+    private var otpBlockedUntil: Long = 0L
+    private var countdownJob: kotlinx.coroutines.Job? = null
+
+    init {
+        viewModelScope.launch {
+            otpBlockedUntil = sharedPreferences.getLong(PREF_KEY_OTP_BLOCK, 0L)
+
+            resetIfExpired()
+            updateBlockedState()
+
+            if (isBlockedNow()) {
+                startCountdown()
+            }
+        }
+    }
+
+    // =========================
+    // UI EVENTS
+    // =========================
+
     fun onCodeChange(value: String) {
         if (value.length > OTP_LENGTH) return
         if (value.isNotEmpty() && !value.all { it.isDigit() }) return
+
         _code.value = value
         _canContinue.value = value.length == OTP_LENGTH
     }
 
     fun resendCode() {
-        if (_remainingResends.value <= 0) return
+        updateBlockedState()
+
+        if (_remainingResends.value <= 0 || isBlockedNow()) return
 
         _remainingResends.value -= 1
 
         if (_remainingResends.value == 0) {
-            otpBlockedUntil = System.currentTimeMillis() + 24 * 60 * 60 * 1000L
+            otpBlockedUntil = System.currentTimeMillis() + OTP_BLOCK_DURATION
 
             sharedPreferences.edit()
                 .putLong(PREF_KEY_OTP_BLOCK, otpBlockedUntil)
                 .apply()
+
+            startCountdown()
         }
 
         viewModelScope.launch {
             _isResending.value = true
             delay(RESEND_LOADING_MILLIS)
             _isResending.value = false
-            showResendConfirmation()
+            _resendConfirmationVisible.value = true
+        }
+
+        updateBlockedState()
+    }
+
+    fun hideResendConfirmation() {
+        _resendConfirmationVisible.value = false
+    }
+
+    // =========================
+    // COUNTDOWN
+    // =========================
+
+    private fun startCountdown() {
+        countdownJob?.cancel()
+
+        countdownJob = viewModelScope.launch {
+            while (true) {
+                val diff = otpBlockedUntil - System.currentTimeMillis()
+
+                if (diff <= 0) {
+                    _remainingTime.value = 0L
+
+                    otpBlockedUntil = 0L
+                    sharedPreferences.edit()
+                        .remove(PREF_KEY_OTP_BLOCK)
+                        .apply()
+
+                    _remainingResends.value = MAX_RESENDS
+                    _isOtpBlocked.value = false
+
+                    break
+                }
+
+                _remainingTime.value = diff
+                _isOtpBlocked.value = true
+
+                delay(1000)
+            }
         }
     }
 
-
+    // =========================
+    // LOGIC
+    // =========================
 
     private fun resetIfExpired() {
         if (otpBlockedUntil != 0L &&
             System.currentTimeMillis() >= otpBlockedUntil
         ) {
-            _remainingResends.value = MAX_RESENDS
             otpBlockedUntil = 0L
+            _remainingResends.value = MAX_RESENDS
 
             sharedPreferences.edit()
                 .remove(PREF_KEY_OTP_BLOCK)
@@ -78,29 +155,27 @@ class OtpViewModel @Inject constructor(
         }
     }
 
-    private fun showResendConfirmation() {
-        viewModelScope.launch {
-            _resendConfirmationVisible.value = true
-            //delay(CONFIRMATION_VISIBLE_MILLIS)
-            //_resendConfirmationVisible.value = false
-        }
-    }
-    fun hideResendConfirmation() {
-        _resendConfirmationVisible.value = false
+    private fun updateBlockedState() {
+        _isOtpBlocked.value = isBlockedNow()
     }
 
-    fun isOtpBlocked(): Boolean {
+    private fun isBlockedNow(): Boolean {
         return System.currentTimeMillis() < otpBlockedUntil
     }
+
+    // =========================
+    // CONSTANTS
+    // =========================
+
     companion object {
         const val OTP_LENGTH = 6
         const val MAX_RESENDS = 3
+
         private const val RESEND_LOADING_MILLIS = 1500L
-        private const val CONFIRMATION_VISIBLE_MILLIS = 3000L
-        private var otpBlockedUntil: Long = 0L
 
-        private val PREF_KEY_OTP_BLOCK = "otp_block_until"
+        private val OTP_BLOCK_DURATION_DEBUG = 30_000L
+        private val OTP_BLOCK_DURATION = 24 * 60 * 60 * 1000L
+
+        private const val PREF_KEY_OTP_BLOCK = "otp_block_until"
     }
-
-
 }

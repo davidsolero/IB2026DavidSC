@@ -1,5 +1,7 @@
 package com.iberdrola.practicas2026.davidsc.ui.contract
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -30,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -48,6 +51,7 @@ import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 import com.iberdrola.practicas2026.davidsc.ui.contract.ContractDetailViewModel
 import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 import com.iberdrola.practicas2026.davidsc.ui.util.maskEmail
+import androidx.core.net.toUri
 
 @Composable
 fun ActivateContractScreen(
@@ -57,7 +61,6 @@ fun ActivateContractScreen(
 ) {
     LaunchedEffect(contractId) { viewModel.loadContract(contractId) }
 
-    val contract by viewModel.contract.collectAsState()
     val email by viewModel.email.collectAsState()
     val legalChecked by viewModel.legalChecked.collectAsState()
     val canContinue by viewModel.canContinue.collectAsState()
@@ -95,20 +98,20 @@ fun ActivateContractScreen(
             ) {
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-                    val email = "dasun817@correo.com"
-                    if (email.isNotBlank()) {
-                        Text(
-                            text = stringResource(R.string.activate_contract_linked_email),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.DarkGray
-                        )
-                        Text(
-                            text = maskEmail(email),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
-                    }
+                val mockemail = "dasun817@correo.com"
+                if (mockemail.isNotBlank()) {
+                    Text(
+                        text = stringResource(R.string.activate_contract_linked_email),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.DarkGray
+                    )
+                    Text(
+                        text = maskEmail(mockemail),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
+                }
 
 
                 Text(
@@ -144,9 +147,13 @@ fun ActivateContractScreen(
                     val prefix = stringResource(R.string.activate_contract_legal_prefix)
                     val conditions = stringResource(R.string.activate_contract_legal_conditions)
                     val suffix = stringResource(R.string.activate_contract_legal_suffix)
-
+                    val context = LocalContext.current
                     FlowRow {
-                        Text(text = "$prefix ", style = MaterialTheme.typography.bodyLarge, color = Color.Black)
+                        Text(
+                            text = "$prefix ",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Black
+                        )
                         Text(
                             text = conditions,
                             style = MaterialTheme.typography.bodyLarge.copy(
@@ -154,9 +161,19 @@ fun ActivateContractScreen(
                                 color = iberdrolaGreen,
                                 textDecoration = TextDecoration.Underline
                             ),
-                            modifier = Modifier.clickable { }
+                            modifier = Modifier.clickable {
+                                val intent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    "https://www.iberdrola.es".toUri()
+                                )
+                                context.startActivity(intent)
+                            }
                         )
-                        Text(text = " $suffix", style = MaterialTheme.typography.bodyLarge, color = Color.Black)
+                        Text(
+                            text = " $suffix",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Black
+                        )
                     }
                 }
 

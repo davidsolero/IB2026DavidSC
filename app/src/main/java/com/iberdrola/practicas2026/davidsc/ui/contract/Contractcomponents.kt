@@ -1,5 +1,7 @@
 package com.iberdrola.practicas2026.davidsc.ui.contract
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -36,6 +39,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.iberdrola.practicas2026.davidsc.R
+import androidx.core.net.toUri
 
 /**
  * Email or numeric input field styled to match the contract flow design.
@@ -116,18 +120,27 @@ fun PrivacyInfoBlock(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
+        val context = LocalContext.current
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
+
+        TextWithMoreInfo(stringResource(R.string.privacy_responsible), onMoreInfoClick = {
+            val intent = Intent(Intent.ACTION_VIEW, "https://www.iberdrola.es".toUri())
+            context.startActivity(intent)
+        })
 
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
-        TextWithMoreInfo(stringResource(R.string.privacy_responsible))
+        TextWithMoreInfo(stringResource(R.string.privacy_purpose),onMoreInfoClick = {
+            val intent = Intent(Intent.ACTION_VIEW, "https://www.iberdrola.es".toUri())
+            context.startActivity(intent)
+        })
 
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
-        TextWithMoreInfo(stringResource(R.string.privacy_purpose))
-
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
-        TextWithMoreInfo(stringResource(R.string.privacy_rights))
+        TextWithMoreInfo(stringResource(R.string.privacy_rights),onMoreInfoClick = {
+            val intent = Intent(Intent.ACTION_VIEW, "https://www.iberdrola.es".toUri())
+            context.startActivity(intent)
+        })
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
         HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
@@ -182,8 +195,6 @@ fun ContractNavigationButtons(
         Spacer(modifier = Modifier.height(100.dp))
     }
 }
-
-
 
 
 @Composable

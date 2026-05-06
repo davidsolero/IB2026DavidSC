@@ -1,5 +1,6 @@
 package com.iberdrola.practicas2026.davidsc.ui.contract
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -51,6 +52,7 @@ fun ConfirmationScreen(
     navController: NavController
 ) {
 
+
     val parentEntry = remember(navController) {
         runCatching {
             navController.getBackStackEntry(Screen.ACTIVE_CONTRACT)
@@ -83,6 +85,8 @@ fun ConfirmationScreen(
             }
         }
     }
+
+    BackHandler { navigateToSelection() }
 
     ConfirmationScreenContent(
         flow = flow,
