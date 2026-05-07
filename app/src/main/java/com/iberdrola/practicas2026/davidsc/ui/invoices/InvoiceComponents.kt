@@ -2,6 +2,7 @@ package com.iberdrola.practicas2026.davidsc.ui.invoices
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -65,12 +66,17 @@ fun LastInvoiceCard(
     val currencyFormatter = remember { CurrencyFormatter() }
 
     Card(
+        onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .padding(dimensionResource(R.dimen.margin_medium))
-            .clickable { onClick() },
-        colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
-        border = BorderStroke(1.3.dp, colorResource(R.color.iberdrola_green)),
+            .padding(dimensionResource(R.dimen.margin_medium)),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = Color.Transparent
+        ),
+        border = BorderStroke(
+            1.3.dp,
+            colorResource(R.color.iberdrola_green)
+        ),
         shape = RoundedCornerShape(20.dp)
     ) {
         Column(
@@ -396,14 +402,16 @@ fun YearHeader(year: String) {
 
 @Composable
 fun SkeletonList() {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 110.dp)
-    ) {
-        items(4) {
-            SkeletonItem()
-            HorizontalDivider()
+    Column {
+        SkeletonInvoiceHistoryHeader()
+
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(4) {
+                SkeletonItem()
+                HorizontalDivider()
+            }
         }
     }
 }
@@ -582,13 +590,58 @@ fun SkeletonInvoicesLandscape() {
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small))
     ) {
         SkeletonLastInvoiceCard(modifier = Modifier.weight(1f))
+
         Column(modifier = Modifier.weight(2f)) {
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
+            SkeletonInvoiceHistoryHeader()
+
             repeat(5) {
                 SkeletonItem()
                 HorizontalDivider()
             }
         }
+    }
+}
+
+
+@Composable
+fun SkeletonInvoiceHistoryHeader() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(R.dimen.margin_medium),
+                vertical = dimensionResource(R.dimen.margin_small)
+            ),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        // Título skeleton
+        Box(
+            modifier = Modifier
+                .width(140.dp)
+                .height(24.dp)
+                .background(
+                    color = colorResource(R.color.skeleton_darkgray),
+                    RoundedCornerShape(4.dp)
+                )
+        )
+
+        // Botón skeleton
+        Box(
+            modifier = Modifier
+                .height(40.dp)
+                .width(105.dp)
+                .background(
+                    color = colorResource(R.color.skeleton_darkgray),
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .border(
+                    width = 1.dp,
+                    color = colorResource(R.color.iberdrola_green),
+                    shape = RoundedCornerShape(20.dp)
+                )
+        )
     }
 }
 
@@ -644,6 +697,13 @@ fun PreviewInvoiceList() {
 fun PreviewSkeletonList() {
     SkeletonList()
 }
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewSkeletonInvoiceHistoryHeader() {
+    SkeletonInvoiceHistoryHeader()
+}
+
 
 @Preview(showBackground = true)
 @Composable
