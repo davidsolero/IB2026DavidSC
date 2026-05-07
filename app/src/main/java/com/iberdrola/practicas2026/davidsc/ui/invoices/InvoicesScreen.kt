@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -223,7 +225,8 @@ fun InvoicesScreen(
                             InvoiceHistoryContent(
                                 history = history,
                                 isFilterActive = isFilterActive,
-                                onClick = { showInvoiceDialog = true }
+                                onClick = { showInvoiceDialog = true },
+                                onClearFilters = { viewModel.clearFilter() }
                             )
                         }
                     }
@@ -243,7 +246,8 @@ fun InvoicesScreen(
                     InvoiceHistoryContent(
                         history = history,
                         isFilterActive = isFilterActive,
-                        onClick = { showInvoiceDialog = true }
+                        onClick = { showInvoiceDialog = true },
+                        onClearFilters = { viewModel.clearFilter() }
                     )
                 }
             }
@@ -295,24 +299,88 @@ fun InvoicesScreen(
 private fun InvoiceHistoryContent(
     history: List<Invoice>,
     isFilterActive: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onClearFilters: () -> Unit
 ) {
     if (history.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            InvoiceEmptyState(
+                isFilterActive = isFilterActive,
+                onClearFilters = onClearFilters
+            )
+        }
+    } else {
+        InvoiceListGroupedByYear(
+            invoices = history,
+            onClick =  {invoice -> onClick()}
+        )
+    }
+}
+
+@Composable
+private fun InvoiceEmptyState(
+    isFilterActive: Boolean,
+    onClearFilters: () -> Unit
+) {
+    val primaryColor = colorResource(R.color.iberdrola_green)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(dimensionResource(R.dimen.margin_large)),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Icon(
+            imageVector = Icons.Outlined.SearchOff,
+            contentDescription = null,
+            tint = primaryColor,
+            modifier = Modifier.size(72.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Text(
             text = if (isFilterActive) {
                 stringResource(R.string.no_older_invoices_with_filter)
             } else {
                 stringResource(R.string.no_older_invoices)
             },
-            style = MaterialTheme.typography.bodyLarge,
-            color = Color.Gray,
-            modifier = Modifier.padding(dimensionResource(R.dimen.margin_medium))
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = Color.DarkGray
         )
-    } else {
-        InvoiceListGroupedByYear(invoices = history, onClick = { onClick() })
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = if (isFilterActive) {
+                "No encontramos facturas con estos filtros.\nPrueba a ampliarlos para ver resultados."
+            } else {
+                "Aquí aparecerán tus facturas cuando estén disponibles."
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Gray
+        )
+
+        if (isFilterActive) {
+            Spacer(modifier = Modifier.height(20.dp))
+
+            OutlinedButton(
+                onClick = onClearFilters,
+                border = BorderStroke(2.dp, primaryColor),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = primaryColor
+                )
+            ) {
+                Text("Limpiar filtros")
+            }
+        }
     }
 }
-
 @Composable
 private fun InvoiceHistoryHeader(
     onFilterClick: () -> Unit,

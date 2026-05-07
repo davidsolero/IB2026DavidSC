@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -199,8 +200,9 @@ fun FilterScreen(
                         }
                     },
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .wrapContentWidth()
                         .height(60.dp)
+                        .align(Alignment.CenterHorizontally)
                 ) {
                     Text(
                         text = stringResource(R.string.filter_clear),
