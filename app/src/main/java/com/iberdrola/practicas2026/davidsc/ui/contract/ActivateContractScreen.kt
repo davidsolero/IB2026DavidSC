@@ -84,7 +84,10 @@ fun ActivateContractScreen(
                     if (!isExiting) {
                         isExiting = true
                         safeNav.navigate(Screen.CONTRACT_SELECTION) {
-                            popUpTo(Screen.CONTRACT_SELECTION) { inclusive = false }
+                            popUpTo(Screen.MAIN) {
+                                inclusive = false
+                            }
+                            launchSingleTop = true
                         }
                     }
                 }
