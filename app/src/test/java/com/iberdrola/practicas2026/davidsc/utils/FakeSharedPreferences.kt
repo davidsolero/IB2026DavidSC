@@ -31,7 +31,6 @@ class FakeSharedPreferences : SharedPreferences {
 
         override fun apply() {}
 
-        // Métodos no usados
         override fun clear() = this
         override fun remove(key: String?) = this
         override fun commit() = true
@@ -41,7 +40,6 @@ class FakeSharedPreferences : SharedPreferences {
         override fun putStringSet(key: String?, values: MutableSet<String>?) = this
     }
 
-    // Métodos no usados
     override fun contains(key: String?) = map.containsKey(key)
     override fun getAll(): MutableMap<String, *> = map
     override fun getLong(key: String?, defValue: Long) = defValue

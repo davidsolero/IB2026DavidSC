@@ -7,7 +7,77 @@ Autor: David SC | Tutor: Viewnext
 
 ## Descripción
 
-Aplicación Android nativa en Kotlin que simula una app de gestión de facturas de energía (luz y gas). El proyecto se desarrolla en cuatro entregas iterativas; este README cubre el estado correspondiente a la **segunda entrega**.
+Aplicación Android nativa en Kotlin que simula una app de gestión de facturas de energía (luz y gas) con soporte para factura electrónica. El proyecto se desarrolla en cuatro entregas iterativas; este README cubre el estado correspondiente a la **tercera entrega**.
+
+---
+
+## Tercera entrega — funcionalidad implementada
+
+La tercera entrega añade el flujo completo de gestión de factura electrónica sobre todo lo implementado en las entregas anteriores.
+
+### Punto de entrada
+
+- Botón "Gestionar factura electrónica" en `MainScreen`, debajo del acceso a todas las facturas.
+
+### Pantalla de selección de contrato (`ContractSelectionScreen`)
+
+- Lista de contratos del usuario (uno de luz, uno de gas), cargados desde un JSON mock en assets.
+- Cada contrato muestra su tipo, dirección y estado (Activo / Sin activar) con badge de color.
+- Al pulsar un contrato activo se navega a `ActiveContractScreen`; si está inactivo, a `ActivateContractScreen`.
+
+### Pantalla de contrato activo (`ActiveContractScreen`)
+
+- Muestra el email enmascarado actualmente vinculado al contrato.
+- Botón "Modificar email" que inicia el wizard de modificación.
+
+### Pantalla de activación de contrato (`ActivateContractScreen`)
+
+- Muestra el email enmascarado vinculado a la cuenta del usuario.
+- Campo de texto para introducir el email de facturación.
+- Bloque de información básica sobre protección de datos con enlaces a Iberdrola.
+- Checkbox de aceptación de condiciones legales.
+- Botón "Siguiente" habilitado únicamente cuando el email es válido y el checkbox está marcado.
+
+### Pantalla de modificación de email (`ModifyEmailScreen`)
+
+- Campo de texto para introducir el nuevo email de facturación.
+- Botón "Siguiente" habilitado únicamente cuando el email introducido es válido.
+
+### Pantalla de verificación OTP (`OtpVerificationScreen`)
+
+- Campo para introducir el código de verificación de 6 dígitos.
+- Bloque informativo con opción de reenvío del SMS (máximo 3 intentos por sesión).
+- Tras agotar los 3 intentos, el enlace se deshabilita y se muestra un contador regresivo de 24 horas persistido en `SharedPreferences`.
+- Banner de confirmación temporal al reenviar correctamente.
+- Overlay de carga mientras se simula el reenvío.
+- Botón "Siguiente" habilitado solo cuando el código tiene 6 dígitos.
+
+### Pantalla de confirmación (`ConfirmationScreen`)
+
+- Pantalla de fondo verde con imagen de confirmación.
+- El título y el cuerpo se adaptan según si el flujo fue de activación o de modificación de email.
+- Muestra el email nuevo enmascarado.
+- El botón "Aceptar" y el botón de cierre redirigen a `ContractSelectionScreen`.
+- El botón de sistema (back) redirige igualmente a `ContractSelectionScreen`, no al paso anterior.
+
+### Flujo de modificación de email
+
+El flujo completo es: `ActiveContractScreen` → `ModifyEmailScreen` → `OtpVerificationScreen` → `ConfirmationScreen`. Al confirmar, el email del contrato se actualiza en la caché en memoria del repositorio y queda reflejado inmediatamente si el usuario vuelve a `ActiveContractScreen`.
+
+### Componentes compartidos del flujo
+
+- `FlowHeader`: cabecera con botón de cierre, título y barra de progreso lineal que indica en qué paso del wizard se encuentra el usuario.
+- `ContractNavigationButtons`: botones "Anterior" y "Siguiente" reutilizados en todas las pantallas del wizard.
+- `ContractEmailField`: campo de texto con estilo de línea inferior, usado tanto para email como para el código OTP.
+- El botón de cierre de `FlowHeader` navega siempre directamente a `ContractSelectionScreen`, descartando todos los pasos intermedios del back stack.
+
+### Enmascaramiento de email
+
+La función `maskEmail()` en `ui/util/EmailUtils.kt` aplica la regla: primer carácter + asteriscos + último carácter + dominio completo. Ejemplo: `pepe2@gmail.com → p****2@gmail.com`.
+
+### Navegación y protección contra doble tap
+
+Todas las pantallas del flujo utilizan el patrón de flag `isExiting` (booleano local que se activa en el primer evento de navegación y nunca se resetea) para evitar pantallas en blanco, crashes por taps rápidos y doble navegación.
 
 ---
 
@@ -17,18 +87,18 @@ La segunda entrega hace funcional el sistema de filtrado de facturas, añadiénd
 
 ### Pantalla de filtros (`FilterScreen`)
 
-- **Filtrado por fecha**: campos "Desde" y "Hasta" con date picker nativo de Material 3. Los selectores impiden seleccionar rangos incoherentes (la fecha de inicio no puede ser posterior a la de fin y viceversa). Ambos campos pueden borrarse individualmente para quitar el criterio de fecha.
-- **Filtrado por importe**: slider de rango doble cuyos límites mínimo y máximo se calculan dinámicamente a partir de los importes reales de las facturas cargadas en ese momento. El rango se recalcula al cambiar de pestaña (Luz / Gas) o de calle.
-- **Filtrado por estado**: checkboxes múltiples — Pagada, Pendiente de Pago, En trámite de cobro, Anulada, Cuota Fija. Pueden combinarse libremente.
+- **Filtrado por fecha**: campos "Desde" y "Hasta" con date picker nativo de Material 3. Los selectores impiden seleccionar rangos incoherentes. Ambos campos pueden borrarse individualmente.
+- **Filtrado por importe**: slider de rango doble cuyos límites se calculan dinámicamente a partir de los importes reales de las facturas cargadas. El rango se recalcula al cambiar de pestaña (Luz / Gas) o de calle.
+- **Filtrado por estado**: checkboxes múltiples — Pagada, Pendiente de Pago, En trámite de cobro, Anulada, Cuota Fija.
 - **Botón "Aplicar filtros"**: aplica todos los criterios activos y vuelve a `InvoicesScreen`.
 - **Botón "Borrar filtros"**: elimina cualquier filtro activo y vuelve a `InvoicesScreen`.
 
 ### Integración con `InvoicesScreen`
 
-- El botón de filtrar del histórico de facturas está habilitado cuando hay facturas del tipo seleccionado, y deshabilitado en caso contrario.
+- El botón de filtrar está habilitado cuando hay facturas del tipo seleccionado, y deshabilitado en caso contrario.
 - El botón se muestra relleno (verde) cuando hay al menos un filtro activo, y con borde cuando no hay ninguno.
-- Al volver de `FilterScreen`, la lista refleja inmediatamente los filtros aplicados sin necesidad de recargar datos de red.
-- Los filtros se conservan al cambiar de pestaña (Luz / Gas), pero se pierden al salir de `InvoicesScreen` (navegación hacia atrás).
+- Al volver de `FilterScreen`, la lista refleja inmediatamente los filtros sin recargar datos de red.
+- Los filtros se conservan al cambiar de pestaña (Luz / Gas), pero se pierden al salir de `InvoicesScreen`.
 
 ### Comunicación entre pantallas
 
@@ -65,23 +135,30 @@ El proyecto sigue **Clean Architecture + MVVM** con separación estricta de capa
 ```
 com.iberdrola.practicas2026.davidsc
 ├── core
-│   └── utils          → AppConfig (flags globales de configuración), Screen
+│   └── utils          → AppConfig, OtpFlow, DeviceUtils, Screen
 ├── data
 │   ├── local          → Room: InvoiceDatabase, InvoiceDao, InvoiceEntity
 │   ├── remote         → Retrofit + Retromock: InvoiceApi, DTOs, AssetBodyFactory
-│   ├── mapper         → Conversión DTO ↔ dominio ↔ entidad
-│   └── repository     → InvoiceRepositoryImpl
+│   ├── mapper         → Conversión DTO ↔ dominio ↔ entidad (facturas y contratos)
+│   └── repository     → InvoiceRepositoryImpl, ContractRepositoryImpl
 ├── domain
-│   ├── model          → Invoice, InvoiceType, InvoiceFilter
-│   ├── repository     → InvoiceRepository (interfaz)
-│   └── usecase        → GetInvoicesUseCase, GetStreetsUseCase
+│   ├── model          → Invoice, InvoiceType, InvoiceFilter, Contract, ContractType
+│   ├── repository     → InvoiceRepository, ContractRepository (interfaces)
+│   └── usecase        → GetInvoicesUseCase, GetStreetsUseCase,
+│                        GetContractsUseCase, UpdateContractEmailUseCase
 ├── ui
 │   ├── main           → MainScreen, MainViewModel
 │   ├── invoices       → InvoicesScreen, InvoicesViewModel,
 │   │                    FilterScreen, InvoiceComponents, RatingBottomSheet
-│   └── util           → CurrencyFormatter, DateFormatter
+│   ├── contract       → ContractSelectionScreen, ContractSelectionViewModel,
+│   │                    ActiveContractScreen, ActivateContractScreen,
+│   │                    ModifyEmailScreen, OtpVerificationScreen, OtpViewModel,
+│   │                    ConfirmationScreen, ContractDetailViewModel,
+│   │                    FlowHeader, ContractComponents
+│   ├── navigation     → AppNavHost, SafeNavController, Screen
+│   └── util           → CurrencyFormatter, DateFormatter, EmailUtils
 └── di                 → NetworkModule, DatabaseModule, RepositoryModule,
-                         UseCaseModule, CoroutineModule
+                         UseCaseModule, CoroutineModule, ContractModule
 ```
 
 **Principios aplicados:**
@@ -90,7 +167,8 @@ com.iberdrola.practicas2026.davidsc
 - `ui` y `data` dependen de `domain`, nunca al revés.
 - Cada caso de uso tiene una única responsabilidad.
 - Los repositorios se definen como interfaces en `domain` y se implementan en `data`.
-- El filtrado ocurre en el ViewModel sobre los datos ya cargados en memoria, evitando llamadas de red adicionales al cambiar los criterios.
+- El filtrado de facturas ocurre en el ViewModel sobre los datos ya cargados en memoria.
+- `ContractModule` está instalado en `SingletonComponent` para que la caché en memoria del repositorio sobreviva a la recreación de ViewModels entre navegaciones.
 
 ---
 
@@ -101,12 +179,13 @@ com.iberdrola.practicas2026.davidsc
 | Kotlin | Lenguaje principal |
 | Jetpack Compose | UI declarativa |
 | Hilt | Inyección de dependencias |
-| Room | Caché local / modo offline |
+| Room | Caché local / modo offline (facturas) |
 | Retrofit | Llamadas HTTP a Mockoon |
 | Retromock | Mocks locales desde assets |
 | Mockoon | Servidor HTTP local de mocks |
 | StateFlow / combine | Estado reactivo en ViewModels |
 | Navigation Component | Navegación Single Activity |
+| SharedPreferences | Persistencia de flags y estado OTP |
 | `kotlinx-coroutines-test` | Tests de corrutinas |
 | MockK | Mocking en tests unitarios |
 
@@ -123,25 +202,33 @@ com.iberdrola.practicas2026.davidsc
 ### Dependencias destacadas y versiones
 
 ```
-AGP 9.1.0 → requiere KSP (no kapt)
-Hilt 2.59.2+ → compatibilidad con AGP 9.1
+AGP 9.1.0            → requiere KSP (no kapt)
+Hilt 2.59.2+         → compatibilidad con AGP 9.1
+KSP 2.2.10-2.0.2
 Retromock 1.1.1
 Compose BOM 2024.12.01
 Room 2.7.0
 Retrofit 2.11.0
-KSP 2.2.10-2.0.2
 ```
 
 ---
 
 ## Modo mock local vs Mockoon
 
-La app incluye un flag `AppConfig.useMockLocal` que controla la fuente de datos:
+La app incluye un flag `AppConfig.useMockLocal` que controla la fuente de datos de facturas:
 
-- **`useMockLocal = true`**: Retromock sirve los JSON desde la carpeta `assets/`. Se aplica un delay aleatorio de 1-3 s para simular latencia real. El skeleton de carga aparece durante ese tiempo.
-- **`useMockLocal = false`**: Retrofit apunta a `https://10.0.2.2:3001/` (Mockoon ejecutándose en el host, accesible desde el emulador vía HTTPS con certificado autofirmado). Para probar este modo, toma el JSON ubicado en `res/raw`, impórtalo en Mockoon y arranca el endpoint local antes de desactivar el mock local.
+- **`useMockLocal = true`**: Retromock sirve los JSON desde la carpeta `assets/`. Se aplica un delay aleatorio de 1-3 s para simular latencia real.
+- **`useMockLocal = false`**: Retrofit apunta a `https://10.0.2.2:3001/` (Mockoon ejecutándose en el host, accesible desde el emulador vía HTTPS con certificado autofirmado). Para probar este modo, importa el JSON de `res/raw/mockoon_iberdrola.json` en Mockoon y arranca el endpoint local.
 
-El estado del toggle se persiste en `SharedPreferences` y se restaura en cada arranque.
+Los contratos siempre se cargan desde `assets/contracts_mock.json` independientemente de este flag.
+
+### Uso de Mockoon en dispositivo físico
+
+Para redirigir el tráfico desde un dispositivo físico conectado por USB:
+
+```
+adb -s <device_id> reverse tcp:3001 tcp:3001
+```
 
 ---
 
@@ -169,8 +256,8 @@ Los tests usan **fake repositories** (implementaciones manuales de la interfaz d
 | `develop` | Trabajo del día a día; rama estable |
 | `entrega/1` | Snapshot de la primera entrega, creada desde `develop` |
 | `entrega/2` | Snapshot de la segunda entrega, creada desde `develop` |
-| `entrega/3` | (próximas entregas) |
-| `entrega/4` | (próximas entregas) |
+| `entrega/3` | Snapshot de la tercera entrega, creada desde `develop` |
+| `entrega/4` | Pendiente |
 
 El repositorio es público y se comparte con los tutores desde el primer commit.
 
@@ -180,24 +267,30 @@ El repositorio es público y se comparte con los tutores desde el primer commit.
 
 | Escenario | Estado |
 |---|---|
-| Rotación portrait ↔ landscape | Funciona (estado estable) |
+| Rotación portrait ↔ landscape | OK |
 | Abrir/cerrar rápido la app | OK |
 | Navegación rápida main → facturas → filtros → back | OK |
-| Volver atrás múltiples veces (bottom sheet rating) | OK, lógica de conteo correcta |
+| Volver atrás múltiples veces (bottom sheet rating) | OK |
 | Background → foreground | OK, estado conservado |
 | Lista vacía tras aplicar filtros | Mensaje informativo visible |
 | Sin conexión | Los datos de caché se sirven correctamente |
 | Datos corruptos o nulos en mock | OK, mapper descarta registros inválidos |
 | Filtro fecha con rango de un único día | OK |
-| Filtro importe con min == max | OK, aunque se queda clipeado si pulsas lejos |
 | Combinación de los tres filtros | OK |
 | Borrar filtros restaura la lista completa | OK |
-| Cambio de pestaña Luz/Gas con filtro activo | Filtro se conserva; slider se recalcula manteniendo intención de usuario |
-| Navegar rápido a filtros antes de que cargue la pantalla anterior | OK, protección contra doble navegación |
+| Cambio de pestaña Luz/Gas con filtro activo | Filtro se conserva; slider se recalcula |
+| Navegar rápido a filtros antes de que cargue la pantalla anterior | OK, isExiting evita doble navegación |
+| Flujo activación de contrato completo | OK |
+| Flujo modificación de email completo | OK, email actualizado en caché |
+| Back desde ConfirmationScreen | Redirige a ContractSelectionScreen, no al paso anterior |
+| Cierre (X) desde cualquier pantalla del wizard | Redirige a ContractSelectionScreen |
+| Reenvío OTP hasta agotar intentos | Enlace deshabilitado, contador regresivo visible |
+| Persistencia del bloqueo OTP entre sesiones | OK, restaurado desde SharedPreferences |
+| Taps rápidos en botones de navegación del wizard | OK, isExiting previene doble navegación |
+| Email actualizado visible al volver a ActiveContractScreen | OK |
 
 ---
 
 ## Próximas entregas
 
-- **Entrega 3:** Flujo de activación/modificación de factura electrónica por contrato (selección de contrato, pantalla de activación, validación de email y código OTP simulado).
 - **Entrega 4:** Integración con Firebase: Remote Config, Google Analytics y Crashlytics.

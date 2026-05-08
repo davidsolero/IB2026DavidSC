@@ -10,8 +10,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GetInvoicesUseCaseTest {
-
-    // Fake repository that returns a fixed list without hitting network or database.
     private val fakeRepository = object : InvoiceRepository {
         override suspend fun getInvoices(): List<Invoice> = listOf(
             Invoice(1, "2026-01-01", "Factura Luz", 52.3, "Pagada", InvoiceType.LUZ, "C/Larios"),

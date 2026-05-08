@@ -1,0 +1,18 @@
+[
+  {
+    "id": "contract-luz-001",
+    "type": "Luz",
+    "isActive": true,
+    "holder": "David SC",
+    "address": "C/ Gran Vía, 12 - Madrid",
+    "email": "david@gmail.com"
+  },
+  {
+    "id": "contract-gas-001",
+    "type": "Gas",
+    "isActive": false,
+    "holder": "David SC",
+    "address": "C/ Gran Vía, 12 - Madrid",
+    "email": null
+  }
+]

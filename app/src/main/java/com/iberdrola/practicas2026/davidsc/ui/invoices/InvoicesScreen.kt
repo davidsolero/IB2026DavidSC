@@ -2,8 +2,10 @@ package com.iberdrola.practicas2026.davidsc.ui.invoices
 
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -24,10 +27,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,24 +49,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
-import com.iberdrola.practicas2026.davidsc.core.utils.Screen
+import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
+import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
+import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 import com.iberdrola.practicas2026.davidsc.ui.util.DateFormatter
-import androidx.activity.compose.LocalActivity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvoicesScreen(
     navController: NavController,
+    safeNav: SafeNavController,
     viewModel: InvoicesViewModel = hiltViewModel()
 ) {
     val invoices by viewModel.invoices.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    val useMock by viewModel.useMock.collectAsState()
     val selectedType by viewModel.selectedType.collectAsState()
     val selectedStreet by viewModel.selectedStreet.collectAsState()
     val isFilterActive by viewModel.isFilterActive.collectAsState()
@@ -68,23 +73,26 @@ fun InvoicesScreen(
     val isLandscape =
         LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
+    val allInvoices by viewModel.allInvoices.collectAsState()
+    val filteredInvoices by viewModel.invoices.collectAsState()
+
     var showRatingSheet by remember { mutableStateOf(false) }
     var showInvoiceDialog by remember { mutableStateOf(false) }
-    var isNavigating by remember { mutableStateOf(false) }
+    var isExiting by remember { mutableStateOf(false) }
 
-
+    val snackbarHostState = remember { SnackbarHostState() }
     val activity = LocalActivity.current
 
     val navigateBack: () -> Unit = {
-        if (!isNavigating) {
-            isNavigating = true
-            val popped = navController.popBackStack()
+        if (!isExiting) {
+            isExiting = true
+            val popped = safeNav.popBackStack()
             if (!popped) activity?.finish()
         }
     }
 
     val handleBack: () -> Unit = {
-        if (!isNavigating) {
+        if (!isExiting) {
             if (viewModel.onBackPressed()) {
                 showRatingSheet = true
             } else {
@@ -93,16 +101,13 @@ fun InvoicesScreen(
         }
     }
 
-    val sortedInvoices = invoices
-
     val dateFormatter = remember { DateFormatter() }
 
-    val rangeText = remember(sortedInvoices) {
-        if (sortedInvoices.isEmpty()) {
-            ""
-        } else {
-            val first = sortedInvoices.minOf { it.date }
-            val last = sortedInvoices.maxOf { it.date }
+    val rangeText = remember(allInvoices) {
+        if (allInvoices.isEmpty()) ""
+        else {
+            val first = allInvoices.minOf { it.date }
+            val last = allInvoices.maxOf { it.date }
 
             if (first == last) {
                 dateFormatter.formatCompact(first)
@@ -112,20 +117,19 @@ fun InvoicesScreen(
         }
     }
 
-
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                isNavigating = false
+    LaunchedEffect(Unit) {
+        viewModel.amountFilterAdjusted.collect { event ->
+            val message = when (event) {
+                is InvoicesViewModel.AmountFilterEvent.Adjusted ->
+                    "Hemos adaptado el filtro al rango disponible:\n (${event.newMin} € – ${event.newMax} €)"
+                is InvoicesViewModel.AmountFilterEvent.Reset ->
+                    "Filtro de importe eliminado: fuera del rango disponible"
             }
+            snackbarHostState.showSnackbar(message)
         }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    BackHandler { handleBack() }
+    BackHandler(enabled = !isExiting) { handleBack() }
 
     Scaffold(
         topBar = {
@@ -133,6 +137,15 @@ fun InvoicesScreen(
                 onBackClick = { handleBack() },
                 selectedStreet = selectedStreet
             )
+        },
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = colorResource(R.color.iberdrola_green),
+                    contentColor = Color.White
+                )
+            }
         }
     ) { innerPadding ->
 
@@ -141,8 +154,8 @@ fun InvoicesScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -163,21 +176,20 @@ fun InvoicesScreen(
             HorizontalDivider(color = Color.LightGray)
 
             if (isLoading) {
-
-                if (isLandscape) {
-                    SkeletonInvoicesLandscape()
-                } else {
+                if (isLandscape) SkeletonInvoicesLandscape()
+                else {
                     SkeletonLastInvoiceCard()
                     SkeletonList()
                 }
-
             } else {
+                val lastInvoice = allInvoices.firstOrNull()
 
-                val latest = sortedInvoices.firstOrNull()
-                val history = if (sortedInvoices.size > 1) {
-                    sortedInvoices.drop(1)
-                } else {
-                    emptyList()
+                val history = remember(lastInvoice, filteredInvoices) {
+                    if (lastInvoice == null) {
+                        filteredInvoices
+                    } else {
+                        filteredInvoices.filterNot { it.id == lastInvoice.id }
+                    }
                 }
 
                 if (isLandscape) {
@@ -187,8 +199,7 @@ fun InvoicesScreen(
                             dimensionResource(R.dimen.margin_small)
                         )
                     ) {
-
-                        latest?.let {
+                        lastInvoice?.let {
                             LastInvoiceCard(
                                 invoice = it,
                                 rangeText = rangeText,
@@ -199,82 +210,39 @@ fun InvoicesScreen(
                                     .padding(horizontal = dimensionResource(R.dimen.margin_medium))
                             )
                         }
-
                         Column(modifier = Modifier.weight(2f)) {
-
                             InvoiceHistoryHeader(
-                                onFilterClick = {
-                                    if (!isNavigating && !showRatingSheet) {
-                                        isNavigating = true
-                                        navController.navigate(Screen.FILTER)
-                                    }
-                                },
+                                onFilterClick = { safeNav.navigate(Screen.FILTER) },
                                 isFilterActive = isFilterActive,
-                                enabled = hasInvoices && !showRatingSheet
+                                enabled = hasInvoices && !showRatingSheet && !isExiting
                             )
-
-                            if (history.isEmpty()) {
-                                Text(
-                                    text = if (isFilterActive) {
-                                        stringResource(R.string.no_older_invoices_with_filter)
-                                    } else {
-                                        stringResource(R.string.no_older_invoices)
-                                    },
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = Color.Gray,
-                                    modifier = Modifier.padding(
-                                        dimensionResource(R.dimen.margin_medium)
-                                    )
-                                )
-                            } else {
-                                InvoiceListGroupedByYear(
-                                    invoices = history,
-                                    onClick = { showInvoiceDialog = true }
-                                )
-                            }
+                            InvoiceHistoryContent(
+                                history = history,
+                                isFilterActive = isFilterActive,
+                                onClick = { showInvoiceDialog = true },
+                                onClearFilters = { viewModel.clearFilter() }
+                            )
                         }
                     }
-
                 } else {
-
-                    latest?.let {
+                    lastInvoice?.let {
                         LastInvoiceCard(
                             invoice = it,
                             rangeText = rangeText,
                             onClick = { showInvoiceDialog = true }
                         )
                     }
-
                     InvoiceHistoryHeader(
-                        onFilterClick = {
-                            if (!isNavigating && !showRatingSheet) {
-                                isNavigating = true
-                                navController.navigate(Screen.FILTER)
-                            }
-                        },
+                        onFilterClick = { safeNav.navigate(Screen.FILTER) },
                         isFilterActive = isFilterActive,
-                        enabled = hasInvoices && !showRatingSheet
+                        enabled = hasInvoices && !showRatingSheet && !isExiting
                     )
-
-                    if (history.isEmpty()) {
-                        Text(
-                            text = if (isFilterActive) {
-                                stringResource(R.string.no_older_invoices_with_filter)
-                            } else {
-                                stringResource(R.string.no_older_invoices)
-                            },
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(
-                                dimensionResource(R.dimen.margin_medium)
-                            )
-                        )
-                    } else {
-                        InvoiceListGroupedByYear(
-                            invoices = history,
-                            onClick = { showInvoiceDialog = true }
-                        )
-                    }
+                    InvoiceHistoryContent(
+                        history = history,
+                        isFilterActive = isFilterActive,
+                        onClick = { showInvoiceDialog = true },
+                        onClearFilters = { viewModel.clearFilter() }
+                    )
                 }
             }
         }
@@ -303,9 +271,7 @@ fun InvoicesScreen(
             AlertDialog(
                 onDismissRequest = { showInvoiceDialog = false },
                 containerColor = Color.White,
-                text = {
-                    Text(stringResource(R.string.invoice_not_available))
-                },
+                text = { Text(stringResource(R.string.invoice_not_available)) },
                 confirmButton = {
                     TextButton(
                         onClick = { showInvoiceDialog = false },
@@ -322,6 +288,93 @@ fun InvoicesScreen(
     }
 }
 
+
+@Composable
+private fun InvoiceHistoryContent(
+    history: List<Invoice>,
+    isFilterActive: Boolean,
+    onClick: () -> Unit,
+    onClearFilters: () -> Unit
+) {
+    if (history.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            InvoiceEmptyState(
+                isFilterActive = isFilterActive,
+                onClearFilters = onClearFilters
+            )
+        }
+    } else {
+        InvoiceListGroupedByYear(
+            invoices = history,
+            onClick =  {invoice -> onClick()}
+        )
+    }
+}
+
+@Composable
+private fun InvoiceEmptyState(
+    isFilterActive: Boolean,
+    onClearFilters: () -> Unit
+) {
+    val primaryColor = colorResource(R.color.iberdrola_green)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(dimensionResource(R.dimen.margin_large)),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Icon(
+            imageVector = Icons.Outlined.SearchOff,
+            contentDescription = null,
+            tint = primaryColor,
+            modifier = Modifier.size(72.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = if (isFilterActive) {
+                stringResource(R.string.no_older_invoices_with_filter)
+            } else {
+                stringResource(R.string.no_older_invoices)
+            },
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = Color.DarkGray
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = if (isFilterActive) {
+                "No encontramos facturas con estos filtros.\nPrueba a ampliarlos para ver resultados."
+            } else {
+                "Aquí aparecerán tus facturas cuando estén disponibles."
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Gray
+        )
+
+        if (isFilterActive) {
+            Spacer(modifier = Modifier.height(20.dp))
+
+            OutlinedButton(
+                onClick = onClearFilters,
+                border = BorderStroke(2.dp, primaryColor),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = primaryColor
+                )
+            ) {
+                Text("Limpiar filtros")
+            }
+        }
+    }
+}
 @Composable
 private fun InvoiceHistoryHeader(
     onFilterClick: () -> Unit,

@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -28,9 +30,6 @@ class InvoicesViewModel @Inject constructor(
     private val prefs: SharedPreferences
 ) : ViewModel() {
 
-    // -----------------------------
-    // SOURCE CONFIG
-    // -----------------------------
     private val _useMock = MutableStateFlow(
         prefs.getBoolean(PREF_USE_MOCK, AppConfig.useMockLocal)
     )
@@ -42,21 +41,12 @@ class InvoicesViewModel @Inject constructor(
     private val _selectedStreet = MutableStateFlow<String?>(AppConfig.mockStreet)
     val selectedStreet = _selectedStreet.asStateFlow()
 
-    // -----------------------------
-    // DATA SOURCE (NO FILTER)
-    // -----------------------------
     private val _allInvoices = MutableStateFlow<List<Invoice>>(emptyList())
     val allInvoices = _allInvoices.asStateFlow()
 
-    // -----------------------------
-    // FILTER STATE
-    // -----------------------------
     private val _activeFilter = MutableStateFlow(InvoiceFilter())
     val activeFilter = _activeFilter.asStateFlow()
 
-    // -----------------------------
-    // DERIVED VALUES
-    // -----------------------------
     private val _filteredInvoices = MutableStateFlow<List<Invoice>>(emptyList())
     val invoices = _filteredInvoices.asStateFlow()
 
@@ -65,6 +55,10 @@ class InvoicesViewModel @Inject constructor(
 
     private val _maxAmount = MutableStateFlow(0)
     val maxAmount = _maxAmount.asStateFlow()
+
+
+    private val _amountFilterAdjusted = MutableSharedFlow<AmountFilterEvent>(extraBufferCapacity = 1)
+    val amountFilterAdjusted: SharedFlow<AmountFilterEvent> = _amountFilterAdjusted
 
     val isFilterActive: StateFlow<Boolean> =
         combine(_activeFilter) { filter ->
@@ -81,18 +75,12 @@ class InvoicesViewModel @Inject constructor(
             invoices.any { it.type == type }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    // -----------------------------
-    // UI STATE
-    // -----------------------------
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
 
-    // -----------------------------
-    // INIT
-    // -----------------------------
     init {
         val savedMock = prefs.getBoolean(PREF_USE_MOCK, false)
         AppConfig.useMockLocal = savedMock
@@ -129,9 +117,6 @@ class InvoicesViewModel @Inject constructor(
         }
     }
 
-    // -----------------------------
-    // PUBLIC ACTIONS
-    // -----------------------------
     fun selectType(type: InvoiceType) {
         if (_selectedType.value != type) {
             _selectedType.value = type
@@ -158,9 +143,6 @@ class InvoicesViewModel @Inject constructor(
         _activeFilter.value = InvoiceFilter()
     }
 
-    // -----------------------------
-    // BACK / RATING LOGIC
-    // -----------------------------
     fun onBackPressed(): Boolean {
         val count = prefs.getInt(PREF_CLOSE_COUNT, 0) + 1
         val threshold = prefs.getInt(PREF_THRESHOLD, 1)
@@ -181,9 +163,6 @@ class InvoicesViewModel @Inject constructor(
         }
     }
 
-    // -----------------------------
-    // FETCH
-    // -----------------------------
     private suspend fun loadInvoices(
         type: InvoiceType,
         street: String?,
@@ -211,7 +190,7 @@ class InvoicesViewModel @Inject constructor(
             val oldMin = _minAmount.value
             val oldMax = _maxAmount.value
 
-            _activeFilter.value = transferFilterIntent(
+            val newFilter = transferFilterIntent(
                 currentFilter,
                 oldMin,
                 oldMax,
@@ -219,6 +198,21 @@ class InvoicesViewModel @Inject constructor(
                 max
             )
 
+            val amountWasAdjusted = newFilter != currentFilter &&
+                    (newFilter.importeMin != currentFilter.importeMin ||
+                            newFilter.importeMax != currentFilter.importeMax)
+
+            if (amountWasAdjusted) {
+                if (newFilter == InvoiceFilter()) {
+                    _amountFilterAdjusted.tryEmit(AmountFilterEvent.Reset)
+                } else {
+                    val effectiveMin = newFilter.importeMin ?: min
+                    val effectiveMax = newFilter.importeMax ?: max
+                    _amountFilterAdjusted.tryEmit(AmountFilterEvent.Adjusted(effectiveMin, effectiveMax))
+                }
+            }
+
+            _activeFilter.value = newFilter
             _minAmount.value = min
             _maxAmount.value = max
 
@@ -230,9 +224,6 @@ class InvoicesViewModel @Inject constructor(
         }
     }
 
-    // -----------------------------
-    // FILTER LOGIC
-    // -----------------------------
     private fun applyFilter(
         invoices: List<Invoice>,
         filter: InvoiceFilter
@@ -323,9 +314,12 @@ class InvoicesViewModel @Inject constructor(
         )
     }
 
-    // -----------------------------
-    // PREFS
-    // -----------------------------
+
+    sealed class AmountFilterEvent {
+        data class Adjusted(val newMin: Int, val newMax: Int) : AmountFilterEvent()
+        object Reset : AmountFilterEvent()
+    }
+
     companion object {
         private const val PREF_USE_MOCK = "use_mock"
         private const val PREF_CLOSE_COUNT = "invoice_close_count"

@@ -13,7 +13,6 @@ class GetStreetsUseCaseTest {
 
     @Test
     fun `returns unique sorted streets`() = runBlocking {
-        // Preparar datos de prueba
         val invoices = listOf(
             Invoice(
                 1,

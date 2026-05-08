@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -61,8 +62,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
-import com.iberdrola.practicas2026.davidsc.core.utils.Screen
+import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceFilter
+import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -75,6 +77,7 @@ import kotlin.math.floor
 @Composable
 fun FilterScreen(
     navController: NavController,
+    safeNav: SafeNavController,
     viewModel: InvoicesViewModel = hiltViewModel(
         navController.getBackStackEntry(Screen.INVOICES)
     )
@@ -90,6 +93,8 @@ fun FilterScreen(
     var showDesdePicker by remember { mutableStateOf(false) }
     var showHastaPicker by remember { mutableStateOf(false) }
 
+    var isExiting by remember { mutableStateOf(false) }
+
     val displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale("es", "ES"))
     val iberdrolaGreen = colorResource(R.color.iberdrola_green)
 
@@ -101,9 +106,112 @@ fun FilterScreen(
         stringResource(R.string.status_fixed_fee)
     )
 
+    var sliderRange by remember(minAmount, maxAmount) {
+        val safeMin = minAmount.toFloat()
+        val safeMax = maxOf(minAmount.toFloat(), maxAmount.toFloat())
+        val currentMin =
+            (activeFilter.importeMin ?: minAmount).toFloat().coerceIn(safeMin, safeMax)
+        val currentMax =
+            (activeFilter.importeMax ?: maxAmount).toFloat().coerceIn(safeMin, safeMax)
+        mutableStateOf(currentMin..maxOf(currentMin, currentMax))
+    }
 
 
-    Scaffold { innerPadding ->
+
+    Scaffold(
+        topBar = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = dimensionResource(R.dimen.margin_medium))
+            ) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
+
+                BackButton(
+                    onClick = {
+                        if (!isExiting) {
+                            isExiting = true
+                            safeNav.popBackStack()
+                        }
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
+
+                Text(
+                    text = stringResource(R.string.filter_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }, bottomBar = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.invoice_amount_text),
+                        vertical = dimensionResource(R.dimen.margin_small)
+                    )
+            ) {
+
+                Button(
+                    onClick = {
+                        if (!isExiting) {
+                            isExiting = true
+                            viewModel.applyFilter(
+                                InvoiceFilter(
+                                    desde = desde,
+                                    hasta = hasta,
+                                    importeMin = sliderRange.start.toInt(),
+                                    importeMax = sliderRange.endInclusive.toInt(),
+                                    estados = selectedEstados
+                                )
+                            )
+                            safeNav.popBackStack()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = iberdrolaGreen,
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.filter_apply),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
+
+                TextButton(
+                    onClick = {
+                        if (!isExiting) {
+
+                            desde = null
+                            hasta = null
+
+                            selectedEstados = emptySet()
+
+                            sliderRange = minAmount.toFloat()..maxAmount.toFloat()
+                        }
+                    },
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .height(60.dp)
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    Text(
+                        text = stringResource(R.string.filter_clear),
+                        fontWeight = FontWeight.SemiBold,
+                        color = iberdrolaGreen,
+                        textDecoration = TextDecoration.Underline
+                    )
+                }
+            }
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -111,23 +219,9 @@ fun FilterScreen(
                 .padding(horizontal = dimensionResource(R.dimen.margin_medium))
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
-
-            BackButton(
-                onClick = { navController.popBackStack() }
-            )
-
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
-            Text(
-                text = stringResource(R.string.filter_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-            // --- DATE ---
             Text(
                 text = stringResource(R.string.filter_by_date),
                 style = MaterialTheme.typography.titleSmall,
@@ -159,8 +253,6 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-
-            // --- COST ---
             Text(
                 text = stringResource(R.string.filter_by_amount),
                 style = MaterialTheme.typography.titleSmall,
@@ -169,22 +261,11 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
-            var sliderRange by remember(minAmount, maxAmount) {
-                val safeMin = minAmount.toFloat()
-                val safeMax = maxOf(minAmount.toFloat(), maxAmount.toFloat())
-                val currentMin =
-                    (activeFilter.importeMin ?: minAmount).toFloat().coerceIn(safeMin, safeMax)
-                val currentMax =
-                    (activeFilter.importeMax ?: maxAmount).toFloat().coerceIn(safeMin, safeMax)
-                mutableStateOf(currentMin..maxOf(currentMin, currentMax))
-            }
             Box(
                 modifier = Modifier
                     .background(
                         color = colorResource(R.color.status_pagado_fondo).copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(
-                            dimensionResource(R.dimen.margin_xsmall)
-                        )
+                        shape = RoundedCornerShape(dimensionResource(R.dimen.margin_xsmall))
                     )
                     .padding(
                         horizontal = dimensionResource(R.dimen.margin_small),
@@ -212,7 +293,6 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-            // --- STATE ---
             Text(
                 text = stringResource(R.string.filter_by_status),
                 style = MaterialTheme.typography.titleSmall,
@@ -261,85 +341,37 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-            // --- BUTTONS ---
-            // --- APPLY ---
-            Button(
-                onClick = {
-                    viewModel.applyFilter(
-                        InvoiceFilter(
-                            desde = desde,
-                            hasta = hasta,
-                            importeMin = sliderRange.start.toInt(),
-                            importeMax = sliderRange.endInclusive.toInt(),
-                            estados = selectedEstados
-                        )
-                    )
-                    navController.popBackStack()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = dimensionResource(R.dimen.invoice_amount_text))
-                    .height(60.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = iberdrolaGreen,
+            if (showDesdePicker) {
+                IberdrolaDatePickerDialog(
+                    initialDate = desde,
+                    onConfirm = { date ->
+                        desde = date
+                        showDesdePicker = false
+                    },
+                    onDismiss = { showDesdePicker = false },
+                    maxDateMillis = hasta
+                        ?.atStartOfDay(ZoneId.of("UTC"))
+                        ?.toInstant()
+                        ?.toEpochMilli()
                 )
-            ) {
-                Text(text = stringResource(R.string.filter_apply), fontWeight = FontWeight.SemiBold)
             }
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
-            // --- CLEAR ---
-            TextButton(
-                onClick = {
-                    viewModel.clearFilter()
-                    navController.popBackStack()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = dimensionResource(R.dimen.invoice_amount_text))
-                    .height(60.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.filter_clear),
-                    fontWeight = FontWeight.SemiBold,
-                    color = iberdrolaGreen,
-                    textDecoration = TextDecoration.Underline
+            if (showHastaPicker) {
+                IberdrolaDatePickerDialog(
+                    initialDate = hasta,
+                    onConfirm = { date ->
+                        hasta = date
+                        showHastaPicker = false
+                    },
+                    onDismiss = { showHastaPicker = false },
+                    minDateMillis = desde
+                        ?.atStartOfDay(ZoneId.of("UTC"))
+                        ?.toInstant()
+                        ?.toEpochMilli()
                 )
             }
 
         }
-    }
-
-    // --- Date pickers ---
-    if (showDesdePicker) {
-        IberdrolaDatePickerDialog(
-            initialDate = desde,
-            onConfirm = { date ->
-                desde = date
-                showDesdePicker = false
-            },
-            onDismiss = { showDesdePicker = false },
-            maxDateMillis = hasta
-                ?.atStartOfDay(ZoneId.of("UTC"))
-                ?.toInstant()
-                ?.toEpochMilli()
-        )
-    }
-
-    if (showHastaPicker) {
-        IberdrolaDatePickerDialog(
-            initialDate = hasta,
-            onConfirm = { date ->
-                hasta = date
-                showHastaPicker = false
-            },
-            onDismiss = { showHastaPicker = false },
-            minDateMillis = desde
-                ?.atStartOfDay(ZoneId.of("UTC"))
-                ?.toInstant()
-                ?.toEpochMilli()
-        )
     }
 }
 
@@ -477,11 +509,6 @@ fun IberdrolaRangeSlider(
     max: Float,
     modifier: Modifier = Modifier
 ) {
-
-    val range = max - min
-    val startFraction = (value.start - min) / range
-    val endFraction = (value.endInclusive - min) / range
-
     Column(modifier = modifier) {
 
         BoxWithConstraints(
@@ -497,7 +524,7 @@ fun IberdrolaRangeSlider(
             val startFraction = (value.start - min) / range
             val endFraction = (value.endInclusive - min) / range
             val sliderColor = colorResource(R.color.slider_importe)
-            // BASE
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -505,7 +532,7 @@ fun IberdrolaRangeSlider(
                     .background(Color.LightGray, CircleShape)
             )
 
-            // ACTIVE
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -515,10 +542,10 @@ fun IberdrolaRangeSlider(
                         val start = size.width * startFraction
                         val end = size.width * endFraction
 
-                        // fondo gris
+
                         drawRect(Color.LightGray)
 
-                        // rango verde
+
                         drawRect(
                             color = sliderColor,
                             topLeft = Offset(start, 0f),
@@ -526,7 +553,7 @@ fun IberdrolaRangeSlider(
                         )
                     }
             )
-            // SLIDER (used instead of material3 for UI porpoises)
+
             RangeSlider(
                 value = value,
                 onValueChange = onValueChange,

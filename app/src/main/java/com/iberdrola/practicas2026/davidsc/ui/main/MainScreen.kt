@@ -46,29 +46,30 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
-import com.iberdrola.practicas2026.davidsc.core.utils.Screen
+import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
+import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 
 @Composable
 fun MainScreen(
-    navController: NavController,
+    safeNav: SafeNavController,
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val streets by viewModel.streets.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val useMock by viewModel.useMock.collectAsState()
+    var isExiting by remember { mutableStateOf(false) }
 
     val navigateToInvoices = { street: String? ->
-        AppConfig.mockStreet = street
-        navController.navigate(Screen.INVOICES) {
-            launchSingleTop = true
+        if (!isExiting) {
+            isExiting = true
+            AppConfig.mockStreet = street
+            safeNav.navigate(Screen.INVOICES) {
+                launchSingleTop = true
+            }
         }
     }
-
-
-    val useMock by viewModel.useMock.collectAsState()
 
     LaunchedEffect(useMock) {
         viewModel.loadStreets()
@@ -97,13 +98,13 @@ fun MainScreen(
                 Spacer(modifier = Modifier.weight(1f))
 
                 OutlinedButton(
-                    onClick =  { viewModel.toggleMock() },
+                    onClick = { viewModel.toggleMock() },
                     border = BorderStroke(2.dp, colorResource(R.color.iberdrola_green)),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = colorResource(R.color.iberdrola_green)
                     )
                 ) {
-                    Text(if (useMock) "Mock ON" else "Mock OFF")
+                    Text(if (useMock)  stringResource(R.string.mock_on) else  stringResource(R.string.mock_off) )
                 }
             }
 
@@ -126,6 +127,25 @@ fun MainScreen(
             ) {
                 Text(
                     text = stringResource(R.string.main_all_streets),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+
+            OutlinedButton(
+                onClick = {
+                    if (!isExiting) {
+                        isExiting = true
+                        safeNav.navigate(Screen.CONTRACT_SELECTION)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                border = BorderStroke(2.dp, colorResource(R.color.iberdrola_green)),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = colorResource(R.color.iberdrola_green)
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.main_electronic_invoice),
                     style = MaterialTheme.typography.titleMedium
                 )
             }
@@ -167,6 +187,8 @@ fun MainScreen(
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
             }
         }
     }
@@ -176,8 +198,6 @@ fun MainScreen(
 fun StreetsSkeleton() {
     Column {
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
-        // Fake title
         Box(
             modifier = Modifier
                 .width(140.dp)
@@ -223,8 +243,6 @@ fun StreetSkeletonItem() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small))
         ) {
-
-            // Icon skeleton
             Box(
                 modifier = Modifier
                     .size(dimensionResource(R.dimen.icon_size_medium))
@@ -233,8 +251,6 @@ fun StreetSkeletonItem() {
                         shape = RoundedCornerShape(6.dp)
                     )
             )
-
-            // Street text skeleton
             Box(
                 modifier = Modifier
                     .width(120.dp)
@@ -245,8 +261,6 @@ fun StreetSkeletonItem() {
                     )
             )
         }
-
-        // Arrow skeleton
         Box(
             modifier = Modifier
                 .size(dimensionResource(R.dimen.icon_size_small))

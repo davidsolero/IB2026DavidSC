@@ -30,7 +30,6 @@ class InvoiceRepositoryImpl(
         }
     }
 
-    // Simulates a loading delay to replicate real network behavior in local mock mode.
     private suspend fun loadFromLocalMock(): List<Invoice> {
         delay(Random.nextLong(MOCK_DELAY_MIN_MS, MOCK_DELAY_MAX_MS))
 

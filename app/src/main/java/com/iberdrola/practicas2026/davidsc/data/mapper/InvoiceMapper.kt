@@ -14,7 +14,7 @@ fun InvoiceDto.toDomainOrNull(): Invoice? {
         id = id,
         date = date,
         description = description ?: "",
-        amount = amount ?: 0.0,  //Bonification could use 0.0
+        amount = amount ?: 0.0,
         status = status ?: "Desconocido",
         type = type,
         street = street ?: ""
@@ -56,11 +56,6 @@ fun String.toInvoiceTypeOrNull(): InvoiceType? {
     }
 }
 
-/**
- * Converts a raw string from the API or database to an [InvoiceType].
- * Throws [IllegalArgumentException] if the value is not a recognized type.
- * This is intentional — unknown types indicate a data contract violation.
- */
 fun String.toInvoiceType(): InvoiceType {
     return when (this.lowercase()) {
         "luz" -> InvoiceType.LUZ

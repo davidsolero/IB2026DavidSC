@@ -64,9 +64,6 @@ class InvoicesFilterViewModelTest {
         assertEquals(4, viewModel.invoices.value.size)
     }
 
-    // -----------------------------
-    // STATUS FILTER TEST
-    // -----------------------------
     @Test
     fun `filter by status returns only matching invoices`() = runTest {
         val viewModel = InvoicesViewModel(useCase, prefs)
@@ -87,9 +84,6 @@ class InvoicesFilterViewModelTest {
         assertTrue(result.all { it.status == "Pagada" })
     }
 
-    // -----------------------------
-    // DATE FILTER TEST
-    // -----------------------------
     @Test
     fun `filter by date range returns correct invoices`() = runTest {
         val viewModel = InvoicesViewModel(useCase, prefs)
@@ -116,9 +110,6 @@ class InvoicesFilterViewModelTest {
         }
     }
 
-    // -----------------------------
-    // AMOUNT FILTER TEST
-    // -----------------------------
     @Test
     fun `filter by amount returns invoices in range`() = runTest {
         val viewModel = InvoicesViewModel(useCase, prefs)
@@ -143,9 +134,6 @@ class InvoicesFilterViewModelTest {
         }
     }
 
-    // -----------------------------
-    // COMBINED FILTER TEST
-    // -----------------------------
     @Test
     fun `combined filters work correctly`() = runTest {
         val viewModel = InvoicesViewModel(useCase, prefs)
@@ -176,9 +164,6 @@ class InvoicesFilterViewModelTest {
         }
     }
 
-    // -----------------------------
-    // CLEAR FILTER TEST
-    // -----------------------------
     @Test
     fun `clearFilter restores full list`() = runTest {
         val viewModel = InvoicesViewModel(useCase, prefs)
@@ -200,9 +185,6 @@ class InvoicesFilterViewModelTest {
         assertEquals(4, viewModel.invoices.value.size)
     }
 
-    // -----------------------------
-    // FILTER ACTIVE STATE
-    // -----------------------------
     @Test
     fun `isFilterActive becomes true when filter applied`() = runTest {
         val viewModel = InvoicesViewModel(useCase, prefs)
