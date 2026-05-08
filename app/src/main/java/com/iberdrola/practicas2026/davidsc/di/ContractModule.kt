@@ -16,10 +16,6 @@ import jakarta.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ContractModule {
 
-    // Singleton so the in-memory cache in ContractRepositoryImpl survives
-    // ViewModel recreation across navigations within the same app session.
-    // If it were scoped to ViewModelComponent, every new ViewModel would get
-    // a fresh repository instance and the cache would be lost.
     @Provides
     @Singleton
     fun provideContractRepository(

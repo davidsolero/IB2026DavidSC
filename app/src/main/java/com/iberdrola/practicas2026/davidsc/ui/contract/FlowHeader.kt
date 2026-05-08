@@ -65,7 +65,7 @@ fun FlowHeader(
                 modifier = Modifier.padding(
                     start = 16.dp,
                     end = 16.dp,
-                    top = 4.dp   // 👈 pequeño ajuste visual
+                    top = 4.dp
                 ),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold

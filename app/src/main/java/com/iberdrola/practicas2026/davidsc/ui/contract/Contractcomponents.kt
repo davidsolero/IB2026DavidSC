@@ -41,13 +41,6 @@ import androidx.compose.ui.unit.dp
 import com.iberdrola.practicas2026.davidsc.R
 import androidx.core.net.toUri
 
-/**
- * Email or numeric input field styled to match the contract flow design.
- *
- * Uses an underline-only style (no full border) consistent with the
- * reference screens. [isNumeric] switches the keyboard to number pad,
- * used for the OTP field.
- */
 @Composable
 fun ContractEmailField(
     value: String,
@@ -106,12 +99,6 @@ fun ContractEmailField(
     }
 }
 
-/**
- * Privacy information block shown on the activation screen.
- *
- * Displays the data protection notice required by the spec.
- * The "Más info" links are presentational only — no navigation action.
- */
 @Composable
 fun PrivacyInfoBlock(modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth()) {

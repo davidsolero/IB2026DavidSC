@@ -24,8 +24,6 @@ object DatabaseModule {
             InvoiceDatabase::class.java,
             "invoice_database"
         )
-            // Destructive migration is acceptable here as this is a development build.
-            // In production, explicit migrations should be defined instead.
             .fallbackToDestructiveMigration()
             .build()
     }

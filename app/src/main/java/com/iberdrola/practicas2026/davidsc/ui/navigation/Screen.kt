@@ -13,10 +13,9 @@ object Screen {
     const val ACTIVATE_CONTRACT = "activate_contract/{contractId}"
     const val MODIFY_EMAIL = "modify_email/{contractId}/{currentEmail}"
 
-    const val OTP_VERIFICATION = "otp_verification/{email}/{flow}"  // flow = "activate" | "modify"
+    const val OTP_VERIFICATION = "otp_verification/{email}/{flow}"
     const val CONFIRMATION = "confirmation/{flow}/{email}"
 
-    // Builders (navigation safe)
 
     fun activeContract(contractId: String) =
         "active_contract/$contractId"
@@ -33,7 +32,6 @@ object Screen {
     fun confirmation(flow: String, email: String) =
         "confirmation/$flow/${email.encodeForRoute()}"
 
-    // Encode email so '@' '.' etc. don't break navigation routes
     private fun String.encodeForRoute(): String =
         URLEncoder.encode(this, "UTF-8")
 }

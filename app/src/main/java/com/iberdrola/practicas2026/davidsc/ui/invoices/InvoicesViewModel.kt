@@ -30,9 +30,6 @@ class InvoicesViewModel @Inject constructor(
     private val prefs: SharedPreferences
 ) : ViewModel() {
 
-    // -----------------------------
-    // SOURCE CONFIG
-    // -----------------------------
     private val _useMock = MutableStateFlow(
         prefs.getBoolean(PREF_USE_MOCK, AppConfig.useMockLocal)
     )
@@ -44,21 +41,12 @@ class InvoicesViewModel @Inject constructor(
     private val _selectedStreet = MutableStateFlow<String?>(AppConfig.mockStreet)
     val selectedStreet = _selectedStreet.asStateFlow()
 
-    // -----------------------------
-    // DATA SOURCE (NO FILTER)
-    // -----------------------------
     private val _allInvoices = MutableStateFlow<List<Invoice>>(emptyList())
     val allInvoices = _allInvoices.asStateFlow()
 
-    // -----------------------------
-    // FILTER STATE
-    // -----------------------------
     private val _activeFilter = MutableStateFlow(InvoiceFilter())
     val activeFilter = _activeFilter.asStateFlow()
 
-    // -----------------------------
-    // DERIVED VALUES
-    // -----------------------------
     private val _filteredInvoices = MutableStateFlow<List<Invoice>>(emptyList())
     val invoices = _filteredInvoices.asStateFlow()
 
@@ -87,18 +75,12 @@ class InvoicesViewModel @Inject constructor(
             invoices.any { it.type == type }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    // -----------------------------
-    // UI STATE
-    // -----------------------------
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
 
-    // -----------------------------
-    // INIT
-    // -----------------------------
     init {
         val savedMock = prefs.getBoolean(PREF_USE_MOCK, false)
         AppConfig.useMockLocal = savedMock
@@ -135,9 +117,6 @@ class InvoicesViewModel @Inject constructor(
         }
     }
 
-    // -----------------------------
-    // PUBLIC ACTIONS
-    // -----------------------------
     fun selectType(type: InvoiceType) {
         if (_selectedType.value != type) {
             _selectedType.value = type
@@ -164,9 +143,6 @@ class InvoicesViewModel @Inject constructor(
         _activeFilter.value = InvoiceFilter()
     }
 
-    // -----------------------------
-    // BACK / RATING LOGIC
-    // -----------------------------
     fun onBackPressed(): Boolean {
         val count = prefs.getInt(PREF_CLOSE_COUNT, 0) + 1
         val threshold = prefs.getInt(PREF_THRESHOLD, 1)
@@ -187,9 +163,6 @@ class InvoicesViewModel @Inject constructor(
         }
     }
 
-    // -----------------------------
-    // FETCH
-    // -----------------------------
     private suspend fun loadInvoices(
         type: InvoiceType,
         street: String?,
@@ -225,9 +198,6 @@ class InvoicesViewModel @Inject constructor(
                 max
             )
 
-            // Notify the UI if the amount bounds were silently adjusted so it can
-            // show feedback to the user. Only fires when there is an active filter
-            // and the effective range actually changed.
             val amountWasAdjusted = newFilter != currentFilter &&
                     (newFilter.importeMin != currentFilter.importeMin ||
                             newFilter.importeMax != currentFilter.importeMax)
@@ -254,9 +224,6 @@ class InvoicesViewModel @Inject constructor(
         }
     }
 
-    // -----------------------------
-    // FILTER LOGIC
-    // -----------------------------
     private fun applyFilter(
         invoices: List<Invoice>,
         filter: InvoiceFilter
@@ -349,14 +316,10 @@ class InvoicesViewModel @Inject constructor(
 
 
     sealed class AmountFilterEvent {
-        // The filter was mapped to the new tab's range.
         data class Adjusted(val newMin: Int, val newMax: Int) : AmountFilterEvent()
-        // The previous filter fell entirely outside the new range and was cleared.
         object Reset : AmountFilterEvent()
     }
-    // -----------------------------
-    // PREFS
-    // -----------------------------
+
     companion object {
         private const val PREF_USE_MOCK = "use_mock"
         private const val PREF_CLOSE_COUNT = "invoice_close_count"

@@ -34,7 +34,6 @@ fun AppNavHost(
         }
 
         composable(Screen.FILTER) {
-            // FilterScreen needs the real NavController to call getBackStackEntry.
             FilterScreen(navController, safeNav)
         }
 

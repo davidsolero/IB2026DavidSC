@@ -52,9 +52,6 @@ fun ContractSelectionScreen(
     viewModel: ContractSelectionViewModel = hiltViewModel()
 ) {
     val contracts by viewModel.contracts.collectAsState()
-
-    // Set to true the moment we decide to leave this screen.
-    // Never reset to false — once exiting, all interaction is blocked.
     var isExiting by remember { mutableStateOf(false) }
 
     Scaffold { innerPadding ->

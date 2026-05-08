@@ -38,8 +38,6 @@ class SafeNavController(
     fun popBackStack(): Boolean {
         if (!isNavigating.compareAndSet(false, true)) return false
         val result = navController.popBackStack()
-
-        // If nothing was popped, we must unlock manually
         if (!result) {
             isNavigating.set(false)
         }
@@ -51,8 +49,6 @@ class SafeNavController(
         if (!isNavigating.compareAndSet(false, true)) return
 
         val result = navController.popBackStack(route, inclusive)
-
-        // Safety: avoid deadlock if navigation didn't happen
         if (!result) {
             isNavigating.set(false)
         }

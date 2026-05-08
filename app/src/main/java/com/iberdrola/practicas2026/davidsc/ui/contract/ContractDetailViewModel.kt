@@ -1,6 +1,5 @@
 package com.iberdrola.practicas2026.davidsc.ui.contract
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iberdrola.practicas2026.davidsc.domain.model.Contract
@@ -51,7 +50,6 @@ class ContractDetailViewModel @Inject constructor(
 
     fun loadContract(contractId: String) {
         if (_contract.value?.id == contractId) {
-            Log.d(TAG, "loadContract: guard hit — id=$contractId email=${_contract.value?.email}")
             return
         }
 
@@ -59,7 +57,6 @@ class ContractDetailViewModel @Inject constructor(
             _isLoading.value = true
             try {
                 val loaded = getContractsUseCase().firstOrNull { it.id == contractId }
-                Log.d(TAG, "loadContract: loaded — id=$contractId email=${loaded?.email}")
                 _contract.value = loaded
             } catch (e: Exception) {
                 _error.value = e.message
@@ -70,23 +67,11 @@ class ContractDetailViewModel @Inject constructor(
     }
 
     fun commitEmail(newEmail: String) {
-        val contractId = _contract.value?.id
-        Log.d(
-            TAG,
-            "commitEmail called — contractId=$contractId newEmail=$newEmail instance=${
-                System.identityHashCode(this)
-            }"
-        )
-
-        if (contractId == null) {
-            Log.e(TAG, "commitEmail: _contract is null, nothing to update")
-            return
-        }
+        val contractId = _contract.value?.id ?: return
 
         viewModelScope.launch(ioDispatcher) {
             updateContractEmailUseCase(contractId, newEmail)
             _contract.value = _contract.value?.copy(email = newEmail)
-            Log.d(TAG, "commitEmail: done — _contract.email is now ${_contract.value?.email}")
         }
     }
 
@@ -98,7 +83,4 @@ class ContractDetailViewModel @Inject constructor(
         _legalChecked.value = value
     }
 
-    companion object {
-        private const val TAG = "ContractDetailVM"
-    }
 }

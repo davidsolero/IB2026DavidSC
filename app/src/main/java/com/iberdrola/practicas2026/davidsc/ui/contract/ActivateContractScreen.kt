@@ -65,9 +65,6 @@ fun ActivateContractScreen(
     val legalChecked by viewModel.legalChecked.collectAsState()
     val canContinue by viewModel.canContinue.collectAsState()
     val iberdrolaGreen = colorResource(R.color.iberdrola_green)
-
-    // Set to true the moment we decide to leave this screen.
-    // Never reset to false — once exiting, all interaction is blocked.
     var isExiting by remember { mutableStateOf(false) }
 
     Scaffold { innerPadding ->

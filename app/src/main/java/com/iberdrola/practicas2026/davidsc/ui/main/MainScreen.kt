@@ -59,9 +59,6 @@ fun MainScreen(
     val streets by viewModel.streets.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val useMock by viewModel.useMock.collectAsState()
-
-    // Set to true the moment we decide to leave this screen.
-    // Never reset to false — once exiting, all interaction is blocked.
     var isExiting by remember { mutableStateOf(false) }
 
     val navigateToInvoices = { street: String? ->
@@ -201,8 +198,6 @@ fun MainScreen(
 fun StreetsSkeleton() {
     Column {
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
-        // Fake title
         Box(
             modifier = Modifier
                 .width(140.dp)
@@ -248,8 +243,6 @@ fun StreetSkeletonItem() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small))
         ) {
-
-            // Icon skeleton
             Box(
                 modifier = Modifier
                     .size(dimensionResource(R.dimen.icon_size_medium))
@@ -258,8 +251,6 @@ fun StreetSkeletonItem() {
                         shape = RoundedCornerShape(6.dp)
                     )
             )
-
-            // Street text skeleton
             Box(
                 modifier = Modifier
                     .width(120.dp)
@@ -270,8 +261,6 @@ fun StreetSkeletonItem() {
                     )
             )
         }
-
-        // Arrow skeleton
         Box(
             modifier = Modifier
                 .size(dimensionResource(R.dimen.icon_size_small))

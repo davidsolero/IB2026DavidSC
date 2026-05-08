@@ -78,9 +78,6 @@ fun InvoicesScreen(
 
     var showRatingSheet by remember { mutableStateOf(false) }
     var showInvoiceDialog by remember { mutableStateOf(false) }
-
-    // Set to true the moment we decide to leave this screen.
-    // Never reset to false — once exiting, all interaction is blocked.
     var isExiting by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -120,9 +117,6 @@ fun InvoicesScreen(
         }
     }
 
-    // Collect amount filter adjustment events and surface them as a Snackbar.
-    // The message differs depending on whether the filter was adjusted to fit
-    // the new tab's range or cleared entirely because no overlap existed.
     LaunchedEffect(Unit) {
         viewModel.amountFilterAdjusted.collect { event ->
             val message = when (event) {

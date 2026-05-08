@@ -28,14 +28,9 @@ class InvoiceRepositoryImplTest {
         fakeApi = FakeApi()
         fakeDao = FakeDao()
 
-        // Mockeamos Context
         fakeContext = mockkClass(Context::class, relaxed = true)
         every { fakeContext.filesDir } returns File(".")
         every { fakeContext.packageName } returns "fake.package"
-
-        // 🔹 Mockeamos Log para que no falle en unit tests JVM
-        mockkStatic(Log::class)
-        every { Log.e(any(), any()) } returns 0
 
         repository = InvoiceRepositoryImpl(fakeApi, fakeDao, fakeContext)
 

@@ -23,9 +23,9 @@ class DateFormatter {
         val parsed = LocalDate.parse(date, inputFormatter)
 
         return if (useCompactFormat) {
-            parsed.format(compactFormatter)   // 14 abr. 2026
+            parsed.format(compactFormatter)
         } else {
-            parsed.format(longFormatter)      // 14 de abril
+            parsed.format(longFormatter)
         }
     }
 

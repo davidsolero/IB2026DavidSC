@@ -93,8 +93,6 @@ fun FilterScreen(
     var showDesdePicker by remember { mutableStateOf(false) }
     var showHastaPicker by remember { mutableStateOf(false) }
 
-    // Set to true the moment we decide to leave this screen.
-    // Never reset to false — once exiting, all interaction is blocked.
     var isExiting by remember { mutableStateOf(false) }
 
     val displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale("es", "ES"))
@@ -224,7 +222,6 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-            // --- DATE ---
             Text(
                 text = stringResource(R.string.filter_by_date),
                 style = MaterialTheme.typography.titleSmall,
@@ -256,7 +253,6 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-            // --- COST ---
             Text(
                 text = stringResource(R.string.filter_by_amount),
                 style = MaterialTheme.typography.titleSmall,
@@ -297,7 +293,6 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-            // --- STATE ---
             Text(
                 text = stringResource(R.string.filter_by_status),
                 style = MaterialTheme.typography.titleSmall,
@@ -346,8 +341,6 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
 
-
-            // --- Date pickers ---
             if (showDesdePicker) {
                 IberdrolaDatePickerDialog(
                     initialDate = desde,
@@ -516,11 +509,6 @@ fun IberdrolaRangeSlider(
     max: Float,
     modifier: Modifier = Modifier
 ) {
-
-    val range = max - min
-    val startFraction = (value.start - min) / range
-    val endFraction = (value.endInclusive - min) / range
-
     Column(modifier = modifier) {
 
         BoxWithConstraints(
@@ -536,7 +524,7 @@ fun IberdrolaRangeSlider(
             val startFraction = (value.start - min) / range
             val endFraction = (value.endInclusive - min) / range
             val sliderColor = colorResource(R.color.slider_importe)
-            // BASE
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -544,7 +532,7 @@ fun IberdrolaRangeSlider(
                     .background(Color.LightGray, CircleShape)
             )
 
-            // ACTIVE
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -554,10 +542,10 @@ fun IberdrolaRangeSlider(
                         val start = size.width * startFraction
                         val end = size.width * endFraction
 
-                        // fondo gris
+
                         drawRect(Color.LightGray)
 
-                        // rango verde
+
                         drawRect(
                             color = sliderColor,
                             topLeft = Offset(start, 0f),
@@ -565,7 +553,7 @@ fun IberdrolaRangeSlider(
                         )
                     }
             )
-            // SLIDER (used instead of material3 for UI porpoises)
+
             RangeSlider(
                 value = value,
                 onValueChange = onValueChange,

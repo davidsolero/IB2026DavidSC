@@ -23,13 +23,6 @@ import com.iberdrola.practicas2026.davidsc.core.utils.OtpFlow
 import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 import com.iberdrola.practicas2026.davidsc.ui.util.isValidEmail
-
-/**
- * Allows the user to enter a new email address for electronic invoicing.
- *
- * This screen does not require a ViewModel because its only state is the
- * email input field, which is local UI state. Validation is stateless.
- */
 @Composable
 fun ModifyEmailScreen(
     contractId: String,
@@ -37,9 +30,6 @@ fun ModifyEmailScreen(
     safeNav: SafeNavController
 ) {
     var email by remember { mutableStateOf("") }
-
-    // Set to true the moment we decide to leave this screen.
-    // Never reset to false — once exiting, all interaction is blocked.
     var isExiting by remember { mutableStateOf(false) }
 
     Scaffold { innerPadding ->

@@ -66,9 +66,6 @@ fun OtpVerificationScreen(
     val remainingResends by viewModel.remainingResends.collectAsState()
     val resendConfirmationVisible by viewModel.resendConfirmationVisible.collectAsState()
     val isResending by viewModel.isResending.collectAsState()
-
-    // Set to true the moment we decide to leave this screen.
-    // Never reset to false — once exiting, all interaction is blocked.
     var isExiting by remember { mutableStateOf(false) }
     val isBlocked by viewModel.isOtpBlocked.collectAsState()
     val canResend = remainingResends > 0 && !isBlocked

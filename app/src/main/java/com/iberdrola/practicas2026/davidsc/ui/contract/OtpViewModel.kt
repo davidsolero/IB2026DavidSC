@@ -15,11 +15,6 @@ import kotlinx.coroutines.launch
 class OtpViewModel @Inject constructor(
     private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
-
-    // =========================
-    // STATE FLOWS
-    // =========================
-
     private val _code = MutableStateFlow("")
     val code: StateFlow<String> = _code.asStateFlow()
 
@@ -42,10 +37,6 @@ class OtpViewModel @Inject constructor(
     private val _remainingTime = MutableStateFlow(0L)
     val remainingTime: StateFlow<Long> = _remainingTime.asStateFlow()
 
-    // =========================
-    // INTERNAL STATE
-    // =========================
-
     private var otpBlockedUntil: Long = 0L
     private var countdownJob: kotlinx.coroutines.Job? = null
 
@@ -61,10 +52,6 @@ class OtpViewModel @Inject constructor(
             }
         }
     }
-
-    // =========================
-    // UI EVENTS
-    // =========================
 
     fun onCodeChange(value: String) {
         if (value.length > OTP_LENGTH) return
@@ -105,10 +92,6 @@ class OtpViewModel @Inject constructor(
         _resendConfirmationVisible.value = false
     }
 
-    // =========================
-    // COUNTDOWN
-    // =========================
-
     private fun startCountdown() {
         countdownJob?.cancel()
 
@@ -138,10 +121,6 @@ class OtpViewModel @Inject constructor(
         }
     }
 
-    // =========================
-    // LOGIC
-    // =========================
-
     private fun resetIfExpired() {
         if (otpBlockedUntil != 0L &&
             System.currentTimeMillis() >= otpBlockedUntil
@@ -162,10 +141,6 @@ class OtpViewModel @Inject constructor(
     private fun isBlockedNow(): Boolean {
         return System.currentTimeMillis() < otpBlockedUntil
     }
-
-    // =========================
-    // CONSTANTS
-    // =========================
 
     companion object {
         const val OTP_LENGTH = 6

@@ -41,27 +41,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.iberdrola.practicas2026.davidsc.R
 import kotlinx.coroutines.delay
-
-// Time the thank-you message stays visible before the sheet closes automatically.
 private const val THANKS_DISPLAY_MILLIS = 1500L
 
-/**
- * Bottom sheet that asks the user to rate the invoices screen.
- *
- * The sheet has two visual states managed internally:
- * - Rating state: shows the sentiment icons and the "respond later" link.
- * - Thanks state: shown after the user submits a rating; auto-dismisses after
- *   [THANKS_DISPLAY_MILLIS] ms and then calls [onRatedDismiss].
- *
- * Separating [onRated] (immediate ViewModel notification) from [onRatedDismiss]
- * (deferred navigation) keeps side-effects predictable and testable.
- *
- * @param onRated       Called immediately when the user taps a rating icon.
- *                      Use this to persist threshold state in the ViewModel.
- * @param onRatedDismiss Called after the thank-you delay to close the sheet and navigate back.
- * @param onLater       Called when the user taps "respond later".
- * @param onDismiss     Called when the user swipes the sheet away without rating.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RatingBottomSheet(
@@ -70,11 +51,9 @@ fun RatingBottomSheet(
     onLater: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    // True once the user has tapped a rating icon; switches the sheet to the thanks view.
+
     var rated by remember { mutableStateOf(false) }
 
-    // After switching to the thanks state, wait and then trigger navigation.
-    // LaunchedEffect re-runs only when [rated] becomes true, so it fires exactly once.
     if (rated) {
         LaunchedEffect(Unit) {
             delay(THANKS_DISPLAY_MILLIS)
@@ -89,8 +68,6 @@ fun RatingBottomSheet(
         } else {
             RatingContent(
                 onIconClicked = { rating ->
-                    // Notify the ViewModel first so the threshold is persisted
-                    // before any recomposition or navigation happens.
                     onRated(rating)
                     rated = true
                 },
@@ -100,9 +77,6 @@ fun RatingBottomSheet(
     }
 }
 
-/**
- * Thank-you message shown after the user submits a rating.
- */
 @Composable
 private fun ThanksContent() {
     Column(
@@ -125,9 +99,6 @@ private fun ThanksContent() {
     }
 }
 
-/**
- * Rating controls: sentiment icons and the "respond later" link.
- */
 @Composable
 private fun RatingContent(
     onIconClicked: (Int) -> Unit,
@@ -212,8 +183,5 @@ fun PreviewRatingBottomSheet() {
 @Preview(showBackground = true, widthDp = 360, heightDp = 200)
 @Composable
 fun PreviewRatingBottomSheetThanks() {
-    // Simulates the sheet after rating is submitted.
-    // There is no direct way to set rated=true from outside since it is internal state,
-    // so ThanksContent is previewed directly.
     ThanksContent()
 }

@@ -492,8 +492,6 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                         .fillMaxWidth()
                         .padding(end = 38.dp)
                 ) {
-
-                    // Title
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(0.45f)
@@ -505,8 +503,6 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
-
-                    // Desc
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(0.35f)
@@ -518,8 +514,6 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
-
-                    // Cost
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(0.25f)
@@ -531,8 +525,6 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
-
-                    // Range
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(0.6f)
@@ -543,8 +535,6 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                             )
                     )
                 }
-
-                // Icon
                 Box(
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.icon_size_large))
@@ -555,10 +545,6 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                         .align(Alignment.TopEnd)
                 )
             }
-
-
-
-            // Divider
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -566,8 +552,6 @@ fun SkeletonLastInvoiceCard(modifier: Modifier = Modifier) {
                 thickness = 1.dp,
                 color = Color.Gray.copy(alpha = 0.3f)
             )
-
-            // Badge skeleton
             Box(
                 modifier = Modifier
                     .width(90.dp)
@@ -615,8 +599,6 @@ fun SkeletonInvoiceHistoryHeader() {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-
-        // Título skeleton
         Box(
             modifier = Modifier
                 .width(140.dp)
@@ -626,8 +608,6 @@ fun SkeletonInvoiceHistoryHeader() {
                     RoundedCornerShape(4.dp)
                 )
         )
-
-        // Botón skeleton
         Box(
             modifier = Modifier
                 .height(40.dp)
@@ -645,7 +625,6 @@ fun SkeletonInvoiceHistoryHeader() {
     }
 }
 
-// Preview data
 private val previewInvoices = listOf(
     Invoice(
         1,
