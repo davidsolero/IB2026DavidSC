@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -62,6 +64,7 @@ dependencies {
     implementation(libs.androidx.runtime)
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.ui.text)
+
     ksp(libs.hilt.compiler)
 
     // Retrofit
@@ -100,6 +103,11 @@ dependencies {
 
     //Detekt
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.6")
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.config)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 }
 
 
