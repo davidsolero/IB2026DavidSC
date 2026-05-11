@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iberdrola.practicas2026.davidsc.core.utils.AnalyticsTracker
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
 import com.iberdrola.practicas2026.davidsc.domain.usecase.GetStreetsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 class MainViewModel @Inject constructor(
     private val getStreetsUseCase: GetStreetsUseCase,
     private val prefs: SharedPreferences,
+    private val analyticsTracker: AnalyticsTracker,
     @Named("io") private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -52,8 +54,26 @@ class MainViewModel @Inject constructor(
         AppConfig.useMockLocal = newValue
         prefs.edit { putBoolean(PREF_USE_MOCK, newValue) }
         _useMock.value = newValue
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_TOGGLE_MOCK)
     }
 
+    fun onVerTodasFacturasClick() {
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_VER_TODAS_FACTURAS)
+    }
+
+    fun onVerFacturasCalleClick() {
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_VER_FACTURAS_CALLE)
+    }
+
+    fun onGestionarFacturaClick() {
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_GESTIONAR_FACTURA)
+    }
+
+
+    fun forceCrash() {
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_FORZAR_CRASH)
+        throw RuntimeException("Crash forzado para prueba de Crashlytics")
+    }
     companion object {
         private const val PREF_USE_MOCK = "use_mock"
     }

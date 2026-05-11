@@ -158,6 +158,7 @@ fun FilterScreen(
                     onClick = {
                         if (!isExiting) {
                             isExiting = true
+                            viewModel.onAplicarFiltrosClick()
                             viewModel.applyFilter(
                                 InvoiceFilter(
                                     desde = desde,
@@ -188,7 +189,7 @@ fun FilterScreen(
                 TextButton(
                     onClick = {
                         if (!isExiting) {
-
+                            viewModel.onBorrarFiltrosClick()
                             desde = null
                             hasta = null
 

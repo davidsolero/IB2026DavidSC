@@ -128,6 +128,7 @@ fun ActiveContractScreen(
                     onClick = {
                         if (!isExiting) {
                             isExiting = true
+                            viewModel.onModificarEmailClick()
                             val email = c.email ?: ""
                             safeNav.navigate(Screen.modifyEmail(c.id, email))
                         }

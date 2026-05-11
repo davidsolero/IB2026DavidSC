@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iberdrola.practicas2026.davidsc.core.utils.AnalyticsTracker
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig.RATING_THRESHOLD_DISMISSED
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig.RATING_THRESHOLD_LATER
@@ -27,7 +28,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class InvoicesViewModel @Inject constructor(
     private val getInvoicesUseCase: GetInvoicesUseCase,
-    private val prefs: SharedPreferences
+    private val prefs: SharedPreferences,
+    private val analyticsTracker: AnalyticsTracker
 ) : ViewModel() {
 
     private val _useMock = MutableStateFlow(
@@ -314,7 +316,13 @@ class InvoicesViewModel @Inject constructor(
         )
     }
 
+    fun onAplicarFiltrosClick() {
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_APLICAR_FILTROS)
+    }
 
+    fun onBorrarFiltrosClick() {
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_BORRAR_FILTROS)
+    }
     sealed class AmountFilterEvent {
         data class Adjusted(val newMin: Int, val newMax: Int) : AmountFilterEvent()
         object Reset : AmountFilterEvent()

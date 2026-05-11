@@ -101,4 +101,9 @@
     <string name="main_electronic_invoice">Gestionar factura electrónica</string>
 
     <string name="no_email_available">No hay email disponible</string>
+
+    <string name="crash_dialog_title">Forzar crash</string>
+    <string name="crash_dialog_message">Esta acción hará que la aplicación falle y generará un informe en Crashlytics. ¿Continuar?</string>
+    <string name="crash_dialog_confirm">Continuar</string>
+
 </resources>

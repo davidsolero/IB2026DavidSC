@@ -3,6 +3,7 @@ package com.iberdrola.practicas2026.davidsc.ui.contract
 import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iberdrola.practicas2026.davidsc.core.utils.AnalyticsTracker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.delay
@@ -13,7 +14,8 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class OtpViewModel @Inject constructor(
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences,
+    private val analyticsTracker: AnalyticsTracker
 ) : ViewModel() {
     private val _code = MutableStateFlow("")
     val code: StateFlow<String> = _code.asStateFlow()
@@ -62,6 +64,7 @@ class OtpViewModel @Inject constructor(
     }
 
     fun resendCode() {
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_REENVIAR_OTP)
         updateBlockedState()
 
         if (_remainingResends.value <= 0 || isBlockedNow()) return
