@@ -7,7 +7,42 @@ Autor: David SC | Tutor: Viewnext
 
 ## Descripción
 
-Aplicación Android nativa en Kotlin que simula una app de gestión de facturas de energía (luz y gas) con soporte para factura electrónica. El proyecto se desarrolla en cuatro entregas iterativas; este README cubre el estado correspondiente a la **tercera entrega**.
+Aplicación Android nativa en Kotlin que simula una app de gestión de facturas de energía (luz y gas) con soporte para factura electrónica. El proyecto se desarrolla en cuatro entregas iterativas; este README cubre el estado correspondiente a la **cuarta entrega**.
+
+---
+
+## Cuarta entrega — funcionalidad implementada
+
+La cuarta entrega integra Firebase en la aplicación sobre todo lo implementado en las entregas anteriores.
+
+### Remote Config
+
+- Variable booleana `gas_contracts_enabled` que habilita o deshabilita los contratos de gas.
+- Por defecto habilitados tanto en Firebase como en el valor local de fallback.
+- El flag se consume en `GetContractsUseCase`: si está deshabilitado, los contratos de tipo GAS se excluyen antes de devolver la lista.
+- El fetch se realiza en `App.onCreate()` con intervalo mínimo de 1 hora en producción y 0 segundos en debug para facilitar las pruebas.
+
+### Google Analytics
+
+- Screen views automáticos en cada cambio de destino del NavController, registrados desde `MainActivity` via `OnDestinationChangedListener`.
+- Eventos de botón trackeados a través de `AnalyticsTracker`, singleton inyectado en los ViewModels:
+
+| Evento | Origen |
+|---|---|
+| `ver_todas_facturas` | Botón de acceso global a facturas en `MainScreen` |
+| `ver_facturas_calle` | Acceso a facturas por calle en `MainScreen` |
+| `gestionar_factura_electronica` | Botón de entrada al flujo de contratos |
+| `toggle_mock` | Cambio de fuente de datos en `MainScreen` |
+| `aplicar_filtros` | Botón aplicar en `FilterScreen` |
+| `borrar_filtros` | Botón borrar en `FilterScreen` |
+| `modificar_email` | Botón de modificación en `ActiveContractScreen` |
+| `reenviar_otp` | Cada reenvío de código SMS en `OtpVerificationScreen` |
+| `forzar_crash` | Botón de crash en `MainScreen` |
+
+### Crashlytics
+
+- Integrado mediante el plugin de Gradle de Crashlytics.
+- Botón de bug (icono rojo) en la esquina inferior derecha de `MainScreen` que, tras confirmación en un diálogo, fuerza un crash para generar un informe en la consola de Firebase.
 
 ---
 
@@ -135,7 +170,7 @@ El proyecto sigue **Clean Architecture + MVVM** con separación estricta de capa
 ```
 com.iberdrola.practicas2026.davidsc
 ├── core
-│   └── utils          → AppConfig, OtpFlow, DeviceUtils, Screen
+│   └── utils          → AppConfig, OtpFlow, DeviceUtils, Screen, AnalyticsTracker
 ├── data
 │   ├── local          → Room: InvoiceDatabase, InvoiceDao, InvoiceEntity
 │   ├── remote         → Retrofit + Retromock: InvoiceApi, DTOs, AssetBodyFactory
@@ -158,7 +193,8 @@ com.iberdrola.practicas2026.davidsc
 │   ├── navigation     → AppNavHost, SafeNavController, Screen
 │   └── util           → CurrencyFormatter, DateFormatter, EmailUtils
 └── di                 → NetworkModule, DatabaseModule, RepositoryModule,
-                         UseCaseModule, CoroutineModule, ContractModule
+                         UseCaseModule, CoroutineModule, ContractModule,
+                         AnalyticsModule
 ```
 
 **Principios aplicados:**
@@ -169,6 +205,7 @@ com.iberdrola.practicas2026.davidsc
 - Los repositorios se definen como interfaces en `domain` y se implementan en `data`.
 - El filtrado de facturas ocurre en el ViewModel sobre los datos ya cargados en memoria.
 - `ContractModule` está instalado en `SingletonComponent` para que la caché en memoria del repositorio sobreviva a la recreación de ViewModels entre navegaciones.
+- `AnalyticsTracker` es un singleton inyectado en los ViewModels; la UI no tiene conocimiento directo de Firebase.
 
 ---
 
@@ -186,6 +223,9 @@ com.iberdrola.practicas2026.davidsc
 | StateFlow / combine | Estado reactivo en ViewModels |
 | Navigation Component | Navegación Single Activity |
 | SharedPreferences | Persistencia de flags y estado OTP |
+| Firebase Remote Config | Flag de habilitación de contratos de gas |
+| Firebase Analytics | Tracking de pantallas y botones |
+| Firebase Crashlytics | Informes de errores en producción |
 | `kotlinx-coroutines-test` | Tests de corrutinas |
 | MockK | Mocking en tests unitarios |
 
@@ -209,6 +249,7 @@ Retromock 1.1.1
 Compose BOM 2024.12.01
 Room 2.7.0
 Retrofit 2.11.0
+Firebase BOM 33.7.0
 ```
 
 ---
@@ -229,6 +270,30 @@ Para redirigir el tráfico desde un dispositivo físico conectado por USB:
 ```
 adb -s <device_id> reverse tcp:3001 tcp:3001
 ```
+
+---
+
+## Firebase
+
+El proyecto Firebase está asociado a la aplicación y compartido con los tutores de Viewnext.
+
+### Remote Config
+
+El parámetro `gas_contracts_enabled` controla la visibilidad de los contratos de gas en la pantalla de selección de contratos. Para probarlo:
+
+1. Ve a Firebase Console → Remote Config
+2. Cambia el valor de `gas_contracts_enabled` a `false` y publica los cambios
+3. Reinicia la app; el contrato de gas dejará de aparecer en la lista
+
+### Analytics — DebugView
+
+Para ver eventos en tiempo real durante desarrollo:
+
+```
+adb shell setprop debug.firebase.analytics.app com.iberdrola.practicas2026.davidsc
+```
+
+Luego ve a Firebase Console → Analytics → DebugView.
 
 ---
 
@@ -257,7 +322,7 @@ Los tests usan **fake repositories** (implementaciones manuales de la interfaz d
 | `entrega/1` | Snapshot de la primera entrega, creada desde `develop` |
 | `entrega/2` | Snapshot de la segunda entrega, creada desde `develop` |
 | `entrega/3` | Snapshot de la tercera entrega, creada desde `develop` |
-| `entrega/4` | Pendiente |
+| `entrega/4` | Snapshot de la cuarta entrega, creada desde `develop` |
 
 El repositorio es público y se comparte con los tutores desde el primer commit.
 
@@ -288,9 +353,7 @@ El repositorio es público y se comparte con los tutores desde el primer commit.
 | Persistencia del bloqueo OTP entre sesiones | OK, restaurado desde SharedPreferences |
 | Taps rápidos en botones de navegación del wizard | OK, isExiting previene doble navegación |
 | Email actualizado visible al volver a ActiveContractScreen | OK |
-
----
-
-## Próximas entregas
-
-- **Entrega 4:** Integración con Firebase: Remote Config, Google Analytics y Crashlytics.
+| Remote Config gas deshabilitado oculta contrato de gas | OK |
+| Remote Config gas habilitado muestra ambos contratos | OK |
+| Eventos Analytics visibles en DebugView | OK |
+| Crash forzado genera informe en Crashlytics | OK |
