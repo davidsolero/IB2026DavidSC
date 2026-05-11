@@ -184,12 +184,8 @@ fun InvoicesScreen(
             } else {
                 val lastInvoice = allInvoices.firstOrNull()
 
-                val history = remember(lastInvoice, filteredInvoices) {
-                    if (lastInvoice == null) {
-                        filteredInvoices
-                    } else {
-                        filteredInvoices.filterNot { it.id == lastInvoice.id }
-                    }
+                val history = remember(filteredInvoices) {
+                    filteredInvoices
                 }
 
                 if (isLandscape) {
