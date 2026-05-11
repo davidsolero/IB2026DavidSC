@@ -151,7 +151,6 @@ class OtpViewModel @Inject constructor(
 
         private const val RESEND_LOADING_MILLIS = 1500L
 
-        private val OTP_BLOCK_DURATION_DEBUG = 30_000L
         private val OTP_BLOCK_DURATION = 24 * 60 * 60 * 1000L
 
         private const val PREF_KEY_OTP_BLOCK = "otp_block_until"
