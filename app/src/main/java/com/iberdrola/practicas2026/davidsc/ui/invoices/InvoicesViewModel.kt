@@ -61,7 +61,10 @@ class InvoicesViewModel @Inject constructor(
 
     private val _amountFilterAdjusted = MutableSharedFlow<AmountFilterEvent>(extraBufferCapacity = 1)
     val amountFilterAdjusted: SharedFlow<AmountFilterEvent> = _amountFilterAdjusted
-
+    private val _isGasEnabled = MutableStateFlow(
+        getInvoicesUseCase.isGasEnabled()
+    )
+    val isGasTabVisible: StateFlow<Boolean> = _isGasEnabled.asStateFlow()
     val isFilterActive: StateFlow<Boolean> =
         combine(_activeFilter) { filter ->
             val f = filter[0]
@@ -84,6 +87,7 @@ class InvoicesViewModel @Inject constructor(
     val error = _error.asStateFlow()
 
     init {
+
         val savedMock = prefs.getBoolean(PREF_USE_MOCK, false)
         AppConfig.useMockLocal = savedMock
         _useMock.value = savedMock

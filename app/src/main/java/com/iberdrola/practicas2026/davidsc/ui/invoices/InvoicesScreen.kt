@@ -82,7 +82,7 @@ fun InvoicesScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val activity = LocalActivity.current
-
+    val isGasTabVisible by viewModel.isGasTabVisible.collectAsState()
     val navigateBack: () -> Unit = {
         if (!isExiting) {
             isExiting = true
@@ -166,11 +166,13 @@ fun InvoicesScreen(
                     selected = selectedType == InvoiceType.LUZ,
                     onClick = { viewModel.selectType(InvoiceType.LUZ) }
                 )
-                TabItemUnderline(
-                    text = stringResource(R.string.tab_gas),
-                    selected = selectedType == InvoiceType.GAS,
-                    onClick = { viewModel.selectType(InvoiceType.GAS) }
-                )
+                if (isGasTabVisible) {
+                    TabItemUnderline(
+                        text = stringResource(R.string.tab_gas),
+                        selected = selectedType == InvoiceType.GAS,
+                        onClick = { viewModel.selectType(InvoiceType.GAS) }
+                    )
+                }
             }
 
             HorizontalDivider(color = Color.LightGray)

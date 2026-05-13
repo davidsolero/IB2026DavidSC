@@ -69,6 +69,7 @@ class GetInvoicesUseCase(private val repository: InvoiceRepository,    private v
 
         return result
     }
+    fun isGasEnabled(): Boolean = remoteConfig.getBoolean(KEY_GAS_ENABLED)
     companion object {
         const val KEY_GAS_ENABLED = "gas_contracts_enabled"
     }
