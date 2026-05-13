@@ -67,6 +67,7 @@ import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceFilter
 import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 import java.time.Instant
 import java.time.LocalDate
+import java.time.Year
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -435,13 +436,21 @@ private fun IberdrolaDatePickerDialog(
         ?.toInstant()
         ?.toEpochMilli()
 
+    val minYear = 2000
+    val maxYear = Year.now().value
+
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = initialMillis,
         selectableDates = object : SelectableDates {
+
             override fun isSelectableDate(utcTimeMillis: Long): Boolean {
                 val afterMin = minDateMillis == null || utcTimeMillis >= minDateMillis
                 val beforeMax = maxDateMillis == null || utcTimeMillis <= maxDateMillis
                 return afterMin && beforeMax
+            }
+
+            override fun isSelectableYear(year: Int): Boolean {
+                return year in minYear..maxYear
             }
         }
     )
@@ -493,7 +502,9 @@ private fun IberdrolaDatePickerDialog(
                     headlineContentColor = iberdrolaGreen,
                     subheadContentColor = iberdrolaGreen,
                     titleContentColor = iberdrolaGreen,
-                    navigationContentColor = iberdrolaGreen
+                    navigationContentColor = iberdrolaGreen,
+                    selectedYearContainerColor = iberdrolaGreen,
+                    currentYearContentColor = iberdrolaGreen
                 )
             )
         }

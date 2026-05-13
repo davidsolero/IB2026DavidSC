@@ -26,6 +26,10 @@ import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.statusBars
+
 @Composable
 fun FlowHeader(
     title: String,
@@ -35,6 +39,7 @@ fun FlowHeader(
 ) {
     val progress = step.toFloat() / totalSteps.coerceAtLeast(1)
     val green = colorResource(R.color.iberdrola_green)
+    val statusBarPadding = WindowInsets.statusBars.asPaddingValues()
 
     Column(modifier = Modifier.fillMaxWidth()) {
 
@@ -43,14 +48,14 @@ fun FlowHeader(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(top = statusBarPadding.calculateTopPadding())
                     .height(56.dp)
             ) {
-
                 IconButton(
                     onClick = onClose,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(dimensionResource(R.dimen.margin_medium))
+                        .padding(end = dimensionResource(R.dimen.margin_medium))
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Close,
