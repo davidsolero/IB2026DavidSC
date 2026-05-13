@@ -1,5 +1,8 @@
 package com.iberdrola.practicas2026.davidsc.ui.invoices
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -59,6 +62,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
@@ -385,38 +389,54 @@ private fun DateField(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val hasDate = date != null
+    val labelFontSize by animateFloatAsState(
+        targetValue = if (hasDate) 12f else 14f,
+        label = "labelSize"
+    )
+    val labelColor by animateColorAsState(
+        targetValue = if (hasDate) Color.Gray else Color.Gray,
+        label = "labelColor"
+    )
+
     Column(
         modifier = modifier.clickable { onClick() }
     ) {
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                fontSize = labelFontSize.sp,
+                color = labelColor,
+                modifier = Modifier
+                    .align(if (hasDate) Alignment.TopStart else Alignment.BottomStart)
+                    .animateContentSize()
+                    .padding(bottom = if (hasDate) 0.dp else 4.dp)
+            )
+            if (hasDate) {
                 Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
-                )
-                Text(
-                    text = date?.format(formatter) ?: "",
-                    style = MaterialTheme.typography.bodyMedium
+                    text = date.format(formatter),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(bottom = 4.dp)
                 )
             }
-
-            Spacer(modifier = Modifier.width(4.dp))
 
             Icon(
                 imageVector = Icons.Outlined.CalendarMonth,
                 contentDescription = null,
                 tint = Color.Gray,
-                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .size(dimensionResource(R.dimen.icon_size_medium))
             )
         }
-        HorizontalDivider(
-            color = Color.Gray,
-            thickness = 3.dp
-        )
+
+        HorizontalDivider(color = Color.Gray, thickness = 3.dp)
     }
 }
 

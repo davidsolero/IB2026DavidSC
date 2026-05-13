@@ -6,11 +6,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Button
@@ -106,7 +109,7 @@ fun ConfirmationScreenContent(
     val safeEmail = email.orEmpty()
     val green = colorResource(R.color.modified_email)
     val isActivation = flow == OtpFlow.ACTIVATE
-
+    val statusBarPadding = WindowInsets.statusBars.asPaddingValues()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -118,7 +121,8 @@ fun ConfirmationScreenContent(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(dimensionResource(R.dimen.margin_medium))
-        ) {
+                .padding(top = statusBarPadding.calculateTopPadding())
+        ){
             Icon(
                 imageVector = Icons.Outlined.Close,
                 contentDescription = null,

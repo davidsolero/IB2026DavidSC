@@ -71,7 +71,7 @@ fun ContractEmailField(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Asterisco SIEMPRE visible
+
                     Text(
                         text = "* ",
                         style = MaterialTheme.typography.bodyMedium,
