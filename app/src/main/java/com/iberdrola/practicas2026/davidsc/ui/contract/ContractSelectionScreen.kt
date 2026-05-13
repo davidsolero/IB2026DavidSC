@@ -46,23 +46,26 @@ fun ContractSelectionScreen(
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-            BackButton(onClick = {
-                if (!isExiting) {
-                    isExiting = true
-                    safeNav.popBackStack()
-                }
-            })
-
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
-
-            Text(
-                text = stringResource(R.string.contract_selection_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
+            Column(
                 modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.margin_medium))
-            )
+            ) {
+                BackButton(onClick = {
+                    if (!isExiting) {
+                        isExiting = true
+                        safeNav.popBackStack()
+                    }
+                })
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
+
+                Text(
+                    text = stringResource(R.string.contract_selection_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize()

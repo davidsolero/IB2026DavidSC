@@ -77,7 +77,8 @@
     <string name="otp_field_label">Código de verificación</string>
     <string name="otp_not_received">¿No has recibido el código?</string>
     <string name="otp_resend_sms">Si no lo encuentras, podemos volver a enviar el SMS.</string>
-    <string name="otp_resends_remaining">Recuerda que hoy te quedan %d intentos.</string>
+    <string name="otp_resends_remaining">Recuerda que hoy te queda %d intento.</string>
+    <string name="otp_resends_remaining_other">Recuerda que hoy te quedan %d intentos.</string>
     <string name="otp_no_resends_left">No te quedan intentos de reenvío.</string>
     <string name="otp_resend_link">Volver a enviar</string>
     <string name="otp_resend_confirmation">Hemos vuelto a enviar un SMS con tu código de verificación.</string>

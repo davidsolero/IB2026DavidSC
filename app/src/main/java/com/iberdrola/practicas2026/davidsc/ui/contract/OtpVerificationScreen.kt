@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -34,7 +33,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,7 +43,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.core.utils.OtpFlow
 import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
@@ -241,14 +238,16 @@ private fun ResendCodeBlock(
                 color = Color.Black
             )
             if (canResend) {
-                if (remainingResends != 3) {
-                    Text(
-                        text = stringResource(R.string.otp_resends_remaining, remainingResends),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Black
-                    )
-                }
-            } else {
+                Text(
+                    text = if (remainingResends == 1) {
+                        stringResource(R.string.otp_resends_remaining, remainingResends)
+                    } else {
+                        stringResource(R.string.otp_resends_remaining_other, remainingResends)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Black
+                )
+            }else {
                 Text(
                     text = stringResource(R.string.otp_no_resends_left),
                     style = MaterialTheme.typography.bodySmall,
