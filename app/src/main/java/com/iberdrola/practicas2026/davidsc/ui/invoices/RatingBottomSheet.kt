@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.outlined.SentimentVerySatisfied
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -146,14 +148,17 @@ private fun RatingContent(
             )
 
             icons.forEachIndexed { index, icon ->
-                Icon(
-                    imageVector = icon,
-                    contentDescription = "Rating ${index + 1} of 5",
-                    tint = colors[index],
-                    modifier = Modifier
-                        .size(dimensionResource(R.dimen.icon_size_large))
-                        .clickable { onIconClicked(index + 1) }
-                )
+                IconButton(
+                    onClick = { onIconClicked(index + 1) },
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = "Rating ${index + 1} of 5",
+                        tint = colors[index],
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
 
