@@ -144,6 +144,9 @@ fun ContractNavigationButtons(
     modifier: Modifier = Modifier
 ) {
     val iberdrolaGreen = colorResource(R.color.iberdrola_green)
+    HorizontalDivider(color = Color.LightGray)
+    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
+
 
     Row(modifier = modifier.fillMaxWidth()) {
 

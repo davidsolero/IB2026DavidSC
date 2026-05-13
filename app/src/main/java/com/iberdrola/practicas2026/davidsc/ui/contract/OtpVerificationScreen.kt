@@ -25,6 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -151,7 +152,6 @@ fun OtpVerificationScreen(
                             onClose = { viewModel.hideResendConfirmation() },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 12.dp)
                         )
                     }
                     ContractNavigationButtons(
@@ -238,6 +238,7 @@ private fun ResendCodeBlock(
                 color = Color.Black
             )
             if (canResend) {
+                if (remainingResends <3){
                 Text(
                     text = if (remainingResends == 1) {
                         stringResource(R.string.otp_resends_remaining, remainingResends)
@@ -246,12 +247,12 @@ private fun ResendCodeBlock(
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Black
-                )
+                )}
             }else {
                 Text(
                     text = stringResource(R.string.otp_no_resends_left),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = colorScheme.error
                 )
             }
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
@@ -260,7 +261,7 @@ private fun ResendCodeBlock(
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontWeight = FontWeight.Bold,
                     textDecoration = TextDecoration.Underline,
-                    color = if (canResend) Color.Black else Color.Gray
+                    color = if (canResend) Color.Black else colorScheme.error
                 ),
                 modifier = Modifier.clickable(
                     enabled = canResend
@@ -285,7 +286,7 @@ private fun ResendCodeBlock(
                     text = timeText,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Gray
+                    color = colorScheme.error
                 )
             }
         }
