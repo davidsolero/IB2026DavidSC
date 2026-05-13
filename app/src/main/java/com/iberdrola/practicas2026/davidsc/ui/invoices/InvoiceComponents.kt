@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
@@ -64,6 +66,7 @@ fun LastInvoiceCard(
 ) {
 
     val currencyFormatter = remember { CurrencyFormatter() }
+    val interactionSource = remember { MutableInteractionSource() }
 
     Card(
         onClick = onClick,
@@ -73,6 +76,15 @@ fun LastInvoiceCard(
         colors = CardDefaults.outlinedCardColors(
             containerColor = Color.Transparent
         ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
+            focusedElevation = 0.dp,
+            hoveredElevation = 0.dp,
+            draggedElevation = 0.dp,
+            disabledElevation = 0.dp
+        ),
+        interactionSource = interactionSource,
         border = BorderStroke(
             1.3.dp,
             colorResource(R.color.iberdrola_green)
