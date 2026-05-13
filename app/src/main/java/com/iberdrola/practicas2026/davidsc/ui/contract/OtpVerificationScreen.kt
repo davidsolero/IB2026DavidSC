@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
+import com.iberdrola.practicas2026.davidsc.core.utils.OtpFlow
 import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 
@@ -60,7 +61,7 @@ fun OtpVerificationScreen(
     safeNav: SafeNavController,
     viewModel: OtpViewModel = hiltViewModel()
 ) {
-
+    val isActivation = flow == OtpFlow.ACTIVATE
     val code by viewModel.code.collectAsState()
     val canContinue by viewModel.canContinue.collectAsState()
     val remainingResends by viewModel.remainingResends.collectAsState()
@@ -80,7 +81,11 @@ fun OtpVerificationScreen(
                     .padding(innerPadding)
             ) {
                 FlowHeader(
-                    title = stringResource(R.string.activate_contract_title),
+                    title = if (isActivation) {
+                        stringResource(R.string.activate_contract_title)
+                    } else {
+                        stringResource(R.string.modify_email_title)
+                    },
                     step = 2,
                     totalSteps = 3,
                     onClose = {
