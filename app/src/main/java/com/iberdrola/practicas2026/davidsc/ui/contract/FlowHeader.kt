@@ -39,7 +39,7 @@ fun FlowHeader(
 ) {
     val progress = step.toFloat() / totalSteps.coerceAtLeast(1)
     val green = colorResource(R.color.iberdrola_green)
-    val statusBarPadding = WindowInsets.statusBars.asPaddingValues()
+    WindowInsets.statusBars.asPaddingValues()
 
     Column(modifier = Modifier.fillMaxWidth()) {
 
@@ -48,7 +48,6 @@ fun FlowHeader(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = statusBarPadding.calculateTopPadding())
                     .height(56.dp)
             ) {
                 IconButton(
