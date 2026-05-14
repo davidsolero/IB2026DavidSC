@@ -118,14 +118,8 @@ fun InvoicesScreen(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.amountFilterAdjusted.collect { event ->
-            val message = when (event) {
-                is InvoicesViewModel.AmountFilterEvent.Adjusted ->
-                    "Hemos adaptado el filtro al rango disponible:\n (${event.newMin} € – ${event.newMax} €)"
-                is InvoicesViewModel.AmountFilterEvent.Reset ->
-                    "Filtro de importe eliminado: fuera del rango disponible"
-            }
-            snackbarHostState.showSnackbar(message)
+        viewModel.tabSwitchAmountEvent.collect { (min, max) ->
+            snackbarHostState.showSnackbar("Filtro de importe restaurado: $min € – $max €")
         }
     }
 

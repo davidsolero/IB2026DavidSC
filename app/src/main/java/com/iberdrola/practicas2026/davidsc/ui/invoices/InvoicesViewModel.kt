@@ -1,7 +1,6 @@
 package com.iberdrola.practicas2026.davidsc.ui.invoices
 
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -50,6 +49,12 @@ class InvoicesViewModel @Inject constructor(
     private val _activeFilter = MutableStateFlow(InvoiceFilter())
     val activeFilter = _activeFilter.asStateFlow()
 
+    private val _amountFilterByType = MutableStateFlow(
+        mapOf(
+            InvoiceType.LUZ to InvoiceFilter(),
+            InvoiceType.GAS to InvoiceFilter()
+        )
+    )
     private val _filteredInvoices = MutableStateFlow<List<Invoice>>(emptyList())
     val invoices = _filteredInvoices.asStateFlow()
 
@@ -125,11 +130,44 @@ class InvoicesViewModel @Inject constructor(
         }
     }
 
+    private val _tabSwitchAmountEvent = MutableSharedFlow<Pair<Int, Int>>(extraBufferCapacity = 1)
+    val tabSwitchAmountEvent: SharedFlow<Pair<Int, Int>> = _tabSwitchAmountEvent
+
     fun selectType(type: InvoiceType) {
         if (_selectedType.value != type) {
+            val currentFilter = _activeFilter.value
+            val isAtExtremes = (currentFilter.importeMin == null || currentFilter.importeMin == _minAmount.value) &&
+                    (currentFilter.importeMax == null || currentFilter.importeMax == _maxAmount.value)
+
+            _amountFilterByType.value = _amountFilterByType.value.toMutableMap().apply {
+                put(_selectedType.value, if (isAtExtremes) InvoiceFilter() else InvoiceFilter(
+                    importeMin = currentFilter.importeMin,
+                    importeMax = currentFilter.importeMax
+                ))
+            }
+            val savedAmountFilter = _amountFilterByType.value[type] ?: InvoiceFilter()
+            val hadAmountFilter =
+                (savedAmountFilter.importeMin != null && savedAmountFilter.importeMin != _minAmount.value) ||
+                        (savedAmountFilter.importeMax != null && savedAmountFilter.importeMax != _maxAmount.value)
+
+            _activeFilter.value = currentFilter.copy(
+                importeMin = savedAmountFilter.importeMin,
+                importeMax = savedAmountFilter.importeMax
+            )
+
             _selectedType.value = type
+
+            if (hadAmountFilter) {
+                _tabSwitchAmountEvent.tryEmit(
+                    Pair(
+                        savedAmountFilter.importeMin ?: _minAmount.value,
+                        savedAmountFilter.importeMax ?: _maxAmount.value
+                    )
+                )
+            }
         }
     }
+
 
     fun toggleMock() {
         val newValue = !_useMock.value
@@ -194,38 +232,6 @@ class InvoicesViewModel @Inject constructor(
             val min = kotlin.math.floor(rawMin).toInt()
             val max = kotlin.math.ceil(rawMax).toInt().coerceAtLeast(min + 1)
 
-            val currentFilter = _activeFilter.value
-            val oldMin = _minAmount.value
-            val oldMax = _maxAmount.value
-
-            val newFilter = transferFilterIntent(
-                currentFilter,
-                oldMin,
-                oldMax,
-                min,
-                max
-            )
-
-            val amountWasAdjusted = newFilter != currentFilter &&
-                    (newFilter.importeMin != currentFilter.importeMin ||
-                            newFilter.importeMax != currentFilter.importeMax)
-
-            if (amountWasAdjusted) {
-                if (newFilter == InvoiceFilter()) {
-                    _amountFilterAdjusted.tryEmit(AmountFilterEvent.Reset)
-                } else {
-                    val effectiveMin = newFilter.importeMin ?: min
-                    val effectiveMax = newFilter.importeMax ?: max
-                    _amountFilterAdjusted.tryEmit(
-                        AmountFilterEvent.Adjusted(
-                            effectiveMin,
-                            effectiveMax
-                        )
-                    )
-                }
-            }
-
-            _activeFilter.value = newFilter
             _minAmount.value = min
             _maxAmount.value = max
 
@@ -267,65 +273,6 @@ class InvoicesViewModel @Inject constructor(
 
             fromOk && toOk && minOk && maxOk && statusOk
         }
-    }
-
-    private fun transferFilterIntent(
-        oldFilter: InvoiceFilter,
-        oldMin: Int,
-        oldMax: Int,
-        newMin: Int,
-        newMax: Int
-    ): InvoiceFilter {
-
-        if (oldFilter == InvoiceFilter()) return oldFilter
-
-        fun mapValue(value: Int?): Int? {
-            if (value == null) return null
-
-            val oldRange = oldMax - oldMin
-            val newRange = newMax - newMin
-
-            if (oldRange <= 0 || newRange <= 0) return newMin
-
-            val threshold = oldRange * 0.25f
-
-            return when {
-                value == oldMin -> newMin
-                value == oldMax -> newMax
-
-                value <= oldMin + threshold ->
-                    (newMin + newRange * 0.25f).toInt()
-
-                value >= oldMax - threshold ->
-                    (newMax - newRange * 0.25f).toInt()
-
-                else -> {
-                    if (value < newMin || value > newMax) null
-                    else value
-                }
-            }
-        }
-
-        val newMinValue = mapValue(oldFilter.importeMin)
-        val newMaxValue = mapValue(oldFilter.importeMax)
-
-        val isDefaultRange =
-            (newMinValue == null || newMinValue == newMin) &&
-                    (newMaxValue == null || newMaxValue == newMax)
-
-        if (
-            isDefaultRange &&
-            oldFilter.desde == null &&
-            oldFilter.hasta == null &&
-            oldFilter.estados.isEmpty()
-        ) {
-            return InvoiceFilter()
-        }
-
-        return oldFilter.copy(
-            importeMin = newMinValue,
-            importeMax = newMaxValue
-        )
     }
 
     fun onAplicarFiltrosClick() {
