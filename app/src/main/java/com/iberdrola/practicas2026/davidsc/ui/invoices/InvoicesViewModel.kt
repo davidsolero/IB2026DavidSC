@@ -1,6 +1,7 @@
 package com.iberdrola.practicas2026.davidsc.ui.invoices
 
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -59,7 +60,8 @@ class InvoicesViewModel @Inject constructor(
     val maxAmount = _maxAmount.asStateFlow()
 
 
-    private val _amountFilterAdjusted = MutableSharedFlow<AmountFilterEvent>(extraBufferCapacity = 1)
+    private val _amountFilterAdjusted =
+        MutableSharedFlow<AmountFilterEvent>(extraBufferCapacity = 1)
     val amountFilterAdjusted: SharedFlow<AmountFilterEvent> = _amountFilterAdjusted
     private val _isGasEnabled = MutableStateFlow(
         getInvoicesUseCase.isGasEnabled()
@@ -214,7 +216,12 @@ class InvoicesViewModel @Inject constructor(
                 } else {
                     val effectiveMin = newFilter.importeMin ?: min
                     val effectiveMax = newFilter.importeMax ?: max
-                    _amountFilterAdjusted.tryEmit(AmountFilterEvent.Adjusted(effectiveMin, effectiveMax))
+                    _amountFilterAdjusted.tryEmit(
+                        AmountFilterEvent.Adjusted(
+                            effectiveMin,
+                            effectiveMax
+                        )
+                    )
                 }
             }
 
@@ -235,7 +242,6 @@ class InvoicesViewModel @Inject constructor(
         filter: InvoiceFilter
     ): List<Invoice> {
         return invoices.filter { invoice ->
-
             val invoiceDate = try {
                 java.time.LocalDate.parse(invoice.date)
             } catch (e: Exception) {
@@ -249,10 +255,12 @@ class InvoicesViewModel @Inject constructor(
                 filter.hasta == null || !invoiceDate.isAfter(filter.hasta)
 
             val minOk =
-                filter.importeMin == null || invoice.amount >= filter.importeMin
+                filter.importeMin == null ||
+                        invoice.amount >= (if (filter.importeMin == filter.importeMax) filter.importeMin - 1 else filter.importeMin)
 
             val maxOk =
-                filter.importeMax == null || invoice.amount <= filter.importeMax
+                filter.importeMax == null ||
+                        invoice.amount <= (if (filter.importeMin == filter.importeMax) filter.importeMax + 1 else filter.importeMax)
 
             val statusOk =
                 filter.estados.isEmpty() || invoice.status in filter.estados
@@ -327,6 +335,7 @@ class InvoicesViewModel @Inject constructor(
     fun onBorrarFiltrosClick() {
         analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_BORRAR_FILTROS)
     }
+
     sealed class AmountFilterEvent {
         data class Adjusted(val newMin: Int, val newMax: Int) : AmountFilterEvent()
         object Reset : AmountFilterEvent()
