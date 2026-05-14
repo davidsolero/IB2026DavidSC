@@ -123,7 +123,7 @@ La segunda entrega hace funcional el sistema de filtrado de facturas, añadiénd
 ### Pantalla de filtros (`FilterScreen`)
 
 - **Filtrado por fecha**: campos "Desde" y "Hasta" con date picker nativo de Material 3. Los selectores impiden seleccionar rangos incoherentes. Ambos campos pueden borrarse individualmente.
-- **Filtrado por importe**: slider de rango doble cuyos límites se calculan dinámicamente a partir de los importes reales de las facturas cargadas. El rango se recalcula al cambiar de pestaña (Luz / Gas) o de calle.
+- **Filtrado por importe**: el usuario ajusta un control de rango con dos puntos para seleccionar el intervalo de importes que desea ver. Los extremos que se muestran se calculan automáticamente a partir de las facturas disponibles (siempre reflejan el mínimo y máximo reales). El rango elegido se recuerda por pestaña (Luz / Gas): al cambiar de pestaña la app restaura el rango previamente usado para esa pestaña y muestra un aviso temporal con el rango restaurado. Si el usuario borra los filtros, el control vuelve a mostrar los valores mínimos y máximos detectados.
 - **Filtrado por estado**: checkboxes múltiples — Pagada, Pendiente de Pago, En trámite de cobro, Anulada, Cuota Fija.
 - **Botón "Aplicar filtros"**: aplica todos los criterios activos y vuelve a `InvoicesScreen`.
 - **Botón "Borrar filtros"**: elimina cualquier filtro activo y vuelve a `InvoicesScreen`.
