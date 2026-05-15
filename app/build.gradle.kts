@@ -1,3 +1,4 @@
+import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.ksp)
@@ -123,3 +124,46 @@ detekt {
     ignoreFailures = true
 }
 
+
+val sdkDir: String = run {
+    val propsFile = rootProject.file("local.properties")
+    if (propsFile.exists()) {
+        val props = Properties()
+        propsFile.reader().use { props.load(it) }
+        props.getProperty("sdk.dir") ?: ""
+    } else ""
+}
+
+tasks.register("adbReverse") {
+    val isWindows = System.getProperty("os.name").lowercase().contains("win")
+    val adb = "$sdkDir/platform-tools/${if (isWindows) "adb.exe" else "adb"}"
+
+    doFirst {
+        val devices = Runtime.getRuntime()
+            .exec(arrayOf(adb, "devices"))
+            .inputStream
+            .bufferedReader()
+            .readLines()
+            .drop(1) // Elimina la cabecera "List of devices attached"
+            .filter { it.contains("\tdevice") && !it.startsWith("emulator-") }
+            .map { it.split("\t").first() }
+
+        if (devices.isEmpty()) {
+            println("adbReverse: no hay dispositivos fisicos conectados, omitiendo redireccion")
+            return@doFirst
+        }
+
+        devices.forEach { serial ->
+            println("adbReverse: redirigiendo puerto 3001 en dispositivo $serial")
+            Runtime.getRuntime()
+                .exec(arrayOf(adb, "-s", serial, "reverse", "tcp:3001", "tcp:3001"))
+                .waitFor()
+        }
+    }
+}
+
+tasks.whenTaskAdded {
+    if (name == "assembleDebug") {
+        dependsOn("adbReverse")
+    }
+}
