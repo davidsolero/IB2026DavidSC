@@ -265,10 +265,12 @@ Los contratos siempre se cargan desde `assets/contracts_mock.json` independiente
 
 ### Uso de Mockoon en dispositivo físico
 
-Para redirigir el tráfico desde un dispositivo físico conectado por USB:
+La redirección del puerto se realiza automáticamente al instalar la app desde Android Studio
+(Run → Run 'app'). No es necesario ejecutar ningún comando manualmente.
 
+Si por algún motivo necesitas hacerlo a mano:
 ```
-adb -s <device_id> reverse tcp:3001 tcp:3001
+adb reverse tcp:3001 tcp:3001
 ```
 
 ---
