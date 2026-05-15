@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.Tune
@@ -30,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -83,6 +85,7 @@ fun InvoicesScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val activity = LocalActivity.current
     val isGasTabVisible by viewModel.isGasTabVisible.collectAsState()
+
     val navigateBack: () -> Unit = {
         if (!isExiting) {
             isExiting = true
@@ -109,19 +112,13 @@ fun InvoicesScreen(
             val first = allInvoices.minOf { it.date }
             val last = allInvoices.maxOf { it.date }
 
-            if (first == last) {
-                dateFormatter.formatCompact(first)
-            } else {
-                dateFormatter.formatRange(first, last)
-            }
+            if (first == last) dateFormatter.formatCompact(first)
+            else dateFormatter.formatRange(first, last)
         }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.tabSwitchAmountEvent.collect { (min, max) ->
-            snackbarHostState.showSnackbar("Filtro de importe restaurado: $min € – $max €")
-        }
-    }
+    val lastInvoice = allInvoices.firstOrNull()
+    val history = remember(filteredInvoices) { filteredInvoices }
 
     BackHandler(enabled = !isExiting) { handleBack() }
 
@@ -148,6 +145,7 @@ fun InvoicesScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
             Row(
@@ -160,6 +158,7 @@ fun InvoicesScreen(
                     selected = selectedType == InvoiceType.LUZ,
                     onClick = { viewModel.selectType(InvoiceType.LUZ) }
                 )
+
                 if (isGasTabVisible) {
                     TabItemUnderline(
                         text = stringResource(R.string.tab_gas),
@@ -172,69 +171,39 @@ fun InvoicesScreen(
             HorizontalDivider(color = Color.LightGray)
 
             if (isLoading) {
-                if (isLandscape) SkeletonInvoicesLandscape()
-                else {
-                    SkeletonLastInvoiceCard()
-                    SkeletonList()
-                }
+                SkeletonLastInvoiceCard()
+                SkeletonList()
             } else {
-                val lastInvoice = allInvoices.firstOrNull()
 
-                val history = remember(filteredInvoices) {
-                    filteredInvoices
-                }
-
-                if (isLandscape) {
-                    Row(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.spacedBy(
-                            dimensionResource(R.dimen.margin_small)
-                        )
-                    ) {
-                        lastInvoice?.let {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    lastInvoice?.let {
+                        item {
                             LastInvoiceCard(
                                 invoice = it,
                                 rangeText = rangeText,
-                                onClick = { showInvoiceDialog = true },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxHeight()
-                                    .padding(horizontal = dimensionResource(R.dimen.margin_medium))
+                                onClick = { showInvoiceDialog = true }
                             )
                         }
-                        Column(modifier = Modifier.weight(2f)) {
+                    }
+                    stickyHeader {
+                        Surface(color = MaterialTheme.colorScheme.surface) {
                             InvoiceHistoryHeader(
                                 onFilterClick = { safeNav.navigate(Screen.FILTER) },
                                 isFilterActive = isFilterActive,
                                 enabled = hasInvoices && !showRatingSheet && !isExiting
                             )
-                            InvoiceHistoryContent(
-                                history = history,
-                                isFilterActive = isFilterActive,
-                                onClick = { showInvoiceDialog = true },
-                                onClearFilters = { viewModel.clearFilter() }
-                            )
                         }
                     }
-                } else {
-                    lastInvoice?.let {
-                        LastInvoiceCard(
-                            invoice = it,
-                            rangeText = rangeText,
-                            onClick = { showInvoiceDialog = true }
+                    item {
+                        InvoiceHistoryContent(
+                            history = history,
+                            isFilterActive = isFilterActive,
+                            onClick = { showInvoiceDialog = true },
+                            onClearFilters = { viewModel.clearFilter() }
                         )
                     }
-                    InvoiceHistoryHeader(
-                        onFilterClick = { safeNav.navigate(Screen.FILTER) },
-                        isFilterActive = isFilterActive,
-                        enabled = hasInvoices && !showRatingSheet && !isExiting
-                    )
-                    InvoiceHistoryContent(
-                        history = history,
-                        isFilterActive = isFilterActive,
-                        onClick = { showInvoiceDialog = true },
-                        onClearFilters = { viewModel.clearFilter() }
-                    )
                 }
             }
         }
@@ -290,7 +259,7 @@ private fun InvoiceHistoryContent(
 ) {
     if (history.isEmpty()) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxWidth()
         ) {
             InvoiceEmptyState(
                 isFilterActive = isFilterActive,
@@ -298,10 +267,12 @@ private fun InvoiceHistoryContent(
             )
         }
     } else {
-        InvoiceListGroupedByYear(
-            invoices = history,
-            onClick =  {invoice -> onClick()}
-        )
+        Column {
+            InvoiceListGroupedByYear(
+                invoices = history,
+                onClick = { onClick() }
+            )
+        }
     }
 }
 

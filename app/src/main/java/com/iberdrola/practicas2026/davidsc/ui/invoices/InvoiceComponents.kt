@@ -384,13 +384,18 @@ fun TabItemUnderline(
 }
 
 @Composable
-fun InvoiceListGroupedByYear(invoices: List<Invoice>, onClick: (Invoice) -> Unit) {
+fun InvoiceListGroupedByYear(
+    invoices: List<Invoice>,
+    onClick: (Invoice) -> Unit
+) {
     val invoicesByYear = invoices.groupBy { it.date.take(4) }
 
-    LazyColumn {
+    Column {
         invoicesByYear.toSortedMap(compareByDescending { it }).forEach { (year, invoicesInYear) ->
-            item { YearHeader(year = year) }
-            items(invoicesInYear) { invoice ->
+
+            YearHeader(year = year)
+
+            invoicesInYear.forEach { invoice ->
                 InvoiceItem(invoice = invoice, onClick = { onClick(invoice) })
                 HorizontalDivider()
             }
