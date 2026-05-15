@@ -30,7 +30,7 @@ fun AppNavHost(
         }
 
         composable(Screen.INVOICES) {
-            InvoicesScreen(navController, safeNav)
+            InvoicesScreen(safeNav)
         }
 
         composable(Screen.FILTER) {

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,7 +34,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
@@ -62,18 +59,14 @@ import com.iberdrola.practicas2026.davidsc.ui.util.DateFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvoicesScreen(
-    navController: NavController,
     safeNav: SafeNavController,
     viewModel: InvoicesViewModel = hiltViewModel()
 ) {
-    val invoices by viewModel.invoices.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val selectedType by viewModel.selectedType.collectAsState()
     val selectedStreet by viewModel.selectedStreet.collectAsState()
     val isFilterActive by viewModel.isFilterActive.collectAsState()
     val hasInvoices by viewModel.hasInvoicesForSelectedType.collectAsState()
-    val isLandscape =
-        LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val allInvoices by viewModel.allInvoices.collectAsState()
     val filteredInvoices by viewModel.invoices.collectAsState()
@@ -174,7 +167,6 @@ fun InvoicesScreen(
                 SkeletonLastInvoiceCard()
                 SkeletonList()
             } else {
-
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -315,9 +307,9 @@ private fun InvoiceEmptyState(
 
         Text(
             text = if (isFilterActive) {
-                "No encontramos facturas con estos filtros.\nPrueba a ampliarlos para ver resultados."
+                stringResource(R.string.no_invoices_filtered)
             } else {
-                "Aquí aparecerán tus facturas cuando estén disponibles."
+                stringResource(R.string.no_invoices_default)
             },
             style = MaterialTheme.typography.bodyMedium,
             color = Color.Gray
@@ -333,7 +325,7 @@ private fun InvoiceEmptyState(
                     contentColor = primaryColor
                 )
             ) {
-                Text("Limpiar filtros")
+                Text(text = stringResource(R.string.filter_clear_text))
             }
         }
     }
@@ -363,7 +355,7 @@ private fun InvoiceHistoryHeader(
             onClick = onFilterClick,
             enabled = enabled,
             border = BorderStroke(
-                2.dp,
+                dimensionResource(R.dimen.thickness_medium),
                 if (enabled) {
                     colorResource(R.color.iberdrola_green)
                 } else {

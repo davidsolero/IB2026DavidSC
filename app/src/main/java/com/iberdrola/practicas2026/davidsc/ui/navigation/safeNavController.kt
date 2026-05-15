@@ -4,12 +4,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
 import java.util.concurrent.atomic.AtomicBoolean
-
-/**
- * Prevents double navigation and back-spam by locking during transitions.
- *
- * Lock is released when navigation destination changes OR when popBackStack fails.
- */
 class SafeNavController(
     private val navController: NavHostController
 ) {

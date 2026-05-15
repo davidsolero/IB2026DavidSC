@@ -69,7 +69,7 @@ fun ModifyEmailScreen(
                 ContractEmailField(
                     value = email,
                     onValueChange = { email = it },
-                    placeholder = "Nuevo email"
+                    placeholder = stringResource(R.string.email_placeholder)
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 ContractNavigationButtons(

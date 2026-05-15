@@ -67,8 +67,8 @@ fun FlowHeader(
             Text(
                 text = title,
                 modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp,
+                    start = dimensionResource(R.dimen.margin_medium),
+                    end = dimensionResource(R.dimen.margin_medium),
                     top = 4.dp
                 ),
                 style = MaterialTheme.typography.titleLarge,

@@ -105,4 +105,14 @@
     <string name="crash_dialog_message">Esta acción hará que la aplicación falle y generará un informe en Crashlytics. ¿Continuar?</string>
     <string name="crash_dialog_confirm">Continuar</string>
 
+    <string name="email_placeholder">Nuevo email</string>
+    <string name="no_invoices_filtered">
+    No encontramos facturas con estos filtros.\nPrueba a ampliarlos para ver resultados.
+</string>
+
+    <string name="no_invoices_default">
+    Aquí aparecerán tus facturas cuando estén disponibles.
+</string>
+
+    <string name="filter_clear_text">Limpiar filtros</string>
 </resources>
