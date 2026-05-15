@@ -17,9 +17,9 @@ La cuarta entrega integra Firebase en la aplicación sobre todo lo implementado 
 
 ### Remote Config
 
-- Variable booleana `gas_contracts_enabled` que habilita o deshabilita los contratos de gas.
+- Variable booleana `gas_contracts_enabled` que habilita o deshabilita los contratos y facturas de gas.
 - Por defecto habilitados tanto en Firebase como en el valor local de fallback.
-- El flag se consume en `GetContractsUseCase`: si está deshabilitado, los contratos de tipo GAS se excluyen antes de devolver la lista.
+- El flag se consume en `GetContractsUseCase` y `GetInvoicesUseCase` : si está deshabilitado, los elemntos de tipo GAS se excluyen antes de devolver la lista.
 - El fetch se realiza en `App.onCreate()` con intervalo mínimo de 1 hora en producción y 0 segundos en debug para facilitar las pruebas.
 
 ### Google Analytics

@@ -134,6 +134,36 @@ val sdkDir: String = run {
     } else ""
 }
 
+tasks.register("adbFirebaseDebug") {
+    val isWindows = System.getProperty("os.name").lowercase().contains("win")
+    val adb = "$sdkDir/platform-tools/${if (isWindows) "adb.exe" else "adb"}"
+
+    doFirst {
+        val devices = Runtime.getRuntime()
+            .exec(arrayOf(adb, "devices"))
+            .inputStream
+            .bufferedReader()
+            .readLines()
+            .drop(1)
+            .filter { it.contains("\tdevice") && !it.startsWith("emulator-") }
+            .map { it.split("\t").first() }
+
+        if (devices.isEmpty()) {
+            println("adbFirebaseDebug: no hay dispositivos fisicos conectados, omitiendo")
+            return@doFirst
+        }
+
+        devices.forEach { serial ->
+            println("adbFirebaseDebug: activando Firebase DebugView en $serial")
+            Runtime.getRuntime()
+                .exec(arrayOf(adb, "-s", serial, "shell", "setprop",
+                    "debug.firebase.analytics.app",
+                    "com.iberdrola.practicas2026.davidsc"))
+                .waitFor()
+        }
+    }
+}
+
 tasks.register("adbReverse") {
     val isWindows = System.getProperty("os.name").lowercase().contains("win")
     val adb = "$sdkDir/platform-tools/${if (isWindows) "adb.exe" else "adb"}"
@@ -144,7 +174,7 @@ tasks.register("adbReverse") {
             .inputStream
             .bufferedReader()
             .readLines()
-            .drop(1) // Elimina la cabecera "List of devices attached"
+            .drop(1)
             .filter { it.contains("\tdevice") && !it.startsWith("emulator-") }
             .map { it.split("\t").first() }
 
@@ -165,5 +195,6 @@ tasks.register("adbReverse") {
 tasks.whenTaskAdded {
     if (name == "assembleDebug") {
         dependsOn("adbReverse")
+        dependsOn("adbFirebaseDebug")
     }
 }

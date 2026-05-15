@@ -24,10 +24,6 @@ class App : Application() {
     }
 
     private fun fetchRemoteConfig() {
-        remoteConfig.fetchAndActivate().addOnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                // Remote Config defaults remain active on failure
-            }
-        }
+        remoteConfig.fetchAndActivate()
     }
 }

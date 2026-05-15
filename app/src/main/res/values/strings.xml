@@ -41,22 +41,20 @@
     <string name="cancel">Cancelar</string>
     <string name="no_older_invoices">No hay facturas anteriores</string>
     <string name="no_older_invoices_with_filter">No hay facturas anteriores con este filtro</string>
-    <!-- Add these entries inside the existing <resources> tag in strings.xml -->
 
-    <!-- Contract selection -->
     <string name="contract_selection_title">Factura electrónica</string>
     <string name="contract_luz">Contrato de Luz</string>
     <string name="contract_gas">Contrato de Gas</string>
     <string name="contract_active">Activo</string>
     <string name="contract_inactive">Sin Activar</string>
 
-    <!-- Active contract screen -->
+
     <string name="active_contract_receives_here">Actualmente recibes tus facturas de este contrato al:</string>
     <string name="here_in_this_mail">Recibes tus facturas en este email</string>
     <string name="active_contract_disclaimer">Recuerda que la factura electrónica es un requisito de este Plan, por lo que no es posible desactivarla.</string>
     <string name="active_contract_modify_email">Modificar email</string>
 
-    <!-- Activate contract screen -->
+
     <string name="activate_contract_title">Activa tu factura electrónica</string>
     <string name="activate_contract_linked_email">Email vinculado a tu cuenta:</string>
     <string name="activate_contract_email_question">¿En qué email deseas recibir tus facturas?</string>
@@ -64,14 +62,14 @@
     <string name="activate_contract_legal_conditions">Condiciones Generales</string>
     <string name="activate_contract_legal_suffix">y Particulares de la oferta y la suscripción a Factura Electrónica.</string>
 
-    <!-- Modify email screen -->
+
     <string name="modify_email_title">Modificar email</string>
     <string name="modify_email_field_label">* Nuevo email</string>
 
-    <!-- Shared field labels -->
+
     <string name="field_email">* Email</string>
 
-    <!-- OTP screen -->
+
     <string name="otp_introduce_code">Introduce tu código de verificación</string>
     <string name="otp_sent_to">Para verificar tu identidad, hemos enviado un código al teléfono %s. Por favor, introdúcelo a continuación.</string>
     <string name="otp_field_label">Código de verificación</string>
@@ -83,22 +81,22 @@
     <string name="otp_resend_link">Volver a enviar</string>
     <string name="otp_resend_confirmation">Hemos vuelto a enviar un SMS con tu código de verificación.</string>
 
-    <!-- Privacy block -->
+
     <string name="privacy_title">Información básica sobre protección de datos</string>
     <string name="privacy_responsible">Responsable: Iberdrola Clientes S.A.U.</string>
     <string name="privacy_purpose">Finalidad: Gestión de la factura electrónica.</string>
     <string name="privacy_rights">Derechos: Acceso, rectificación, supresión, limitación del tratamiento, portabilidad de datos u oposición, incluida la oposición a decisiones individuales automatizadas.</string>
 
-    <!-- Confirmation screen -->
+
     <string name="confirmation_activated_title">¡Has activado correctamente tu factura electrónica!</string>
     <string name="confirmation_modified_title">¡Has modificado correctamente tu email!</string>
     <string name="confirmation_body">Pronto recibirás un correo electrónico de verificación para recibir tus facturas en la dirección %s.</string>
 
-    <!-- Navigation -->
+
     <string name="nav_previous">Anterior</string>
     <string name="nav_next">Siguiente</string>
 
-    <!-- Electronic invoice entry point in MainScreen -->
+
     <string name="main_electronic_invoice">Gestionar factura electrónica</string>
 
     <string name="no_email_available">No hay email disponible</string>
