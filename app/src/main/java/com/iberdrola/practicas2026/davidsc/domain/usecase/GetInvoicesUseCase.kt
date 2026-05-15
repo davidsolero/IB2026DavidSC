@@ -1,17 +1,18 @@
 package com.iberdrola.practicas2026.davidsc.domain.usecase
 
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceFilter
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import com.iberdrola.practicas2026.davidsc.domain.repository.InvoiceRepository
 import java.time.LocalDate
 
-class GetInvoicesUseCase(private val repository: InvoiceRepository) {
+class GetInvoicesUseCase(private val repository: InvoiceRepository,    private val remoteConfig: FirebaseRemoteConfig) {
     suspend operator fun invoke(
         type: InvoiceType? = null,
         street: String? = null,
         forceNetwork: Boolean = false,
-        filter: InvoiceFilter = InvoiceFilter()
+        filter: InvoiceFilter = InvoiceFilter(),
     ): List<Invoice> {
         val invoices = try {
             if (forceNetwork) repository.fetchInvoicesFromNetwork()
@@ -20,7 +21,14 @@ class GetInvoicesUseCase(private val repository: InvoiceRepository) {
             repository.getInvoices()
         }
 
+        val gasEnabled = remoteConfig.getBoolean(KEY_GAS_ENABLED)
+
         val result = invoices
+            .filter { invoice ->
+                if (!gasEnabled) {
+                    invoice.type != InvoiceType.GAS
+                } else true
+            }
             .let { list -> type?.let { t -> list.filter { it.type == t } } ?: list }
             .let { list ->
                 street?.let { s ->
@@ -60,5 +68,9 @@ class GetInvoicesUseCase(private val repository: InvoiceRepository) {
             }
 
         return result
+    }
+    fun isGasEnabled(): Boolean = remoteConfig.getBoolean(KEY_GAS_ENABLED)
+    companion object {
+        const val KEY_GAS_ENABLED = "gas_contracts_enabled"
     }
 }

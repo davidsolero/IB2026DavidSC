@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "36038219320",
+    "project_id": "ib2026davidsc",
+    "storage_bucket": "ib2026davidsc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:36038219320:android:06786f13ef897d3cfab8cd",
+        "android_client_info": {
+          "package_name": "com.iberdrola.practicas2026.davidsc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAd2IPLBYbeu2szooMvdc5K4ovmJttVJ94"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -71,7 +71,7 @@ fun ContractEmailField(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Asterisco SIEMPRE visible
+
                     Text(
                         text = "* ",
                         style = MaterialTheme.typography.bodyMedium,
@@ -94,7 +94,7 @@ fun ContractEmailField(
 
         HorizontalDivider(
             color = if (value.isNotEmpty()) iberdrolaGreen else Color.Gray,
-            thickness = 2.dp
+            thickness = dimensionResource(R.dimen.thickness_medium)
         )
     }
 }
@@ -130,7 +130,7 @@ fun PrivacyInfoBlock(modifier: Modifier = Modifier) {
         })
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
-        HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
+        HorizontalDivider(color = Color.LightGray, thickness = dimensionResource(R.dimen.thickness_small))
     }
 }
 
@@ -144,6 +144,9 @@ fun ContractNavigationButtons(
     modifier: Modifier = Modifier
 ) {
     val iberdrolaGreen = colorResource(R.color.iberdrola_green)
+    HorizontalDivider(color = Color.LightGray)
+    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
+
 
     Row(modifier = modifier.fillMaxWidth()) {
 
@@ -156,7 +159,7 @@ fun ContractNavigationButtons(
                 contentColor = iberdrolaGreen
             ),
             border = androidx.compose.foundation.BorderStroke(
-                2.dp,
+                dimensionResource(R.dimen.thickness_medium),
                 iberdrolaGreen
             )
         ) {

@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -26,6 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,8 +44,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
+import com.iberdrola.practicas2026.davidsc.core.utils.OtpFlow
 import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 
@@ -60,7 +59,7 @@ fun OtpVerificationScreen(
     safeNav: SafeNavController,
     viewModel: OtpViewModel = hiltViewModel()
 ) {
-
+    val isActivation = flow == OtpFlow.ACTIVATE
     val code by viewModel.code.collectAsState()
     val canContinue by viewModel.canContinue.collectAsState()
     val remainingResends by viewModel.remainingResends.collectAsState()
@@ -80,7 +79,11 @@ fun OtpVerificationScreen(
                     .padding(innerPadding)
             ) {
                 FlowHeader(
-                    title = stringResource(R.string.activate_contract_title),
+                    title = if (isActivation) {
+                        stringResource(R.string.activate_contract_title)
+                    } else {
+                        stringResource(R.string.modify_email_title)
+                    },
                     step = 2,
                     totalSteps = 3,
                     onClose = {
@@ -149,7 +152,6 @@ fun OtpVerificationScreen(
                             onClose = { viewModel.hideResendConfirmation() },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 12.dp)
                         )
                     }
                     ContractNavigationButtons(
@@ -236,18 +238,21 @@ private fun ResendCodeBlock(
                 color = Color.Black
             )
             if (canResend) {
-                if (remainingResends != 3) {
-                    Text(
-                        text = stringResource(R.string.otp_resends_remaining, remainingResends),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Black
-                    )
-                }
-            } else {
+                if (remainingResends <3){
+                Text(
+                    text = if (remainingResends == 1) {
+                        stringResource(R.string.otp_resends_remaining, remainingResends)
+                    } else {
+                        stringResource(R.string.otp_resends_remaining_other, remainingResends)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Black
+                )}
+            }else {
                 Text(
                     text = stringResource(R.string.otp_no_resends_left),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = colorScheme.error
                 )
             }
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
@@ -256,7 +261,7 @@ private fun ResendCodeBlock(
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontWeight = FontWeight.Bold,
                     textDecoration = TextDecoration.Underline,
-                    color = if (canResend) Color.Black else Color.Gray
+                    color = if (canResend) Color.Black else colorScheme.error
                 ),
                 modifier = Modifier.clickable(
                     enabled = canResend
@@ -281,7 +286,7 @@ private fun ResendCodeBlock(
                     text = timeText,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Gray
+                    color = colorScheme.error
                 )
             }
         }

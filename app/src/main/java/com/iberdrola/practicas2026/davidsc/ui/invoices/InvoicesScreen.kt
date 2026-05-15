@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.Tune
@@ -30,10 +30,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
@@ -60,18 +59,14 @@ import com.iberdrola.practicas2026.davidsc.ui.util.DateFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvoicesScreen(
-    navController: NavController,
     safeNav: SafeNavController,
     viewModel: InvoicesViewModel = hiltViewModel()
 ) {
-    val invoices by viewModel.invoices.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val selectedType by viewModel.selectedType.collectAsState()
     val selectedStreet by viewModel.selectedStreet.collectAsState()
     val isFilterActive by viewModel.isFilterActive.collectAsState()
     val hasInvoices by viewModel.hasInvoicesForSelectedType.collectAsState()
-    val isLandscape =
-        LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val allInvoices by viewModel.allInvoices.collectAsState()
     val filteredInvoices by viewModel.invoices.collectAsState()
@@ -82,6 +77,7 @@ fun InvoicesScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val activity = LocalActivity.current
+    val isGasTabVisible by viewModel.isGasTabVisible.collectAsState()
 
     val navigateBack: () -> Unit = {
         if (!isExiting) {
@@ -109,25 +105,13 @@ fun InvoicesScreen(
             val first = allInvoices.minOf { it.date }
             val last = allInvoices.maxOf { it.date }
 
-            if (first == last) {
-                dateFormatter.formatCompact(first)
-            } else {
-                dateFormatter.formatRange(first, last)
-            }
+            if (first == last) dateFormatter.formatCompact(first)
+            else dateFormatter.formatRange(first, last)
         }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.amountFilterAdjusted.collect { event ->
-            val message = when (event) {
-                is InvoicesViewModel.AmountFilterEvent.Adjusted ->
-                    "Hemos adaptado el filtro al rango disponible:\n (${event.newMin} € – ${event.newMax} €)"
-                is InvoicesViewModel.AmountFilterEvent.Reset ->
-                    "Filtro de importe eliminado: fuera del rango disponible"
-            }
-            snackbarHostState.showSnackbar(message)
-        }
-    }
+    val lastInvoice = allInvoices.firstOrNull()
+    val history = remember(filteredInvoices) { filteredInvoices }
 
     BackHandler(enabled = !isExiting) { handleBack() }
 
@@ -154,6 +138,7 @@ fun InvoicesScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
             Row(
@@ -166,83 +151,51 @@ fun InvoicesScreen(
                     selected = selectedType == InvoiceType.LUZ,
                     onClick = { viewModel.selectType(InvoiceType.LUZ) }
                 )
-                TabItemUnderline(
-                    text = stringResource(R.string.tab_gas),
-                    selected = selectedType == InvoiceType.GAS,
-                    onClick = { viewModel.selectType(InvoiceType.GAS) }
-                )
+
+                if (isGasTabVisible) {
+                    TabItemUnderline(
+                        text = stringResource(R.string.tab_gas),
+                        selected = selectedType == InvoiceType.GAS,
+                        onClick = { viewModel.selectType(InvoiceType.GAS) }
+                    )
+                }
             }
 
             HorizontalDivider(color = Color.LightGray)
 
             if (isLoading) {
-                if (isLandscape) SkeletonInvoicesLandscape()
-                else {
-                    SkeletonLastInvoiceCard()
-                    SkeletonList()
-                }
+                SkeletonLastInvoiceCard()
+                SkeletonList()
             } else {
-                val lastInvoice = allInvoices.firstOrNull()
-
-                val history = remember(lastInvoice, filteredInvoices) {
-                    if (lastInvoice == null) {
-                        filteredInvoices
-                    } else {
-                        filteredInvoices.filterNot { it.id == lastInvoice.id }
-                    }
-                }
-
-                if (isLandscape) {
-                    Row(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.spacedBy(
-                            dimensionResource(R.dimen.margin_small)
-                        )
-                    ) {
-                        lastInvoice?.let {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    lastInvoice?.let {
+                        item {
                             LastInvoiceCard(
                                 invoice = it,
                                 rangeText = rangeText,
-                                onClick = { showInvoiceDialog = true },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxHeight()
-                                    .padding(horizontal = dimensionResource(R.dimen.margin_medium))
+                                onClick = { showInvoiceDialog = true }
                             )
                         }
-                        Column(modifier = Modifier.weight(2f)) {
+                    }
+                    stickyHeader {
+                        Surface(color = MaterialTheme.colorScheme.surface) {
                             InvoiceHistoryHeader(
                                 onFilterClick = { safeNav.navigate(Screen.FILTER) },
                                 isFilterActive = isFilterActive,
                                 enabled = hasInvoices && !showRatingSheet && !isExiting
                             )
-                            InvoiceHistoryContent(
-                                history = history,
-                                isFilterActive = isFilterActive,
-                                onClick = { showInvoiceDialog = true },
-                                onClearFilters = { viewModel.clearFilter() }
-                            )
                         }
                     }
-                } else {
-                    lastInvoice?.let {
-                        LastInvoiceCard(
-                            invoice = it,
-                            rangeText = rangeText,
-                            onClick = { showInvoiceDialog = true }
+                    item {
+                        InvoiceHistoryContent(
+                            history = history,
+                            isFilterActive = isFilterActive,
+                            onClick = { showInvoiceDialog = true },
+                            onClearFilters = { viewModel.clearFilter() }
                         )
                     }
-                    InvoiceHistoryHeader(
-                        onFilterClick = { safeNav.navigate(Screen.FILTER) },
-                        isFilterActive = isFilterActive,
-                        enabled = hasInvoices && !showRatingSheet && !isExiting
-                    )
-                    InvoiceHistoryContent(
-                        history = history,
-                        isFilterActive = isFilterActive,
-                        onClick = { showInvoiceDialog = true },
-                        onClearFilters = { viewModel.clearFilter() }
-                    )
                 }
             }
         }
@@ -298,7 +251,7 @@ private fun InvoiceHistoryContent(
 ) {
     if (history.isEmpty()) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxWidth()
         ) {
             InvoiceEmptyState(
                 isFilterActive = isFilterActive,
@@ -306,10 +259,12 @@ private fun InvoiceHistoryContent(
             )
         }
     } else {
-        InvoiceListGroupedByYear(
-            invoices = history,
-            onClick =  {invoice -> onClick()}
-        )
+        Column {
+            InvoiceListGroupedByYear(
+                invoices = history,
+                onClick = { onClick() }
+            )
+        }
     }
 }
 
@@ -352,9 +307,9 @@ private fun InvoiceEmptyState(
 
         Text(
             text = if (isFilterActive) {
-                "No encontramos facturas con estos filtros.\nPrueba a ampliarlos para ver resultados."
+                stringResource(R.string.no_invoices_filtered)
             } else {
-                "Aquí aparecerán tus facturas cuando estén disponibles."
+                stringResource(R.string.no_invoices_default)
             },
             style = MaterialTheme.typography.bodyMedium,
             color = Color.Gray
@@ -370,7 +325,7 @@ private fun InvoiceEmptyState(
                     contentColor = primaryColor
                 )
             ) {
-                Text("Limpiar filtros")
+                Text(text = stringResource(R.string.filter_clear_text))
             }
         }
     }
@@ -400,7 +355,7 @@ private fun InvoiceHistoryHeader(
             onClick = onFilterClick,
             enabled = enabled,
             border = BorderStroke(
-                2.dp,
+                dimensionResource(R.dimen.thickness_medium),
                 if (enabled) {
                     colorResource(R.color.iberdrola_green)
                 } else {

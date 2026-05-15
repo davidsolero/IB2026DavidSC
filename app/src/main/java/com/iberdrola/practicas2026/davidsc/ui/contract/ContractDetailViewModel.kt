@@ -2,6 +2,7 @@ package com.iberdrola.practicas2026.davidsc.ui.contract
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iberdrola.practicas2026.davidsc.core.utils.AnalyticsTracker
 import com.iberdrola.practicas2026.davidsc.domain.model.Contract
 import com.iberdrola.practicas2026.davidsc.domain.usecase.GetContractsUseCase
 import com.iberdrola.practicas2026.davidsc.domain.usecase.UpdateContractEmailUseCase
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 class ContractDetailViewModel @Inject constructor(
     private val getContractsUseCase: GetContractsUseCase,
     private val updateContractEmailUseCase: UpdateContractEmailUseCase,
+    private val analyticsTracker: AnalyticsTracker,
     @Named("io") private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -81,6 +83,10 @@ class ContractDetailViewModel @Inject constructor(
 
     fun onLegalCheckedChange(value: Boolean) {
         _legalChecked.value = value
+    }
+
+    fun onModificarEmailClick() {
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_MODIFICAR_EMAIL)
     }
 
 }

@@ -9,13 +9,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
+import com.iberdrola.practicas2026.davidsc.core.utils.AnalyticsTracker
 import com.iberdrola.practicas2026.davidsc.ui.navigation.AppNavHost
 import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 import com.iberdrola.practicas2026.davidsc.ui.theme.IB2026DavidSCTheme
 import dagger.hilt.android.AndroidEntryPoint
+import jakarta.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var analyticsTracker: AnalyticsTracker
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -32,6 +38,11 @@ class MainActivity : ComponentActivity() {
                 val safeNav = remember(navController) {
                     SafeNavController(navController)
                 }
+
+                navController.addOnDestinationChangedListener { _, destination, _ ->
+                    analyticsTracker.trackScreenView(destination.route ?: "unknown")
+                }
+
                 AppNavHost(
                     navController = navController,
                     safeNav = safeNav

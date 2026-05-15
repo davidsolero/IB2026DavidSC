@@ -38,13 +38,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.iberdrola.practicas2026.davidsc.R
-import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 import com.iberdrola.practicas2026.davidsc.domain.model.Contract
 import com.iberdrola.practicas2026.davidsc.domain.model.ContractType
 import com.iberdrola.practicas2026.davidsc.ui.invoices.BackButton
 import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
+import com.iberdrola.practicas2026.davidsc.ui.navigation.Screen
 
 @Composable
 fun ContractSelectionScreen(
@@ -55,33 +54,41 @@ fun ContractSelectionScreen(
     var isExiting by remember { mutableStateOf(false) }
 
     Scaffold { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = dimensionResource(R.dimen.margin_medium))
         ) {
+
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-            BackButton(onClick = {
-                if (!isExiting) {
-                    isExiting = true
-                    safeNav.popBackStack()
-                }
-            })
+            Column(
+                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.margin_medium))
+            ) {
+                BackButton(onClick = {
+                    if (!isExiting) {
+                        isExiting = true
+                        safeNav.popBackStack()
+                    }
+                })
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
 
-            Text(
-                text = stringResource(R.string.contract_selection_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
+                Text(
+                    text = stringResource(R.string.contract_selection_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
-            LazyColumn {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
                 items(contracts) { contract ->
+
                     ContractItem(
                         contract = contract,
                         onClick = {
@@ -96,12 +103,14 @@ fun ContractSelectionScreen(
                             }
                         }
                     )
+
                     HorizontalDivider(color = Color.LightGray)
                 }
             }
         }
     }
 }
+
 @Composable
 private fun ContractItem(
     contract: Contract,

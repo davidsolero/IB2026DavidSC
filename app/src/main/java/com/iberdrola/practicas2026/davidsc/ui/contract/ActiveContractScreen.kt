@@ -87,7 +87,7 @@ fun ActiveContractScreen(
                 Text(
                     text = stringResource(R.string.active_contract_receives_here),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    color = Color.Black
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.icon_size_medium)))
                 Text(
@@ -103,7 +103,7 @@ fun ActiveContractScreen(
                     fontWeight = FontWeight.Medium,
                     color = Color.Gray
                 )
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
                 HorizontalDivider(color = Color.LightGray)
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_large)))
                 Row(
@@ -124,10 +124,13 @@ fun ActiveContractScreen(
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
+                HorizontalDivider(color = Color.LightGray)
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
                 Button(
                     onClick = {
                         if (!isExiting) {
                             isExiting = true
+                            viewModel.onModificarEmailClick()
                             val email = c.email ?: ""
                             safeNav.navigate(Screen.modifyEmail(c.id, email))
                         }

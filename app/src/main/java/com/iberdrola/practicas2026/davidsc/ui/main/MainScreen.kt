@@ -14,22 +14,28 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -60,7 +67,7 @@ fun MainScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val useMock by viewModel.useMock.collectAsState()
     var isExiting by remember { mutableStateOf(false) }
-
+    var showCrashConfirmDialog by remember { mutableStateOf(false) }
     val navigateToInvoices = { street: String? ->
         if (!isExiting) {
             isExiting = true
@@ -74,6 +81,7 @@ fun MainScreen(
     LaunchedEffect(useMock) {
         viewModel.loadStreets()
     }
+
 
     Scaffold { innerPadding ->
         Column(
@@ -104,7 +112,7 @@ fun MainScreen(
                         contentColor = colorResource(R.color.iberdrola_green)
                     )
                 ) {
-                    Text(if (useMock)  stringResource(R.string.mock_on) else  stringResource(R.string.mock_off) )
+                    Text(if (useMock) stringResource(R.string.mock_on) else stringResource(R.string.mock_off))
                 }
             }
 
@@ -119,7 +127,10 @@ fun MainScreen(
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_medium)))
 
             Button(
-                onClick = { navigateToInvoices(null) },
+                onClick = {
+                    viewModel.onVerTodasFacturasClick()
+                    navigateToInvoices(null)
+                },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorResource(R.color.iberdrola_green)
@@ -135,6 +146,7 @@ fun MainScreen(
                 onClick = {
                     if (!isExiting) {
                         isExiting = true
+                        viewModel.onGestionarFacturaClick()
                         safeNav.navigate(Screen.CONTRACT_SELECTION)
                     }
                 },
@@ -179,7 +191,10 @@ fun MainScreen(
                         items(streets) { street ->
                             StreetItem(
                                 street = street,
-                                onClick = { navigateToInvoices(street) }
+                                onClick = {
+                                    viewModel.onVerFacturasCalleClick()
+                                    navigateToInvoices(street)
+                                }
                             )
                             if (street != streets.last()) {
                                 HorizontalDivider(color = Color.LightGray)
@@ -189,8 +204,53 @@ fun MainScreen(
                 }
 
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.margin_small)))
+
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                IconButton(
+                    onClick = { showCrashConfirmDialog = true },
+                    modifier = Modifier
+                        .padding(dimensionResource(R.dimen.margin_medium))
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.BugReport,
+                        contentDescription = stringResource(R.string.crash_dialog_title),
+                        tint = Color.Red
+                    )
+                }
+            }
+            if (showCrashConfirmDialog) {
+                AlertDialog(
+                    onDismissRequest = { showCrashConfirmDialog = false },
+                    containerColor = Color.White,
+                    title = { Text(stringResource(R.string.crash_dialog_title)) },
+                    text = { Text(stringResource(R.string.crash_dialog_message)) },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showCrashConfirmDialog = false
+                                viewModel.forceCrash()
+                            },
+                            colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
+                        ) { Text(stringResource(R.string.crash_dialog_confirm)) }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showCrashConfirmDialog = false },
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = colorResource(
+                                    R.color.iberdrola_green
+                                )
+                            )
+                        ) { Text(stringResource(R.string.cancel)) }
+                    })
             }
         }
+
+
     }
 }
 

@@ -1,9 +1,12 @@
+import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -62,6 +65,7 @@ dependencies {
     implementation(libs.androidx.runtime)
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.ui.text)
+
     ksp(libs.hilt.compiler)
 
     // Retrofit
@@ -100,6 +104,11 @@ dependencies {
 
     //Detekt
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.6")
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.config)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 }
 
 
@@ -115,3 +124,77 @@ detekt {
     ignoreFailures = true
 }
 
+
+val sdkDir: String = run {
+    val propsFile = rootProject.file("local.properties")
+    if (propsFile.exists()) {
+        val props = Properties()
+        propsFile.reader().use { props.load(it) }
+        props.getProperty("sdk.dir") ?: ""
+    } else ""
+}
+
+tasks.register("adbFirebaseDebug") {
+    val isWindows = System.getProperty("os.name").lowercase().contains("win")
+    val adb = "$sdkDir/platform-tools/${if (isWindows) "adb.exe" else "adb"}"
+
+    doFirst {
+        val devices = Runtime.getRuntime()
+            .exec(arrayOf(adb, "devices"))
+            .inputStream
+            .bufferedReader()
+            .readLines()
+            .drop(1)
+            .filter { it.contains("\tdevice") && !it.startsWith("emulator-") }
+            .map { it.split("\t").first() }
+
+        if (devices.isEmpty()) {
+            println("adbFirebaseDebug: no hay dispositivos fisicos conectados, omitiendo")
+            return@doFirst
+        }
+
+        devices.forEach { serial ->
+            println("adbFirebaseDebug: activando Firebase DebugView en $serial")
+            Runtime.getRuntime()
+                .exec(arrayOf(adb, "-s", serial, "shell", "setprop",
+                    "debug.firebase.analytics.app",
+                    "com.iberdrola.practicas2026.davidsc"))
+                .waitFor()
+        }
+    }
+}
+
+tasks.register("adbReverse") {
+    val isWindows = System.getProperty("os.name").lowercase().contains("win")
+    val adb = "$sdkDir/platform-tools/${if (isWindows) "adb.exe" else "adb"}"
+
+    doFirst {
+        val devices = Runtime.getRuntime()
+            .exec(arrayOf(adb, "devices"))
+            .inputStream
+            .bufferedReader()
+            .readLines()
+            .drop(1)
+            .filter { it.contains("\tdevice") && !it.startsWith("emulator-") }
+            .map { it.split("\t").first() }
+
+        if (devices.isEmpty()) {
+            println("adbReverse: no hay dispositivos fisicos conectados, omitiendo redireccion")
+            return@doFirst
+        }
+
+        devices.forEach { serial ->
+            println("adbReverse: redirigiendo puerto 3001 en dispositivo $serial")
+            Runtime.getRuntime()
+                .exec(arrayOf(adb, "-s", serial, "reverse", "tcp:3001", "tcp:3001"))
+                .waitFor()
+        }
+    }
+}
+
+tasks.whenTaskAdded {
+    if (name == "assembleDebug") {
+        dependsOn("adbReverse")
+        dependsOn("adbFirebaseDebug")
+    }
+}
