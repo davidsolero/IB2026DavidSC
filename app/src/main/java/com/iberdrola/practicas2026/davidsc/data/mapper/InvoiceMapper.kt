@@ -7,15 +7,14 @@ import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 
 fun InvoiceDto.toDomainOrNull(): Invoice? {
     val id = id ?: return null
-    val startDate = startDate ?: return null
+    val date = emissionDate ?: return null
     val type = type?.toInvoiceTypeOrNull() ?: return null
 
     return Invoice(
         id = id,
-        startDate = startDate,
-        endDate = endDate ?: startDate,
+        date = date,
         description = description ?: "",
-        amount = amount ?: 0.0,  //Bonification could use 0.0
+        amount = amount ?: 0.0,
         status = status ?: "Desconocido",
         type = type,
         street = street ?: ""
@@ -28,8 +27,7 @@ fun List<InvoiceDto>.toDomainList(): List<Invoice> =
 fun Invoice.toEntity(): InvoiceEntity {
     return InvoiceEntity(
         id = id,
-        startDate = startDate,
-        endDate = endDate,
+        date = date,
         description = description,
         amount = amount,
         status = status,
@@ -41,8 +39,7 @@ fun Invoice.toEntity(): InvoiceEntity {
 fun InvoiceEntity.toDomain(): Invoice {
     return Invoice(
         id = id,
-        startDate = startDate,
-        endDate = endDate,
+        date = date,
         description = description,
         amount = amount,
         status = status,
@@ -59,11 +56,6 @@ fun String.toInvoiceTypeOrNull(): InvoiceType? {
     }
 }
 
-/**
- * Converts a raw string from the API or database to an [InvoiceType].
- * Throws [IllegalArgumentException] if the value is not a recognized type.
- * This is intentional — unknown types indicate a data contract violation.
- */
 fun String.toInvoiceType(): InvoiceType {
     return when (this.lowercase()) {
         "luz" -> InvoiceType.LUZ

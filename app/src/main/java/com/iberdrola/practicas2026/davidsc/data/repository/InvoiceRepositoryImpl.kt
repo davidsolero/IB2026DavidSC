@@ -3,6 +3,8 @@ package com.iberdrola.practicas2026.davidsc.data.repository
 import android.content.Context
 import com.google.gson.Gson
 import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
+import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig.MOCK_DELAY_MAX_MS
+import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig.MOCK_DELAY_MIN_MS
 import com.iberdrola.practicas2026.davidsc.data.local.dao.InvoiceDao
 import com.iberdrola.practicas2026.davidsc.data.mapper.toDomain
 import com.iberdrola.practicas2026.davidsc.data.mapper.toDomainList
@@ -28,9 +30,8 @@ class InvoiceRepositoryImpl(
         }
     }
 
-    // Simulates a loading delay to replicate real network behavior in local mock mode.
     private suspend fun loadFromLocalMock(): List<Invoice> {
-        delay(Random.nextLong(1000L, 3001L))
+        delay(Random.nextLong(MOCK_DELAY_MIN_MS, MOCK_DELAY_MAX_MS))
 
         val json = context.assets.open("invoices.json")
             .bufferedReader()
@@ -53,7 +54,7 @@ class InvoiceRepositoryImpl(
     override suspend fun fetchInvoicesFromNetwork(): List<Invoice> {
         val response = api.getInvoices()
         val invoices = response.facturas.toDomainList()
-        dao.clearInvoices() // limpia antes de insertar
+        dao.clearInvoices()
         dao.insertInvoices(invoices.map { it.toEntity() })
         return invoices
     }

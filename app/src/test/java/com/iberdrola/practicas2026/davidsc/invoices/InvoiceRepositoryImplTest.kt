@@ -28,14 +28,9 @@ class InvoiceRepositoryImplTest {
         fakeApi = FakeApi()
         fakeDao = FakeDao()
 
-        // Mockeamos Context
         fakeContext = mockkClass(Context::class, relaxed = true)
         every { fakeContext.filesDir } returns File(".")
         every { fakeContext.packageName } returns "fake.package"
-
-        // 🔹 Mockeamos Log para que no falle en unit tests JVM
-        mockkStatic(Log::class)
-        every { Log.e(any(), any()) } returns 0
 
         repository = InvoiceRepositoryImpl(fakeApi, fakeDao, fakeContext)
 
@@ -55,7 +50,7 @@ class InvoiceRepositoryImplTest {
         fakeApi.shouldFail = true
 
         fakeDao.savedInvoices = listOf(
-            InvoiceEntity(99, "2026-01-01", "2026-01-31", "Cache", 10.0, "Pagada", "luz", "C/Larios")
+            InvoiceEntity(99, "2026-01-01", "Cache", 10.0, "Pagada", "luz", "C/Larios")
         )
 
         val result = repository.getInvoices()

@@ -1,0 +1,113 @@
+{
+  "uuid": "705357fd-6dae-487a-9a9b-50bdc5754c35",
+  "lastMigration": 33,
+  "name": "Invoices API",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3001,
+  "hostname": "0.0.0.0",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "f7371da0-893b-40be-9dec-74bf9f706bbe",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "invoices",
+      "responses": [
+        {
+          "uuid": "9ba0db15-b66b-442e-b0cc-f7aa2cc3a560",
+          "body": "{\r\n  \"facturas\": [\r\n    {\r\n      \"id\": 1,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 69.45,\r\n      \"status\": \"Pagada\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2026-03-04\",\r\n      \"endDate\": \"2026-03-31\",\r\n      \"emissionDate\": \"2026-03-05\",\r\n      \"street\": \"C/ Gran Vía, 12\"\r\n    },\r\n    {\r\n      \"id\": 2,\r\n      \"description\": \"Factura Gas\",\r\n      \"amount\": 54.20,\r\n      \"status\": \"Pendiente de Pago\",\r\n      \"type\": \"Gas\",\r\n      \"startDate\": \"2026-03-10\",\r\n      \"endDate\": \"2026-03-31\",\r\n      \"emissionDate\": \"2026-03-11\",\r\n      \"street\": \"C/ Gran Vía, 12\"\r\n    },\r\n    {\r\n      \"id\": 3,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 72.10,\r\n      \"status\": \"Pagada\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2026-02-07\",\r\n      \"endDate\": \"2026-02-28\",\r\n      \"emissionDate\": \"2026-02-08\",\r\n      \"street\": \"C/ Alcalá, 45\"\r\n    },\r\n    {\r\n      \"id\": 4,\r\n      \"description\": \"Factura Gas\",\r\n      \"amount\": 49.75,\r\n      \"status\": \"En trámite de cobro\",\r\n      \"type\": \"Gas\",\r\n      \"startDate\": \"2026-02-18\",\r\n      \"endDate\": \"2026-02-28\",\r\n      \"emissionDate\": \"2026-02-19\",\r\n      \"street\": \"C/ Alcalá, 45\"\r\n    },\r\n    {\r\n      \"id\": 5,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 81.30,\r\n      \"status\": \"Pendiente de Pago\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2026-01-12\",\r\n      \"endDate\": \"2026-01-31\",\r\n      \"emissionDate\": \"2026-01-13\",\r\n      \"street\": \"C/ Serrano, 88\"\r\n    },\r\n    {\r\n      \"id\": 6,\r\n      \"description\": \"Factura Gas\",\r\n      \"amount\": 60.00,\r\n      \"status\": \"Pagada\",\r\n      \"type\": \"Gas\",\r\n      \"startDate\": \"2026-01-22\",\r\n      \"endDate\": \"2026-01-31\",\r\n      \"emissionDate\": \"2026-01-23\",\r\n      \"street\": \"C/ Serrano, 88\"\r\n    },\r\n    {\r\n      \"id\": 7,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 95.40,\r\n      \"status\": \"En trámite de cobro\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2025-12-05\",\r\n      \"endDate\": \"2025-12-31\",\r\n      \"emissionDate\": \"2025-12-06\",\r\n      \"street\": \"C/ Fuencarral, 56\"\r\n    },\r\n    {\r\n      \"id\": 8,\r\n      \"description\": \"Factura Gas\",\r\n      \"amount\": 70.25,\r\n      \"status\": \"Pendiente de Pago\",\r\n      \"type\": \"Gas\",\r\n      \"startDate\": \"2025-12-19\",\r\n      \"endDate\": \"2025-12-31\",\r\n      \"emissionDate\": \"2025-12-20\",\r\n      \"street\": \"C/ Fuencarral, 56\"\r\n    },\r\n    {\r\n      \"id\": 9,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 58.90,\r\n      \"status\": \"Anulada\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2025-11-03\",\r\n      \"endDate\": \"2025-11-30\",\r\n      \"emissionDate\": \"2025-11-04\",\r\n      \"street\": \"C/ Atocha, 134\"\r\n    },\r\n    {\r\n      \"id\": 10,\r\n      \"description\": \"Factura Gas\",\r\n      \"amount\": 46.80,\r\n      \"status\": \"Anulada\",\r\n      \"type\": \"Gas\",\r\n      \"startDate\": \"2025-11-27\",\r\n      \"endDate\": \"2025-11-30\",\r\n      \"emissionDate\": \"2025-11-28\",\r\n      \"street\": \"C/ Atocha, 134\"\r\n    },\r\n\r\n    {\r\n      \"id\": 11,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 62.00,\r\n      \"status\": \"En trámite de cobro\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2025-10-08\",\r\n      \"endDate\": \"2025-10-31\",\r\n      \"emissionDate\": \"2025-10-09\",\r\n      \"street\": \"C/ Bravo Murillo, 120\"\r\n    },\r\n    {\r\n      \"id\": 12,\r\n      \"description\": \"Factura Gas\",\r\n      \"amount\": 55.60,\r\n      \"status\": \"Pendiente de Pago\",\r\n      \"type\": \"Gas\",\r\n      \"startDate\": \"2025-10-21\",\r\n      \"endDate\": \"2025-10-31\",\r\n      \"emissionDate\": \"2025-10-22\",\r\n      \"street\": \"C/ Bravo Murillo, 120\"\r\n    },\r\n\r\n    {\r\n      \"id\": 13,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 77.95,\r\n      \"status\": \"Pagada\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2025-09-14\",\r\n      \"endDate\": \"2025-09-30\",\r\n      \"emissionDate\": \"2025-09-15\",\r\n      \"street\": \"C/ Gran Vía, 12\"\r\n    },\r\n\r\n    {\r\n      \"id\": 14,\r\n      \"description\": \"Factura Gas\",\r\n      \"amount\": 43.25,\r\n      \"status\": \"Pagada\",\r\n      \"type\": \"Gas\",\r\n      \"startDate\": \"2025-09-26\",\r\n      \"endDate\": \"2025-09-30\",\r\n      \"emissionDate\": \"2025-09-27\",\r\n      \"street\": \"C/ Mockoon\"\r\n    },\r\n\r\n    {\r\n      \"id\": 15,\r\n      \"description\": \"Bono energía gratuito\",\r\n      \"amount\": 0.00,\r\n      \"status\": \"Pagada\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2025-08-16\",\r\n      \"endDate\": \"2025-08-31\",\r\n      \"emissionDate\": \"2025-08-17\",\r\n      \"street\": \"C/ Alcalá, 45\"\r\n    },\r\n\r\n    {\r\n      \"id\": 16,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 65.00,\r\n      \"status\": \"Cuota Fija\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2025-07-09\",\r\n      \"endDate\": \"2025-07-31\",\r\n      \"emissionDate\": \"2025-07-10\",\r\n      \"street\": \"C/ Serrano, 88\"\r\n    },\r\n\r\n    {\r\n      \"id\": 17,\r\n      \"description\": \"Cuota Gas\",\r\n      \"amount\": 50.00,\r\n      \"status\": \"Cuota Fija\",\r\n      \"type\": \"Gas\",\r\n      \"startDate\": \"2025-07-24\",\r\n      \"endDate\": \"2025-07-31\",\r\n      \"emissionDate\": \"2025-07-25\",\r\n      \"street\": \"C/ Mockoon\"\r\n    },\r\n\r\n    {\r\n      \"id\": 18,\r\n      \"description\": \"Cuota Luz\",\r\n      \"amount\": 65.00,\r\n      \"status\": \"Cuota Fija\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2025-06-06\",\r\n      \"endDate\": \"2025-06-30\",\r\n      \"emissionDate\": \"2025-06-07\",\r\n      \"street\": \"C/ Fuencarral, 56\"\r\n    }\r\n  ]\r\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "36bb6d0c-b262-4b74-9b26-603e0c88c96d",
+          "body": "{\r\n  \"facturas\": [\r\n    {\r\n      \"id\": 1,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 52.30,\r\n      \"status\": \"Pagada\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2026-03-01\",\r\n      \"endDate\": \"2026-03-31\",\r\n      \"emissionDate\": \"2026-03-02\",\r\n      \"street\": \"C/ Mismo Importe\"\r\n    },\r\n    {\r\n      \"id\": 2,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 52.30,\r\n      \"status\": \"Pendiente de Pago\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2026-03-01\",\r\n      \"endDate\": \"2026-03-31\",\r\n      \"emissionDate\": \"2026-03-02\",\r\n      \"street\": \"C/ Mismo Importe\"\r\n    },\r\n    {\r\n      \"id\": 3,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 52.30,\r\n      \"status\": \"En trámite de cobro\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2026-03-01\",\r\n      \"endDate\": \"2026-03-31\",\r\n      \"emissionDate\": \"2026-03-02\",\r\n      \"street\": \"C/ Mismo Importe\"\r\n    },\r\n    {\r\n      \"id\": 4,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 52.30,\r\n      \"status\": \"Anulada\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2026-03-01\",\r\n      \"endDate\": \"2026-03-31\",\r\n      \"emissionDate\": \"2026-03-02\",\r\n      \"street\": \"C/ Mismo Importe\"\r\n    },\r\n    {\r\n      \"id\": 5,\r\n      \"description\": \"Factura Gas\",\r\n      \"amount\": 52.30,\r\n      \"status\": \"Cuota Fija\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2026-03-01\",\r\n      \"endDate\": \"2026-03-31\",\r\n      \"emissionDate\": \"2026-03-02\",\r\n      \"street\": \"C/ Mismo Importe\"\r\n    },\r\n\r\n    {\r\n      \"id\": 6,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": null,\r\n      \"status\": \"Pendiente de Pago\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2026-02-10\",\r\n      \"endDate\": \"2026-02-28\",\r\n      \"emissionDate\": \"2026-02-11\",\r\n      \"street\": \"C/ Serrano, 88\"\r\n    },\r\n    {\r\n      \"id\": 7,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 41.80,\r\n      \"status\": \"Pagada\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": null,\r\n      \"endDate\": \"2026-01-20\",\r\n      \"emissionDate\": \"2026-01-21\",\r\n      \"street\": \"C/ Alcalá, 45\"\r\n    },\r\n    {\r\n      \"id\": 8,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 38.20,\r\n      \"status\": \"En trámite de cobro\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2026-01-05\",\r\n      \"endDate\": null,\r\n      \"emissionDate\": \"2026-01-06\",\r\n      \"street\": \"C/ Fuencarral, 56\"\r\n    },\r\n    {\r\n      \"id\": 9,\r\n      \"description\": \"Factura Luz\",\r\n      \"amount\": 29.90,\r\n      \"status\": \"Anulada\",\r\n      \"type\": \"Luz\",\r\n      \"startDate\": \"2025-12-10\",\r\n      \"endDate\": \"2025-12-31\",\r\n      \"emissionDate\": \"2025-12-11\",\r\n      \"street\": \"C/ Mockoon\"\r\n    },\r\n\r\n    {\r\n      \"id\": 10,\r\n      \"description\": null,\r\n      \"amount\": null,\r\n      \"status\": null,\r\n      \"type\": null,\r\n      \"startDate\": null,\r\n      \"endDate\": null,\r\n      \"emissionDate\": null,\r\n      \"street\": null\r\n    }\r\n  ]\r\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Single import for edge cases",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "f7371da0-893b-40be-9dec-74bf9f706bbe"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": true,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "./certificado.crt",
+    "keyPath": "./clave.key",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}

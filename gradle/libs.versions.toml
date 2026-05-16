@@ -20,6 +20,11 @@ activityCompose = "1.13.0"
 runtime = "1.10.5"
 foundation = "1.10.5"
 uiTestJunit4 = "1.10.6"
+uiText = "1.10.6"
+firebaseConfigKtx = "23.0.1"
+googleServices = "4.4.2"
+firebaseBom = "33.7.0"
+crashlytics = "3.0.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,6 +59,11 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "uiTestJunit4" }
+androidx-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiText" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-config = { group = "com.google.firebase", name = "firebase-config-ktx" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
 
 
 [plugins]
@@ -61,3 +71,6 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version = "2.2.10" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.6" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }

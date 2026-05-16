@@ -1,35 +1,52 @@
 package com.iberdrola.practicas2026.davidsc
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
-import com.iberdrola.practicas2026.davidsc.ui.invoices.InvoicesScreen
-import com.iberdrola.practicas2026.davidsc.ui.main.MainScreen
+import com.iberdrola.practicas2026.davidsc.core.utils.AnalyticsTracker
+import com.iberdrola.practicas2026.davidsc.ui.navigation.AppNavHost
+import com.iberdrola.practicas2026.davidsc.ui.navigation.SafeNavController
 import com.iberdrola.practicas2026.davidsc.ui.theme.IB2026DavidSCTheme
 import dagger.hilt.android.AndroidEntryPoint
+import jakarta.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var analyticsTracker: AnalyticsTracker
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             IB2026DavidSCTheme {
-                val navController = rememberNavController()
+                val window = (LocalView.current.context as Activity).window
 
-                NavHost(
-                    navController = navController,
-                    startDestination = "main_screen"
-                ) {
-                    composable("main_screen") {
-                        MainScreen(navController = navController)
-                    }
-                    composable("invoices_screen") {
-                        InvoicesScreen(navController = navController)
+                SideEffect {
+                    WindowCompat.getInsetsController(window, window.decorView).apply {
+                        isAppearanceLightStatusBars = true
                     }
                 }
+
+                val navController = rememberNavController()
+                val safeNav = remember(navController) {
+                    SafeNavController(navController)
+                }
+
+                navController.addOnDestinationChangedListener { _, destination, _ ->
+                    analyticsTracker.trackScreenView(destination.route ?: "unknown")
+                }
+
+                AppNavHost(
+                    navController = navController,
+                    safeNav = safeNav
+                )
             }
         }
     }

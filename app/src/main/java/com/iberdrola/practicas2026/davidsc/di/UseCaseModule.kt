@@ -1,5 +1,6 @@
 package com.iberdrola.practicas2026.davidsc.di
 
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.iberdrola.practicas2026.davidsc.domain.repository.InvoiceRepository
 import com.iberdrola.practicas2026.davidsc.domain.usecase.GetInvoicesUseCase
 import com.iberdrola.practicas2026.davidsc.domain.usecase.GetStreetsUseCase
@@ -14,9 +15,10 @@ object UseCaseModule {
 
     @Provides
     fun provideGetInvoicesUseCase(
-        repository: InvoiceRepository
+        repository: InvoiceRepository,
+        remoteConfig: FirebaseRemoteConfig
     ): GetInvoicesUseCase {
-        return GetInvoicesUseCase(repository)
+        return GetInvoicesUseCase(repository, remoteConfig)
     }
 
     @Provides

@@ -12,4 +12,14 @@
     <color name="status_pendiente_pago_texto">#883933</color>
     <color name="status_pagado_fondo">#B0DCC6</color>
     <color name="status_pagado_texto">#065B30</color>
+    <color name="status_tramite_fondo">#BDD4EF</color>
+    <color name="status_tramite_texto">#1A3F6F</color>
+    <color name="status_anulada_fondo">#E0E0E0</color>
+    <color name="status_anulada_texto">#424242</color>
+    <color name="status_cuota_fija_fondo">#D9C8EF</color>
+    <color name="status_cuota_fija_texto">#4A2080</color>
+    <color name="slider_importe">#006e31</color>
+    <color name="modified_email">#016C31</color>
+    <color name="otp_box">#DBF3FD</color>
+
 </resources>

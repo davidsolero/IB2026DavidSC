@@ -1,29 +1,76 @@
 package com.iberdrola.practicas2026.davidsc.domain.usecase
 
-import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.iberdrola.practicas2026.davidsc.domain.model.Invoice
+import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceFilter
 import com.iberdrola.practicas2026.davidsc.domain.model.InvoiceType
 import com.iberdrola.practicas2026.davidsc.domain.repository.InvoiceRepository
+import java.time.LocalDate
 
-/**
- * Returns the list of invoices, optionally filtered by type and street.
- *
- * Filtering is applied in memory after fetching from the repository,
- * keeping the repository responsible only for data access.
- */
-class GetInvoicesUseCase(private val repository: InvoiceRepository) {
+class GetInvoicesUseCase(private val repository: InvoiceRepository,    private val remoteConfig: FirebaseRemoteConfig) {
     suspend operator fun invoke(
         type: InvoiceType? = null,
         street: String? = null,
-        forceNetwork: Boolean = false
+        forceNetwork: Boolean = false,
+        filter: InvoiceFilter = InvoiceFilter(),
     ): List<Invoice> {
-        return try {
+        val invoices = try {
             if (forceNetwork) repository.fetchInvoicesFromNetwork()
             else repository.getInvoices()
         } catch (e: Exception) {
-            repository.getInvoices() // fallback a caché
+            repository.getInvoices()
         }
+
+        val gasEnabled = remoteConfig.getBoolean(KEY_GAS_ENABLED)
+
+        val result = invoices
+            .filter { invoice ->
+                if (!gasEnabled) {
+                    invoice.type != InvoiceType.GAS
+                } else true
+            }
             .let { list -> type?.let { t -> list.filter { it.type == t } } ?: list }
-            .let { list -> street?.let { s -> list.filter { it.street.equals(s, ignoreCase = true) } } ?: list }
+            .let { list ->
+                street?.let { s ->
+                    list.filter {
+                        it.street.equals(
+                            s,
+                            ignoreCase = true
+                        )
+                    }
+                } ?: list
+            }
+            .let { list ->
+                val desde = filter.desde
+                val hasta = filter.hasta
+                if (desde == null && hasta == null) list
+                else list.filter { invoice ->
+                    val invoiceDate = LocalDate.parse(invoice.date)
+
+                    (desde == null || !invoiceDate.isBefore(desde)) &&
+                            (hasta == null || !invoiceDate.isAfter(hasta))
+                }
+            }
+            .let { list ->
+                filter.importeMin?.let { min ->
+                    list.filter { it.amount.toInt() >= min }
+                } ?: list
+            }
+            .let { list ->
+                filter.importeMax?.let { max ->
+                    list.filter { it.amount.toInt() <= max }
+                } ?: list
+            }
+            .let { list ->
+                if (filter.estados.isNotEmpty()) {
+                    list.filter { it.status in filter.estados }
+                } else list
+            }
+
+        return result
+    }
+    fun isGasEnabled(): Boolean = remoteConfig.getBoolean(KEY_GAS_ENABLED)
+    companion object {
+        const val KEY_GAS_ENABLED = "gas_contracts_enabled"
     }
 }

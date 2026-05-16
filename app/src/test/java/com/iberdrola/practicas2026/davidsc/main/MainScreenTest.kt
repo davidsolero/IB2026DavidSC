@@ -1,5 +1,6 @@
 package com.iberdrola.practicas2026.davidsc.main
 
+import android.content.SharedPreferences
 import com.iberdrola.practicas2026.davidsc.domain.usecase.GetStreetsUseCase
 import com.iberdrola.practicas2026.davidsc.ui.main.MainViewModel
 import io.mockk.coEvery
@@ -7,6 +8,7 @@ import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNotNull
+import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -14,7 +16,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -25,11 +26,15 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainScreenTest {
+
     private val testDispatcher = StandardTestDispatcher()
+    private lateinit var prefs: SharedPreferences
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
+        prefs = mockk(relaxed = true)
+        coEvery { prefs.getBoolean(any(), any()) } returns false
     }
 
     @After
@@ -42,14 +47,18 @@ class MainScreenTest {
         val fakeUseCase = mockk<GetStreetsUseCase>()
         coEvery { fakeUseCase.invoke() } returns listOf("Calle A", "Calle B")
 
-        val viewModel = MainViewModel(fakeUseCase, ioDispatcher = testDispatcher)
+        val viewModel = MainViewModel(
+            fakeUseCase,
+            prefs,
+            testDispatcher
+        )
 
         viewModel.loadStreets()
         advanceUntilIdle()
 
         assertEquals(2, viewModel.streets.value.size)
         assertFalse(viewModel.isLoading.value)
-        assertTrue(viewModel.error.value == null)
+        assertNull(viewModel.error.value)
     }
 
     @Test
@@ -57,30 +66,40 @@ class MainScreenTest {
         val fakeUseCase = mockk<GetStreetsUseCase>()
         coEvery { fakeUseCase.invoke() } throws RuntimeException("Error")
 
-        val viewModel = MainViewModel(fakeUseCase, ioDispatcher = testDispatcher)
+        val viewModel = MainViewModel(
+            fakeUseCase,
+            prefs,
+            testDispatcher
+        )
 
         viewModel.loadStreets()
         advanceUntilIdle()
 
         assertNotNull(viewModel.error.value)
         assertFalse(viewModel.isLoading.value)
-        assertEquals(emptyList<String>(), viewModel.streets.value)
+        assertTrue(viewModel.streets.value.isEmpty())
     }
 
     @Test
     fun `loadStreets sets loading correctly`() = runTest {
         val fakeUseCase = mockk<GetStreetsUseCase>()
         coEvery { fakeUseCase.invoke() } coAnswers {
-            delay(10) // simula operación async
+            delay(10)
             emptyList()
         }
 
-        val viewModel = MainViewModel(fakeUseCase, ioDispatcher = testDispatcher)
+        val viewModel = MainViewModel(
+            fakeUseCase,
+            prefs,
+            testDispatcher
+        )
 
         val loadingStates = mutableListOf<Boolean>()
 
         val job = launch {
-            viewModel.isLoading.drop(1).collect { loadingStates.add(it) }
+            viewModel.isLoading.drop(1).collect {
+                loadingStates.add(it)
+            }
         }
 
         viewModel.loadStreets()

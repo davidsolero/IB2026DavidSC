@@ -1,7 +1,11 @@
 package com.iberdrola.practicas2026.davidsc.ui.main
 
+import android.content.SharedPreferences
+import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iberdrola.practicas2026.davidsc.core.utils.AnalyticsTracker
+import com.iberdrola.practicas2026.davidsc.core.utils.AppConfig
 import com.iberdrola.practicas2026.davidsc.domain.usecase.GetStreetsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -15,6 +19,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getStreetsUseCase: GetStreetsUseCase,
+    private val prefs: SharedPreferences,
+    private val analyticsTracker: AnalyticsTracker,
     @Named("io") private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -27,6 +33,8 @@ class MainViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _useMock = MutableStateFlow(prefs.getBoolean(PREF_USE_MOCK, AppConfig.useMockLocal))
+    val useMock: StateFlow<Boolean> = _useMock.asStateFlow()
 
     fun loadStreets() {
         viewModelScope.launch(ioDispatcher) {
@@ -39,5 +47,34 @@ class MainViewModel @Inject constructor(
                 _isLoading.value = false
             }
         }
+    }
+
+    fun toggleMock() {
+        val newValue = !_useMock.value
+        AppConfig.useMockLocal = newValue
+        prefs.edit { putBoolean(PREF_USE_MOCK, newValue) }
+        _useMock.value = newValue
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_TOGGLE_MOCK)
+    }
+
+    fun onVerTodasFacturasClick() {
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_VER_TODAS_FACTURAS)
+    }
+
+    fun onVerFacturasCalleClick() {
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_VER_FACTURAS_CALLE)
+    }
+
+    fun onGestionarFacturaClick() {
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_GESTIONAR_FACTURA)
+    }
+
+
+    fun forceCrash() {
+        analyticsTracker.trackButtonClick(AnalyticsTracker.BUTTON_FORZAR_CRASH)
+        throw RuntimeException("Crash forzado para prueba de Crashlytics")
+    }
+    companion object {
+        private const val PREF_USE_MOCK = "use_mock"
     }
 }
